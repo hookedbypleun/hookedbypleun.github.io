@@ -1,0 +1,9 @@
+name = "crochet-by-pleun"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Secrets worden NIET hier gezet — gebruik:
+#   wrangler secret put ADMIN_PASSWORD
+#   wrangler secret put CLAUDE_API_KEY
+#   wrangler secret put GITHUB_TOKEN
+# Of via dashboard: Workers & Pages → crochet-by-pleun → Settings → Variables

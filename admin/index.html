@@ -39,6 +39,49 @@
       border-radius: var(--r-md); border: 1px solid #FFE57F;
       margin: 1rem 0; font-size: 0.95rem;
     }
+    /* === AI Smart Mode === */
+    .ai-smart {
+      background: linear-gradient(135deg, #f4ebf7 0%, #FFF8E1 100%);
+      border: 2px solid var(--c-lavender);
+      border-radius: var(--r-lg);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      box-shadow: var(--shadow-soft);
+    }
+    .ai-smart h2 { margin-top: 0; }
+    .ai-smart .ai-drop {
+      border: 3px dashed var(--c-lavender-dark);
+      border-radius: var(--r-md);
+      padding: 2rem 1rem;
+      text-align: center;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+    .ai-smart .ai-drop.has-photo { padding: 0.5rem; border-style: solid; }
+    .ai-smart .ai-drop img { max-width: 100%; max-height: 240px; border-radius: var(--r-md); }
+    .ai-smart .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+    .ai-smart input { padding: 0.7em 1em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-size: 1rem; font-family: inherit; }
+    .ai-smart input:focus { outline: none; border-color: var(--c-lavender); }
+    .ai-preview {
+      background: white; border-radius: var(--r-md); padding: 1rem;
+      margin-top: 1rem; border-left: 4px solid var(--c-mustard);
+      display: none;
+    }
+    .ai-preview.show { display: block; }
+    .ai-preview .label { font-size: 0.85rem; color: var(--c-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ai-preview .value { font-size: 1.05rem; margin-bottom: 0.6rem; }
+    .ai-status { font-size: 0.95rem; padding: 0.6em 1em; border-radius: var(--r-md); margin-top: 0.6rem; display: none; }
+    .ai-status.show { display: block; }
+    .ai-status.success { background: #E8F5E9; color: #1B5E20; }
+    .ai-status.error { background: #FFEBEE; color: #B71C1C; }
+    .ai-status.busy { background: #E3F2FD; color: #0D47A1; }
+    .ai-gate {
+      background: white; padding: 1.5rem; border-radius: var(--r-md);
+      text-align: center; margin: 1rem 0;
+    }
+    .ai-gate input { margin: 0.5rem 0; min-width: 240px; }
   </style>
 </head>
 <body>
@@ -50,6 +93,66 @@
 
   <div class="admin-form">
     <h1>🔧 Admin paneel</h1>
+
+    <!-- ================================================ -->
+    <!-- ✨ AI Smart Mode — voor Pleun                     -->
+    <!-- ================================================ -->
+    <div class="ai-smart" id="ai-smart">
+      <h2>✨ Snel een nieuw item toevoegen</h2>
+      <p style="color:var(--c-text); margin-top:0">Foto, naam, prijs — AI maakt de rest. Eén tap en het staat live!</p>
+
+      <!-- Wachtwoord-poort -->
+      <div class="ai-gate" id="ai-gate">
+        <p style="margin-top:0">🔒 Wachtwoord nodig om te publiceren</p>
+        <input type="password" id="ai-password" placeholder="Wachtwoord">
+        <br>
+        <button class="btn" onclick="aiUnlock()">🔓 Inloggen</button>
+        <p id="ai-gate-msg" style="color:var(--c-muted); font-size:0.9rem; margin-bottom:0"></p>
+      </div>
+
+      <!-- Hoofd-flow (verschijnt na login) -->
+      <div id="ai-main" style="display:none">
+        <!-- Foto -->
+        <div class="ai-drop" id="ai-drop">
+          <div id="ai-drop-content">
+            <p style="font-size:2.5rem; margin:0">📸</p>
+            <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">
+              Tap om foto te kiezen <em>of sleep 'm hierin</em>
+            </p>
+            <p style="color:var(--c-muted); font-size:0.9rem; margin:0">JPG of PNG, vanuit camera-rol of map</p>
+          </div>
+          <input id="ai-file" type="file" accept="image/*" style="display:none">
+        </div>
+
+        <!-- Naam + Prijs -->
+        <div class="ai-row">
+          <input id="ai-naam" placeholder="Naam (bv. Lichtroze scrunchie)">
+          <input id="ai-prijs" type="number" step="0.25" min="0" placeholder="Prijs in € (bv. 8)">
+        </div>
+
+        <!-- Knoppen -->
+        <div class="bestel-acties">
+          <button class="btn full" id="ai-btn-generate" onclick="aiGenerate()">✨ Maak mooi (AI)</button>
+        </div>
+
+        <!-- AI Preview -->
+        <div class="ai-preview" id="ai-preview">
+          <div class="label">📝 AI-suggestie</div>
+          <div><strong>Naam:</strong> <span id="ai-prev-naam"></span></div>
+          <div><strong>Beschrijving:</strong> <span id="ai-prev-besch"></span></div>
+          <div><strong>Categorie:</strong> <span id="ai-prev-cat"></span></div>
+          <div><strong>Kleuren:</strong> <span id="ai-prev-kleuren"></span></div>
+          <div class="bestel-acties" style="margin-top:1rem">
+            <button class="btn mustard full" id="ai-btn-publish" onclick="aiPublish()">🚀 Publiceer op de site</button>
+            <button class="btn secondary full" onclick="aiGenerate()">↻ Probeer opnieuw</button>
+          </div>
+        </div>
+
+        <div class="ai-status" id="ai-status"></div>
+      </div>
+    </div>
+
+    <p style="color:var(--c-muted); margin-top:2rem">— Of beheer items handmatig hieronder —</p>
     <p style="color:var(--c-muted)">Beheer items lokaal. Wijzigingen blijven in je browser bewaard tot je ze exporteert. Exporteer regelmatig naar <code>data/items.json</code>!</p>
 
     <div class="info-banner">
@@ -219,6 +322,7 @@
     </div>
   </div>
 
+  <script src="../js/config.js"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -566,6 +670,206 @@
     document.getElementById('cl-versie').value = '1.0.0';
 
     renderChangelog();
+
+    // ================================================
+    // ✨ AI SMART MODE — voor Pleun
+    // ================================================
+    const AI_PW_KEY = 'pleun_ai_pw_v1';
+    let AI_PHOTO = null;          // { dataURL, base64, mediaType, ext }
+    let AI_GENERATED = null;      // { naam, beschrijving, categorie, kleuren, altText }
+    let AI_PASSWORD = sessionStorage.getItem(AI_PW_KEY) || '';
+
+    function workerUrl() {
+      return (window.SHOP_CONFIG?.workerUrl || '').replace(/\/$/, '');
+    }
+
+    function aiSetStatus(msg, kind) {
+      const el = document.getElementById('ai-status');
+      if (!msg) { el.classList.remove('show'); return; }
+      el.className = 'ai-status show ' + (kind || '');
+      el.textContent = msg;
+    }
+
+    async function aiUnlock() {
+      const url = workerUrl();
+      if (!url) {
+        document.getElementById('ai-gate-msg').textContent =
+          '⚠️ workerUrl is leeg in js/config.js. Vul deze in nadat je de Cloudflare Worker hebt gedeployed (zie cloudflare-worker/README.md).';
+        return;
+      }
+      const pw = document.getElementById('ai-password').value.trim();
+      if (!pw) { document.getElementById('ai-gate-msg').textContent = 'Vul een wachtwoord in.'; return; }
+      try {
+        const res = await fetch(url + '/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+          body: JSON.stringify({ password: pw }),
+        });
+        if (!res.ok) {
+          document.getElementById('ai-gate-msg').textContent = '❌ Verkeerd wachtwoord.';
+          return;
+        }
+        AI_PASSWORD = pw;
+        sessionStorage.setItem(AI_PW_KEY, pw);
+        document.getElementById('ai-gate').style.display = 'none';
+        document.getElementById('ai-main').style.display = 'block';
+      } catch (err) {
+        document.getElementById('ai-gate-msg').textContent = '❌ Worker niet bereikbaar: ' + err.message;
+      }
+    }
+
+    // Auto-unlock als wachtwoord al in session
+    if (AI_PASSWORD && workerUrl()) {
+      document.getElementById('ai-gate').style.display = 'none';
+      document.getElementById('ai-main').style.display = 'block';
+    } else if (!workerUrl()) {
+      document.getElementById('ai-gate-msg').textContent =
+        'ℹ️ AI-modus nog niet geconfigureerd. Vul workerUrl in js/config.js — zie cloudflare-worker/README.md.';
+    }
+
+    // === Foto upload ===
+    const aiDrop = document.getElementById('ai-drop');
+    const aiFile = document.getElementById('ai-file');
+    aiDrop.addEventListener('click', () => aiFile.click());
+    aiDrop.addEventListener('dragover', e => { e.preventDefault(); aiDrop.style.background = '#f4ebf7'; });
+    aiDrop.addEventListener('dragleave', () => { aiDrop.style.background = 'white'; });
+    aiDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      aiDrop.style.background = 'white';
+      if (e.dataTransfer.files[0]) handleAIPhoto(e.dataTransfer.files[0]);
+    });
+    aiFile.addEventListener('change', e => {
+      if (e.target.files[0]) handleAIPhoto(e.target.files[0]);
+    });
+
+    function handleAIPhoto(file) {
+      if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto 🙃', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataURL = ev.target.result;
+        const base64 = dataURL.split(',')[1];
+        AI_PHOTO = {
+          dataURL,
+          base64,
+          mediaType: file.type,
+          ext: (file.name.split('.').pop() || 'jpg').toLowerCase().replace('jpeg', 'jpg'),
+        };
+        aiDrop.classList.add('has-photo');
+        document.getElementById('ai-drop-content').innerHTML =
+          `<img src="${dataURL}" alt=""><p style="margin:0.5em 0 0; color:var(--c-muted); font-size:0.9rem">Tap voor andere foto</p>`;
+        aiSetStatus('', '');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function aiResetPhoto() {
+      AI_PHOTO = null;
+      aiDrop.classList.remove('has-photo');
+      document.getElementById('ai-drop-content').innerHTML = `
+        <p style="font-size:2.5rem; margin:0">📸</p>
+        <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">Tap om foto te kiezen <em>of sleep 'm hierin</em></p>
+        <p style="color:var(--c-muted); font-size:0.9rem; margin:0">JPG of PNG</p>`;
+      aiFile.value = '';
+    }
+
+    async function aiGenerate() {
+      if (!AI_PHOTO) { aiSetStatus('Upload eerst een foto 📸', 'error'); return; }
+      const naam = document.getElementById('ai-naam').value.trim();
+      const prijs = parseFloat(document.getElementById('ai-prijs').value);
+
+      aiSetStatus('✨ Even kijken naar je foto en iets moois schrijven...', 'busy');
+      document.getElementById('ai-btn-generate').disabled = true;
+
+      try {
+        const res = await fetch(workerUrl() + '/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({
+            photoBase64: AI_PHOTO.base64,
+            mediaType: AI_PHOTO.mediaType,
+            naam,
+            prijs: isNaN(prijs) ? null : prijs,
+            categorieHint: '',
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        AI_GENERATED = await res.json();
+
+        document.getElementById('ai-prev-naam').textContent = AI_GENERATED.naam || '(geen)';
+        document.getElementById('ai-prev-besch').textContent = AI_GENERATED.beschrijving || '(geen)';
+        document.getElementById('ai-prev-cat').textContent = AI_GENERATED.categorie || '(geen)';
+        document.getElementById('ai-prev-kleuren').textContent = (AI_GENERATED.kleuren || []).join(', ') || '(geen)';
+        document.getElementById('ai-preview').classList.add('show');
+        aiSetStatus('Klaar! Bekijk de suggestie hieronder ⬇️', 'success');
+      } catch (err) {
+        aiSetStatus('❌ ' + err.message, 'error');
+      } finally {
+        document.getElementById('ai-btn-generate').disabled = false;
+      }
+    }
+
+    function slugifyAI(s) {
+      return String(s).toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'item';
+    }
+
+    async function aiPublish() {
+      if (!AI_GENERATED || !AI_PHOTO) return;
+      const prijs = parseFloat(document.getElementById('ai-prijs').value);
+      if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in 💸', 'error'); return; }
+
+      const id = slugifyAI(AI_GENERATED.categorie + '-' + AI_GENERATED.naam);
+      const item = {
+        id,
+        naam: AI_GENERATED.naam,
+        categorie: AI_GENERATED.categorie,
+        prijs,
+        beschrijving: AI_GENERATED.beschrijving,
+        kleuren: AI_GENERATED.kleuren || [],
+        altText: AI_GENERATED.altText || '',
+        status: 'beschikbaar',
+        voorraad: 1,
+        nieuw: true,
+        datumToegevoegd: new Date().toISOString().slice(0, 10),
+      };
+      const photoFilename = `${id}.${AI_PHOTO.ext}`;
+
+      aiSetStatus('🚀 Publiceren naar GitHub... (15-30 sec)', 'busy');
+      document.getElementById('ai-btn-publish').disabled = true;
+
+      try {
+        const res = await fetch(workerUrl() + '/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({
+            item,
+            photoBase64: AI_PHOTO.base64,
+            photoFilename,
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const result = await res.json();
+        aiSetStatus(`✅ Live op de site! Check ${result.siteUrl} (kan 1-2 min duren tot de build klaar is).`, 'success');
+
+        // Reset form
+        AI_GENERATED = null;
+        document.getElementById('ai-naam').value = '';
+        document.getElementById('ai-prijs').value = '';
+        aiResetPhoto();
+        document.getElementById('ai-preview').classList.remove('show');
+      } catch (err) {
+        aiSetStatus('❌ ' + err.message, 'error');
+      } finally {
+        document.getElementById('ai-btn-publish').disabled = false;
+      }
+    }
+
+    // Expose to global scope for onclick handlers
+    window.aiUnlock = aiUnlock;
+    window.aiGenerate = aiGenerate;
+    window.aiPublish = aiPublish;
   </script>
 </body>
 </html>
