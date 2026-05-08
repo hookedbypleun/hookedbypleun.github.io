@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 Admin · Crochet by Pleun</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .admin-form { max-width: 720px; margin: 2rem auto; padding: 0 1.2rem; }
+    .admin-form .veld { margin-bottom: 1rem; }
+    .admin-form label { display:block; font-weight:700; margin-bottom:0.3em; color: var(--c-ink); }
+    .admin-form input, .admin-form textarea, .admin-form select {
+      width: 100%; padding: 0.6em 1em;
+      border: 2px solid var(--c-cream-dark); border-radius: var(--r-md);
+      font-family: inherit; font-size: 1rem; background: white;
+    }
+    .admin-form input:focus, .admin-form textarea:focus { outline:none; border-color: var(--c-lavender); }
+    .admin-form textarea { min-height: 80px; resize: vertical; }
+    .admin-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .item-row {
+      display:flex; align-items:center; gap: 1rem;
+      background: white; padding: 0.6rem; border-radius: var(--r-md);
+      margin-bottom: 0.5rem; box-shadow: var(--shadow-soft);
+    }
+    .item-row img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-sm); }
+    .item-row .name { flex: 1; font-weight: 700; }
+    .item-row .actions button { background:none; border:none; cursor:pointer; padding: 0.3em 0.6em; font-size: 1.1rem; }
+    .json-export {
+      background: var(--c-ink); color: var(--c-cream);
+      padding: 1rem; border-radius: var(--r-md);
+      font-family: 'Courier New', monospace; font-size: 0.85rem;
+      max-height: 400px; overflow: auto; white-space: pre;
+    }
+    .info-banner {
+      background: #FFF8E1; padding: 0.8em 1em;
+      border-radius: var(--r-md); border: 1px solid #FFE57F;
+      margin: 1rem 0; font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="logo"><span class="icon">🔧</span> Admin · Crochet by Pleun</a>
+    <div class="links"><a href="../index.html">← terug naar shop</a></div>
+  </nav>
+
+  <div class="admin-form">
+    <h1>🔧 Admin paneel</h1>
+    <p style="color:var(--c-muted)">Beheer items lokaal. Wijzigingen blijven in je browser bewaard tot je ze exporteert. Exporteer regelmatig naar <code>data/items.json</code>!</p>
+
+    <div class="info-banner">
+      💡 <strong>Workflow:</strong> Pas items aan → klik "Bewaren" → klik "Exporteer JSON" → kopieer & plak in <code>data/items.json</code> → push naar GitHub. Site is dan bijgewerkt.
+    </div>
+
+    <h2>📥 Bulk import — sleep meerdere foto's tegelijk</h2>
+    <p style="color:var(--c-muted)">Sleep alle foto's in één keer hierin (vanuit Verkenner of WhatsApp). Voor elke foto vul je snel naam/prijs/categorie in. Aan het eind: 1x exporteren + foto's downloaden.</p>
+
+    <div id="drop-zone" style="
+      border: 3px dashed var(--c-lavender);
+      border-radius: var(--r-lg);
+      padding: 2rem;
+      text-align: center;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;">
+      <p style="font-size: 2rem; margin: 0">📸</p>
+      <p style="font-weight: 700; color: var(--c-lavender-dark); margin: 0.5em 0">
+        Sleep foto's hierin <em>of</em> klik om te bladeren
+      </p>
+      <p style="color: var(--c-muted); font-size: 0.9rem">JPG, PNG of HEIC — meerdere tegelijk OK</p>
+      <input id="file-input" type="file" accept="image/*" multiple style="display:none">
+    </div>
+
+    <div id="bulk-list"></div>
+
+    <div id="bulk-actions" style="display:none; margin-top:1rem; background: white; padding: 1rem; border-radius: var(--r-md); box-shadow: var(--shadow-soft)">
+      <p style="margin-top:0"><strong>📦 Klaar?</strong> Doe deze 2 stappen in volgorde:</p>
+      <div class="bestel-acties">
+        <button class="btn full" onclick="bulkSaveItems()">1️⃣ Voeg alle items toe aan catalogus</button>
+        <button class="btn mustard full" onclick="bulkDownloadPhotos()">2️⃣ Download alle foto's (komen in je Downloads-map)</button>
+        <button class="btn secondary full" onclick="document.getElementById('bulk-list').innerHTML=''; document.getElementById('bulk-actions').style.display='none'; window.BULK_PHOTOS=[];">↺ Wissen</button>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--c-muted); margin: 0.5em 0 0">
+        Na stap 2: verplaats de gedownloade foto's naar <code>img/items/</code> in de projectmap.
+      </p>
+    </div>
+
+    <h2 style="margin-top:3rem">📋 Huidige items</h2>
+    <div id="item-list"></div>
+
+    <h2>➕ Nieuw item / bewerken</h2>
+    <form id="form-item" class="admin-form">
+      <input type="hidden" id="f-id-original">
+      <div class="row">
+        <div class="veld">
+          <label for="f-id">ID (geen spaties, lowercase)</label>
+          <input id="f-id" placeholder="bv. blob-stress-paars" required>
+        </div>
+        <div class="veld">
+          <label for="f-categorie">Categorie</label>
+          <select id="f-categorie" required></select>
+        </div>
+      </div>
+      <div class="veld">
+        <label for="f-naam">Naam</label>
+        <input id="f-naam" placeholder="bv. Stress-bal Blob — Paars" required>
+      </div>
+      <div class="veld">
+        <label for="f-naam-en">Naam (Engels, optioneel)</label>
+        <input id="f-naam-en" placeholder="bv. Stress-ball Blob — Purple">
+      </div>
+      <div class="row">
+        <div class="veld">
+          <label for="f-prijs">Prijs (€)</label>
+          <input id="f-prijs" type="number" step="0.25" min="0" placeholder="5.25" required>
+        </div>
+        <div class="veld">
+          <label for="f-prijs-oud">Oude prijs (sale, optioneel)</label>
+          <input id="f-prijs-oud" type="number" step="0.25" min="0">
+        </div>
+      </div>
+      <div class="row">
+        <div class="veld">
+          <label for="f-status">Status</label>
+          <select id="f-status">
+            <option value="beschikbaar">Beschikbaar</option>
+            <option value="uitverkocht">Uitverkocht</option>
+            <option value="binnenkort">Binnenkort</option>
+            <option value="showcase">Op maat / showcase</option>
+          </select>
+        </div>
+        <div class="veld">
+          <label for="f-voorraad">Voorraad (aantal)</label>
+          <input id="f-voorraad" type="number" min="0" value="1">
+        </div>
+      </div>
+      <div class="veld">
+        <label for="f-foto">Foto (pad t.o.v. site-root)</label>
+        <input id="f-foto" placeholder="img/items/Afbeelding5.png" required>
+      </div>
+      <div class="veld">
+        <label for="f-beschrijving">Beschrijving</label>
+        <textarea id="f-beschrijving" required placeholder="Schattig handgehaakt ..."></textarea>
+      </div>
+      <div class="row">
+        <div class="veld">
+          <label for="f-afmeting">Afmeting (optioneel)</label>
+          <input id="f-afmeting" placeholder="bv. 8 cm">
+        </div>
+        <div class="veld">
+          <label for="f-kleuren">Kleuren (komma-gescheiden)</label>
+          <input id="f-kleuren" placeholder="lila, roze">
+        </div>
+      </div>
+      <div class="veld">
+        <label><input type="checkbox" id="f-uitgelicht"> Uitgelicht (op homepage tonen)</label>
+        <label><input type="checkbox" id="f-nieuw"> Nieuw (label "Nieuw 🌸")</label>
+      </div>
+      <div class="bestel-acties">
+        <button type="submit" class="btn full">💾 Bewaren</button>
+        <button type="reset" class="btn secondary full" onclick="resetForm()">↺ Form leegmaken</button>
+      </div>
+    </form>
+
+    <h2 style="margin-top:3rem">📤 Export naar items.json</h2>
+    <p>Klik om de huidige inhoud te genereren. Kopieer de tekst en plak in <code>data/items.json</code>.</p>
+    <button class="btn mustard" onclick="exportJSON()">📋 Genereer + kopieer naar klembord</button>
+    <pre class="json-export" id="json-output" style="margin-top:1rem; display:none"></pre>
+
+    <h2 style="margin-top:3rem">🔄 Reset</h2>
+    <p style="color:var(--c-muted)">Herlaad data uit <code>items.json</code> (verlies van niet-geëxporteerde wijzigingen).</p>
+    <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">↺ Herlaad uit items.json</button>
+
+    <!-- =============================== -->
+    <!-- CHANGELOG                       -->
+    <!-- =============================== -->
+    <h2 style="margin-top:3rem">📝 Changelog</h2>
+    <p style="color:var(--c-muted)">Bijhouden wat er veranderd is — voor Dave en Pleun. Nieuwste bovenaan.</p>
+
+    <div id="changelog-list" style="margin-bottom:1rem"></div>
+
+    <form id="changelog-form" style="background:white; padding:1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft)">
+      <div class="row">
+        <div class="veld">
+          <label for="cl-datum">Datum</label>
+          <input id="cl-datum" type="date" required>
+        </div>
+        <div class="veld">
+          <label for="cl-versie">Versie</label>
+          <input id="cl-versie" placeholder="bv. 1.0.1" required>
+        </div>
+      </div>
+      <div class="veld">
+        <label for="cl-type">Type</label>
+        <select id="cl-type">
+          <option value="✨">✨ Nieuw</option>
+          <option value="🐛">🐛 Bugfix</option>
+          <option value="🎨">🎨 Uiterlijk</option>
+          <option value="📦">📦 Items</option>
+          <option value="⚙️">⚙️ Technisch</option>
+        </select>
+      </div>
+      <div class="veld">
+        <label for="cl-tekst">Wat is er veranderd?</label>
+        <textarea id="cl-tekst" placeholder="Beschrijf de wijziging..." required></textarea>
+      </div>
+      <div class="bestel-acties">
+        <button type="submit" class="btn full">➕ Toevoegen aan changelog</button>
+      </div>
+    </form>
+
+    <div style="margin-top:1rem">
+      <button class="btn mustard" onclick="exportChangelog()">📋 Kopieer changelog naar klembord</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'pleun_admin_data_v1';
+    let DATA = { categories: [], items: [] };
+
+    async function init() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { DATA = JSON.parse(saved); }
+        catch { await loadFromFile(); }
+      } else {
+        await loadFromFile();
+      }
+      renderCategories();
+      renderItems();
+    }
+    async function loadFromFile() {
+      const res = await fetch('../data/items.json?v=' + Date.now());
+      DATA = await res.json();
+    }
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+      renderItems();
+    }
+    function renderCategories() {
+      const sel = document.getElementById('f-categorie');
+      sel.innerHTML = DATA.categories
+        .sort((a,b) => a.volgorde - b.volgorde)
+        .map(c => `<option value="${c.id}">${c.emoji} ${c.naam}</option>`).join('');
+    }
+    function renderItems() {
+      const list = document.getElementById('item-list');
+      list.innerHTML = DATA.items.map(i => `
+        <div class="item-row">
+          <img src="../${i.foto}" alt="" onerror="this.style.background='#FAF6EE'">
+          <div class="name">
+            ${i.naam}
+            <small style="display:block;font-weight:400;color:var(--c-muted)">€${(i.prijs||0).toFixed(2)} · ${i.status} · ${i.categorie}</small>
+          </div>
+          <div class="actions">
+            <button onclick="editItem('${i.id}')" title="Bewerken">✏️</button>
+            <button onclick="deleteItem('${i.id}')" title="Verwijderen">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function editItem(id) {
+      const it = DATA.items.find(i => i.id === id);
+      if (!it) return;
+      document.getElementById('f-id-original').value = it.id;
+      document.getElementById('f-id').value = it.id;
+      document.getElementById('f-categorie').value = it.categorie;
+      document.getElementById('f-naam').value = it.naam || '';
+      document.getElementById('f-naam-en').value = it.naam_en || '';
+      document.getElementById('f-prijs').value = it.prijs || 0;
+      document.getElementById('f-prijs-oud').value = it.prijsOud || '';
+      document.getElementById('f-status').value = it.status || 'beschikbaar';
+      document.getElementById('f-voorraad').value = it.voorraad ?? 1;
+      document.getElementById('f-foto').value = it.foto || '';
+      document.getElementById('f-beschrijving').value = it.beschrijving || '';
+      document.getElementById('f-afmeting').value = it.afmeting || '';
+      document.getElementById('f-kleuren').value = (it.kleuren || []).join(', ');
+      document.getElementById('f-uitgelicht').checked = !!it.uitgelicht;
+      document.getElementById('f-nieuw').checked = !!it.nieuw;
+      window.scrollTo({ top: document.getElementById('form-item').offsetTop - 80, behavior: 'smooth' });
+    }
+    function deleteItem(id) {
+      if (!confirm('Item verwijderen? Dit kan niet teruggedraaid worden (tot herlaad).')) return;
+      DATA.items = DATA.items.filter(i => i.id !== id);
+      save();
+    }
+    function resetForm() {
+      document.getElementById('f-id-original').value = '';
+      document.getElementById('form-item').reset();
+    }
+    document.getElementById('form-item').addEventListener('submit', e => {
+      e.preventDefault();
+      const orig = document.getElementById('f-id-original').value;
+      const id = document.getElementById('f-id').value.trim().toLowerCase().replace(/\s+/g,'-');
+      const item = {
+        id,
+        naam: document.getElementById('f-naam').value.trim(),
+        naam_en: document.getElementById('f-naam-en').value.trim() || undefined,
+        categorie: document.getElementById('f-categorie').value,
+        prijs: parseFloat(document.getElementById('f-prijs').value) || 0,
+        beschrijving: document.getElementById('f-beschrijving').value.trim(),
+        afmeting: document.getElementById('f-afmeting').value.trim() || undefined,
+        kleuren: document.getElementById('f-kleuren').value.split(',').map(s=>s.trim()).filter(Boolean),
+        foto: document.getElementById('f-foto').value.trim(),
+        status: document.getElementById('f-status').value,
+        voorraad: parseInt(document.getElementById('f-voorraad').value) || 0,
+        datumToegevoegd: new Date().toISOString().slice(0,10),
+        uitgelicht: document.getElementById('f-uitgelicht').checked || undefined,
+        nieuw: document.getElementById('f-nieuw').checked || undefined,
+      };
+      const oudPrijs = parseFloat(document.getElementById('f-prijs-oud').value);
+      if (oudPrijs > 0) { item.prijsOud = oudPrijs; item.afgeprijsd = true; }
+      Object.keys(item).forEach(k => item[k] === undefined && delete item[k]);
+
+      if (orig) {
+        const idx = DATA.items.findIndex(i => i.id === orig);
+        if (idx >= 0) DATA.items[idx] = item;
+      } else {
+        DATA.items.push(item);
+      }
+      save();
+      resetForm();
+      alert('✨ Bewaard! Vergeet niet te exporteren.');
+    });
+    function exportJSON() {
+      const out = JSON.stringify(DATA, null, 2);
+      const pre = document.getElementById('json-output');
+      pre.textContent = out;
+      pre.style.display = 'block';
+      navigator.clipboard?.writeText(out);
+      alert('📋 Gekopieerd naar klembord!\n\nPlak nu in data/items.json (vervang de hele inhoud).');
+    }
+
+    // ============================================
+    // BULK IMPORT — drag & drop meerdere foto's
+    // ============================================
+    window.BULK_PHOTOS = [];
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const bulkList = document.getElementById('bulk-list');
+    const bulkActions = document.getElementById('bulk-actions');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.style.background = '#f4ebf7';
+      dropZone.style.borderColor = 'var(--c-mustard)';
+    });
+    dropZone.addEventListener('dragleave', e => {
+      dropZone.style.background = 'white';
+      dropZone.style.borderColor = 'var(--c-lavender)';
+    });
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.style.background = 'white';
+      dropZone.style.borderColor = 'var(--c-lavender)';
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+    function slugify(s) {
+      return String(s).toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'item';
+    }
+
+    function handleFiles(files) {
+      const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+      if (arr.length === 0) return;
+      arr.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const idx = window.BULK_PHOTOS.length;
+          const photo = {
+            idx,
+            file,
+            dataURL: ev.target.result,
+            id: '',
+            naam: '',
+            categorie: DATA.categories[0]?.id || 'diertjes',
+            prijs: '',
+            voorraad: 1,
+            status: 'beschikbaar',
+            eigenPatroon: false,
+            uitgelicht: false,
+            nieuw: true,
+            ext: file.name.split('.').pop().toLowerCase()
+          };
+          window.BULK_PHOTOS.push(photo);
+          renderBulkRow(photo);
+          bulkActions.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderBulkRow(photo) {
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.style.flexWrap = 'wrap';
+      div.style.padding = '0.8rem';
+      div.dataset.idx = photo.idx;
+      div.innerHTML = `
+        <img src="${photo.dataURL}" alt="" style="width:80px; height:80px;">
+        <div style="flex:1; min-width: 280px; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem">
+          <input class="bulk-naam"  placeholder="Naam (bv. Stress-bal Blob — Roze)" style="grid-column: 1 / -1; padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
+          <select class="bulk-cat" style="padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
+            ${DATA.categories.map(c => `<option value="${c.id}">${c.emoji} ${c.naam}</option>`).join('')}
+          </select>
+          <input class="bulk-prijs" type="number" step="0.25" min="0" placeholder="Prijs €" style="padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
+          <label style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--c-text)">
+            <input type="checkbox" class="bulk-eigen"> ⭐ Pleun's eigen ontwerp
+            &nbsp;<input type="checkbox" class="bulk-uit"> 🌸 Uitgelicht
+          </label>
+        </div>
+        <button onclick="removeBulkRow(${photo.idx})" style="background:none; border:none; cursor:pointer; font-size:1.4rem; color:var(--c-muted)">×</button>
+      `;
+      bulkList.appendChild(div);
+    }
+
+    window.removeBulkRow = function(idx) {
+      window.BULK_PHOTOS = window.BULK_PHOTOS.filter(p => p.idx !== idx);
+      const row = bulkList.querySelector(`[data-idx="${idx}"]`);
+      if (row) row.remove();
+      if (window.BULK_PHOTOS.length === 0) bulkActions.style.display = 'none';
+    };
+
+    window.bulkSaveItems = function() {
+      const rows = bulkList.querySelectorAll('.item-row');
+      let added = 0, skipped = 0;
+      rows.forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const photo = window.BULK_PHOTOS.find(p => p.idx === idx);
+        if (!photo) return;
+        const naam = row.querySelector('.bulk-naam').value.trim();
+        const cat  = row.querySelector('.bulk-cat').value;
+        const prijs = parseFloat(row.querySelector('.bulk-prijs').value);
+        if (!naam || isNaN(prijs)) { skipped++; return; }
+        photo.id = slugify(`${cat}-${naam}`);
+        photo.filename = `${photo.id}.${photo.ext}`;
+        const item = {
+          id: photo.id,
+          naam,
+          categorie: cat,
+          prijs,
+          beschrijving: `Handgehaakt door Pleun. Klik op WhatsApp voor meer info en bestellen!`,
+          foto: `img/items/${photo.filename}`,
+          status: 'beschikbaar',
+          voorraad: 1,
+          datumToegevoegd: new Date().toISOString().slice(0, 10),
+          nieuw: true,
+        };
+        if (row.querySelector('.bulk-eigen').checked) item.eigenPatroon = true;
+        if (row.querySelector('.bulk-uit').checked) item.uitgelicht = true;
+        // Vervang of voeg toe
+        const existing = DATA.items.findIndex(i => i.id === item.id);
+        if (existing >= 0) DATA.items[existing] = item;
+        else DATA.items.push(item);
+        added++;
+      });
+      save();
+      alert(`✨ ${added} item${added !== 1 ? 's' : ''} toegevoegd${skipped ? ' · ' + skipped + ' overgeslagen (naam/prijs leeg)' : ''}!\n\nVergeet niet:\n1. Klik "Download alle foto's"\n2. Verplaats foto's naar img/items/\n3. Klik "Genereer + kopieer naar klembord" en plak in data/items.json`);
+    };
+
+    window.bulkDownloadPhotos = function() {
+      let downloaded = 0;
+      window.BULK_PHOTOS.forEach(photo => {
+        if (!photo.filename) return;
+        const a = document.createElement('a');
+        a.href = photo.dataURL;
+        a.download = photo.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        downloaded++;
+      });
+      if (downloaded === 0) {
+        alert('Geen foto\'s om te downloaden — voeg eerst items toe (stap 1).');
+      } else {
+        alert(`📥 ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar:\nC:\\Users\\Dave\\projects\\crochet-by-pleun\\img\\items\\`);
+      }
+    };
+
+    init();
+
+    // ============================================
+    // CHANGELOG
+    // ============================================
+    const CL_KEY = 'pleun_changelog_v1';
+
+    function loadChangelog() {
+      try { return JSON.parse(localStorage.getItem(CL_KEY) || '[]'); }
+      catch { return []; }
+    }
+    function saveChangelog(entries) {
+      localStorage.setItem(CL_KEY, JSON.stringify(entries));
+    }
+
+    const TYPE_LABELS = {
+      '✨': 'Nieuw', '🐛': 'Bugfix', '🎨': 'Uiterlijk', '📦': 'Items', '⚙️': 'Technisch'
+    };
+
+    function renderChangelog() {
+      const entries = loadChangelog();
+      const list = document.getElementById('changelog-list');
+      if (entries.length === 0) {
+        list.innerHTML = '<p style="color:var(--c-muted)">Nog geen entries. Voeg de eerste toe hieronder!</p>';
+        return;
+      }
+      list.innerHTML = entries.map((e, idx) => `
+        <div style="background:white; padding:0.8rem 1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft); margin-bottom:0.5rem; display:flex; gap:0.8rem; align-items:flex-start;">
+          <div style="min-width:52px; text-align:center; font-size:1.5rem; line-height:1">${e.type}</div>
+          <div style="flex:1">
+            <div style="font-weight:700; color:var(--c-ink)">${e.versie} <span style="font-weight:400; color:var(--c-muted); font-size:0.9rem">· ${e.datum}</span></div>
+            <div style="margin-top:0.2em">${e.tekst}</div>
+          </div>
+          <button onclick="deleteChangelogEntry(${idx})" style="background:none; border:none; cursor:pointer; color:var(--c-muted); font-size:1.2rem; padding:0 0.3rem" title="Verwijderen">×</button>
+        </div>
+      `).join('');
+    }
+
+    window.deleteChangelogEntry = function(idx) {
+      if (!confirm('Entry verwijderen?')) return;
+      const entries = loadChangelog();
+      entries.splice(idx, 1);
+      saveChangelog(entries);
+      renderChangelog();
+    };
+
+    window.exportChangelog = function() {
+      const entries = loadChangelog();
+      if (entries.length === 0) { alert('Geen changelog entries om te exporteren.'); return; }
+      const text = entries.map(e =>
+        `## ${e.versie} — ${e.datum}\n${e.type} ${TYPE_LABELS[e.type] || ''}: ${e.tekst}`
+      ).join('\n\n');
+      navigator.clipboard?.writeText(text);
+      alert('📋 Changelog gekopieerd naar klembord!');
+    };
+
+    document.getElementById('changelog-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const entry = {
+        datum: document.getElementById('cl-datum').value,
+        versie: document.getElementById('cl-versie').value.trim(),
+        type: document.getElementById('cl-type').value,
+        tekst: document.getElementById('cl-tekst').value.trim(),
+      };
+      const entries = loadChangelog();
+      entries.unshift(entry); // nieuwste bovenaan
+      saveChangelog(entries);
+      renderChangelog();
+      document.getElementById('changelog-form').reset();
+      // Zet datum terug op vandaag
+      document.getElementById('cl-datum').value = new Date().toISOString().slice(0, 10);
+    });
+
+    // Zet standaard datum op vandaag
+    document.getElementById('cl-datum').value = new Date().toISOString().slice(0, 10);
+    // Zet standaard versie op huidige versie
+    document.getElementById('cl-versie').value = '1.0.0';
+
+    renderChangelog();
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+.env
+.env.local
+admin/orders.json
+admin/private/
+*.log
+.DS_Store
+Thumbs.db
+node_modules/

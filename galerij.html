@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B5A1D6">
+  <title>Galerij · Crochet by Pleun</title>
+  <meta name="description" content="Alle handgehaakte items van Pleun — diertjes, blobs, scrunchies, sleutelhangers en meer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧶%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="ptr-indicator"></div>
+  <div id="update-banner"></div>
+
+  <nav>
+    <a href="index.html" class="logo"><span class="icon">🧶</span> Crochet by Pleun</a>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="galerij.html" class="actief">Galerij</a>
+      <a href="bestellen.html">Bestellen</a>
+      <a href="over.html">Over</a>
+    </div>
+    <button class="cart-btn" data-cart-open>🎁 <span class="cart-count empty">0</span></button>
+  </nav>
+
+  <header class="hero">
+    <h1>🌸 Alle Creaties</h1>
+    <p class="tagline">Klein, kleurrijk, één-van-een</p>
+    <p class="lede">Klik op een categorie om te filteren. Tap op een item voor details en bestellen.</p>
+  </header>
+
+  <section class="section">
+    <div class="filter-balk" id="filter-balk"></div>
+    <div class="galerij-grid" id="galerij-grid">
+      <p class="loading">Creaties laden... 🧶</p>
+    </div>
+  </section>
+
+  <!-- Verzameldoos modal -->
+  <div class="cart-overlay" id="cart-overlay">
+    <div class="cart-modal">
+      <h2>🎁 Verzameldoos <button class="cart-close" aria-label="Sluiten">×</button></h2>
+      <p style="color:var(--c-muted); font-size:0.9rem;">Verzamel meerdere items en bestel ze in één bericht — bij 2+ items is verzending gratis!</p>
+      <ul class="cart-list" id="cart-list"></ul>
+      <div class="cart-summary" id="cart-summary"></div>
+      <div class="bestel-acties" id="cart-checkout">
+        <button class="btn full" onclick="checkoutCart('pleun')">💬 Bestel via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="signature">Made small · Made with love</p>
+    <p>Handgehaakt door <strong>Pleun</strong> in Brabant 🇳🇱</p>
+    <div class="links">
+      <a href="galerij.html">Galerij</a>
+      <a href="bestellen.html">Bestellen</a>
+      <a href="over.html">Over</a>
+    </div>
+    <small>© 2026 Crochet by Pleun <span class="version-tag">v1.0.0</span></small>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/postcode.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B5A1D6">
+  <title>Over Pleun · Crochet by Pleun</title>
+  <meta name="description" content="Maak kennis met Pleun (12) — de creatieve haakster achter Crochet by Pleun.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧶%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="ptr-indicator"></div>
+  <div id="update-banner"></div>
+
+  <nav>
+    <a href="index.html" class="logo"><span class="icon">🧶</span> Crochet by Pleun</a>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="galerij.html">Galerij</a>
+      <a href="bestellen.html">Bestellen</a>
+      <a href="over.html" class="actief">Over</a>
+    </div>
+    <button class="cart-btn" data-cart-open>🎁 <span class="cart-count empty">0</span></button>
+  </nav>
+
+  <header class="hero">
+    <h1>Over Pleun 💝</h1>
+    <p class="tagline">12 jaar · Brabant · gek op haken</p>
+  </header>
+
+  <section class="section">
+    <div class="over-pleun">
+      <p class="quote">"Ik vind het gewoon zo leuk om iets te maken wat helemaal van mezelf is. Elk haakwerkje is anders."</p>
+
+      <h3>Hoi! Ik ben Pleun 👋</h3>
+      <p>Ik ben 12 jaar en woon in Brabant. Ik haak het allerliefst <strong>diertjes, blobs en scrunchies</strong> — kleine, knuffelbare dingen die in je hand passen. Ik vind de zachte kleuren het mooist: lila, beige, peach, lichtblauw.</p>
+
+      <h3>Hoe het begon</h3>
+      <p>Het begon op vakantie in het vliegtuig — mijn oma liet me zien hoe je een vasta steek maakt. Toen ik thuis was kon ik niet meer stoppen. Ik haak nu elke avond een uurtje op de bank. Sommige dingen lukken meteen, andere moet ik 3× opnieuw doen 😅.</p>
+
+      <h3>Wat is een Pleun-item?</h3>
+      <p>Elk item is door <strong>mij persoonlijk</strong> gehaakt — geen fabriek, geen knip-en-plak. Voor de meeste items gebruik ik <strong>patronen van internet als basis</strong> (zoals veel haaksters doen), maar de kleuren, materialen en kleine accenten kies ik zelf. Elk item krijgt een <strong>handgeschreven labeltje</strong> met mijn handtekening en de datum.</p>
+
+      <p style="background: linear-gradient(135deg, #f4ebf7 0%, var(--c-cream) 100%); padding: var(--gap-md); border-radius: var(--r-md); border-left: 4px solid var(--c-lavender);">
+        ⭐ <strong>Mijn eigen ontwerp</strong> — er is één item in de shop dat ik <em>helemaal zelf bedacht</em> heb, zonder patroon. Dat is mijn favoriet en mijn trots. Je herkent het aan het <strong>"Eigen Pleun-ontwerp" labeltje</strong>. Misschien komen er later meer eigen ontwerpen 💝
+      </p>
+
+      <h3>Waar je me kunt vinden</h3>
+      <p>Ik post mijn nieuwste items op mijn <strong>WhatsApp-kanaal 🎀Haak-shop🎀</strong> — daar zie je als eerste wat er nieuw is. Daarnaast staat alles op deze website. Bestellen kan via WhatsApp.</p>
+
+      <div class="feiten">
+        <div class="feit"><div class="nummer">🧶</div><div class="label">Eén-van-een</div></div>
+        <div class="feit"><div class="nummer">✍️</div><div class="label">Handgeschreven labels</div></div>
+        <div class="feit"><div class="nummer">🚲</div><div class="label">Lokaal: gratis bezorgd</div></div>
+        <div class="feit"><div class="nummer">📮</div><div class="label">NL-breed verzonden</div></div>
+      </div>
+
+      <h3 style="margin-top:var(--gap-xl)">Voor de ouders 🛡️</h3>
+      <p style="font-size: 0.95rem; color: var(--c-text);">Crochet by Pleun is een <strong>hobby-shop</strong>. Pleun is minderjarig; alle bestellingen, betalingen en verzending lopen onder begeleiding en verantwoordelijkheid van haar ouders. We slaan geen klantgegevens op buiten WhatsApp-berichten. Geen tracking, geen cookies, geen accounts. Bij vragen, of als je in contact wilt komen met haar ouders, stuur een berichtje via het <a href="bestellen.html">bestelkanaal</a>.</p>
+    </div>
+  </section>
+
+  <!-- Verzameldoos modal -->
+  <div class="cart-overlay" id="cart-overlay">
+    <div class="cart-modal">
+      <h2>🎁 Verzameldoos <button class="cart-close" aria-label="Sluiten">×</button></h2>
+      <p style="color:var(--c-muted); font-size:0.9rem;">Verzamel meerdere items en bestel ze in één bericht.</p>
+      <ul class="cart-list" id="cart-list"></ul>
+      <div class="cart-summary" id="cart-summary"></div>
+      <div class="bestel-acties" id="cart-checkout">
+        <button class="btn full" onclick="checkoutCart('pleun')">💬 Bestel via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="signature">Made small · Made with love</p>
+    <p>Handgehaakt door <strong>Pleun</strong> in Brabant 🇳🇱</p>
+    <div class="links">
+      <a href="galerij.html">Galerij</a>
+      <a href="bestellen.html">Bestellen</a>
+      <a href="over.html">Over</a>
+    </div>
+    <small>© 2026 Crochet by Pleun <span class="version-tag">v1.0.0</span></small>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>
