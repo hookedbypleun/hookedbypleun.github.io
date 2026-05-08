@@ -138,14 +138,14 @@
     const koopbaar = item.status === 'beschikbaar';
     const cat = data.categories.find(c => c.id === item.categorie);
 
-    const bericht = encodeURIComponent(
+    const bericht =
 `Hoi Pleun! 💝
 
 Ik heb interesse in: ${item.naam}${item.prijs ? ' (' + fmtPrijs(item.prijs) + ')' : ''}.
 
 Mijn naam:
 Mijn postcode + adres:
-Lokaal afhalen of versturen?`);
+Lokaal afhalen of versturen?`;
 
     wrap.innerHTML = `
       <div class="foto-groot">
@@ -186,7 +186,7 @@ Lokaal afhalen of versturen?`);
           </div>
 
           <div class="bestel-acties">
-            <a class="btn full" href="https://wa.me/${cfg.whatsappNumber}?text=${bericht}" target="_blank" rel="noopener">
+            <a class="btn full" href="${window.orderUrl(bericht)}" target="_blank" rel="noopener">
               💬 ${escapeHtml(cfg.whatsappLabel)} — ik wil deze!
             </a>
             <button class="btn secondary full" onclick='Cart.add(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto})}); document.querySelector("#cart-overlay").classList.add("open");'>
@@ -195,7 +195,7 @@ Lokaal afhalen of versturen?`);
           </div>
         ` : showcase ? `
           <div class="bestel-acties">
-            <a class="btn full" href="https://wa.me/${cfg.whatsappNumber}?text=${encodeURIComponent('Hoi Pleun! Ik wil graag een ' + item.naam + ' op maat laten haken. Kunnen we de details bespreken?')}" target="_blank" rel="noopener">
+            <a class="btn full" href="${window.orderUrl('Hoi Pleun! Ik wil graag een ' + item.naam + ' op maat laten haken. Kunnen we de details bespreken?')}" target="_blank" rel="noopener">
               💝 Vraag een eigen versie aan
             </a>
           </div>
@@ -208,7 +208,7 @@ Lokaal afhalen of versturen?`);
         ` : `
           <div class="bestel-acties">
             <p style="color:var(--c-muted)">Dit item is uitverkocht. Wil je iets soortgelijks op maat?</p>
-            <a class="btn secondary full" href="https://wa.me/${cfg.whatsappNumber}?text=${encodeURIComponent('Hoi Pleun! Ik zag dat ' + item.naam + ' uitverkocht is. Kun je iets soortgelijks op maat haken?')}" target="_blank" rel="noopener">
+            <a class="btn secondary full" href="${window.orderUrl('Hoi Pleun! Ik zag dat ' + item.naam + ' uitverkocht is. Kun je iets soortgelijks op maat haken?')}" target="_blank" rel="noopener">
               💌 Vraag een nieuwe aan
             </a>
           </div>

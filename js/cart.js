@@ -1,6 +1,18 @@
 // Verzameldoos — items verzamelen voor 1 bestelling.
 // LocalStorage zodat hij blijft staan als je tussen pagina's klikt.
 
+// Globale helper: bouwt de juiste WhatsApp-bestel-URL.
+// Als workerUrl is ingesteld, gaat het via de Cloudflare Worker (nummer blijft verborgen).
+// Anders fallback naar directe wa.me link.
+window.orderUrl = function(text) {
+  const cfg = window.SHOP_CONFIG || {};
+  const txt = encodeURIComponent(text || '');
+  if (cfg.workerUrl) {
+    return cfg.workerUrl.replace(/\/$/, '') + '/order?text=' + txt;
+  }
+  return 'https://wa.me/' + (cfg.whatsappNumber || '') + '?text=' + txt;
+};
+
 (function() {
   const STORAGE_KEY = 'pleun_cart_v1';
 
@@ -129,8 +141,12 @@ Mijn naam:
 Mijn postcode + adres:
 Lokaal afhalen of versturen?`;
 
-    const nummer = target === 'backup' && cfg.whatsappBackup ? cfg.whatsappBackup : cfg.whatsappNumber;
-    window.open(`https://wa.me/${nummer}?text=${encodeURIComponent(bericht)}`, '_blank');
+    // Backup-nummer (ouder) gaat altijd direct via wa.me — alleen het hoofdnummer wordt verborgen.
+    if (target === 'backup' && cfg.whatsappBackup) {
+      window.open(`https://wa.me/${cfg.whatsappBackup}?text=${encodeURIComponent(bericht)}`, '_blank');
+    } else {
+      window.open(window.orderUrl(bericht), '_blank');
+    }
   };
 
   // Init

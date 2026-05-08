@@ -1,12 +1,15 @@
 // Crochet by Pleun — Cloudflare Worker
 // Handelt af: AI-beschrijving genereren + publiceren naar GitHub
+// Plus: WhatsApp-redirect zodat Pleun's nummer nooit in de browser komt
 //
 // Secrets (instellen in Cloudflare dashboard → Settings → Variables):
-//   ADMIN_PASSWORD   — wachtwoord voor de admin-pagina
-//   CLAUDE_API_KEY   — Anthropic API key (sk-ant-...)
-//   GITHUB_TOKEN     — GitHub PAT met "Contents: write" op crochetbypleun/crochetbypleun.github.io
+//   ADMIN_PASSWORD    — wachtwoord voor de admin-pagina
+//   CLAUDE_API_KEY    — Anthropic API key (sk-ant-...)
+//   GITHUB_TOKEN      — GitHub PAT met "Contents: write" op crochetbypleun/crochetbypleun.github.io
+//   WHATSAPP_NUMBER   — Pleun's WhatsApp-nummer (bv. 31635621715, zonder + of spaties)
 //
 // Endpoints:
+//   GET  /order      — ?text=...               → 302 naar wa.me/[secret]?text=... (publiek, geen auth)
 //   POST /generate   — { photoBase64, naam, prijs, categorieHint } → AI-content
 //   POST /publish    — { item, photoBase64, photoFilename }        → commit naar GitHub
 //   POST /auth       — { password }                                 → check ww
@@ -47,7 +50,18 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // === Auth check (alle endpoints) ===
+      // === /order — publieke redirect naar WhatsApp (GEEN auth) ===
+      // Houdt Pleun's nummer compleet uit de browser/HTML/JS van de site.
+      if (url.pathname === '/order' && request.method === 'GET') {
+        if (!env.WHATSAPP_NUMBER) {
+          return new Response('WhatsApp number not configured', { status: 500, headers: cors });
+        }
+        const text = url.searchParams.get('text') || '';
+        const target = `https://wa.me/${env.WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+        return new Response(null, { status: 302, headers: { ...cors, 'Location': target } });
+      }
+
+      // === Auth check (alle overige endpoints) ===
       const auth = request.headers.get('Authorization') || '';
       const token = auth.replace(/^Bearer\s+/i, '');
       if (!env.ADMIN_PASSWORD || token !== env.ADMIN_PASSWORD) {
