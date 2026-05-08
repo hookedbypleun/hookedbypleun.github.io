@@ -10,6 +10,13 @@ Alles gratis (Cloudflare Workers free tier + GitHub free) behalve Claude API ver
 
 ## Setup (eenmalig)
 
+### 0. Anthropic account + tegoed (verplicht!)
+1. Ga naar https://console.anthropic.com/ → maak een account aan
+2. **Plans & Billing** → laad minimaal **$5 tegoed** (eenmalig — Anthropic vereist dit voor API-toegang)
+3. Op **API Keys** → **Create Key** → naam: `crochet-by-pleun` → kopieer (`sk-ant-...`)
+
+> 💡 €5 is genoeg voor ~1000+ items genereren. Voor een hobbyshop dus jaren ver.
+
 ### 1. Cloudflare account
 Ga naar https://dash.cloudflare.com/sign-up — gratis, geen creditcard nodig voor de free tier.
 
@@ -26,8 +33,8 @@ In de Worker → **Settings** → **Variables and Secrets** → **Add**:
 | Naam | Type | Waarde |
 |------|------|--------|
 | `ADMIN_PASSWORD` | Secret | Zelfgekozen wachtwoord voor admin |
-| `CLAUDE_API_KEY` | Secret | `sk-ant-...` van https://console.anthropic.com |
-| `GITHUB_TOKEN` | Secret | GitHub PAT (zie hieronder) |
+| `CLAUDE_API_KEY` | Secret | `sk-ant-...` uit stap 0 |
+| `GITHUB_TOKEN` | Secret | GitHub PAT (zie stap 4) |
 | `WHATSAPP_NUMBER` | Secret | Pleun's nummer, bv. `31635621715` (zonder + of spaties) |
 
 ### 4. GitHub Personal Access Token aanmaken

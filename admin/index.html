@@ -744,6 +744,11 @@
 
     function handleAIPhoto(file) {
       if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto 🙃', 'error'); return; }
+      // Quinn: max 4 MB om Claude/Worker timeouts te voorkomen
+      if (file.size > 4_000_000) {
+        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB, dat is te groot. Maak 'm kleiner (max 4 MB) 📐`, 'error');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = ev => {
         const dataURL = ev.target.result;
@@ -853,12 +858,14 @@
         const result = await res.json();
         aiSetStatus(`✅ Live op de site! Check ${result.siteUrl} (kan 1-2 min duren tot de build klaar is).`, 'success');
 
-        // Reset form
+        // Reset form (Dana: voorkom dubbele publishes)
         AI_GENERATED = null;
         document.getElementById('ai-naam').value = '';
         document.getElementById('ai-prijs').value = '';
         aiResetPhoto();
         document.getElementById('ai-preview').classList.remove('show');
+        // Status na 8 sec automatisch wegfaden
+        setTimeout(() => aiSetStatus('', ''), 8000);
       } catch (err) {
         aiSetStatus('❌ ' + err.message, 'error');
       } finally {
