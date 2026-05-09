@@ -3,7 +3,7 @@
 
 window.SHOP_CONFIG = {
   // === Versie ===
-  version: '2.1.0',
+  version: '2.2.0',
   versionDate: '2026-05-09',
 
   // === Cloudflare Worker (admin AI-publicatie) ===
@@ -40,9 +40,28 @@ window.SHOP_CONFIG = {
   expressDay: "zaterdag",
 
   // === Verzending ===
-  shippingNL: 4.75,        // Brievenbuspakje
+  // 3 tarieven, automatisch het laagste benodigde tarief (op basis van items in cart)
+  // Boven freeShippingThreshold euro -> gratis (van het tarief dat anders gerekend zou worden)
+  shipping: {
+    brief:      { prijs: 2.95, label: 'Brievenbuspost',  icon: '✉️' },  // klein/plat: scrunchies, sleutelhangers, onderzetters
+    brievenbus: { prijs: 4.75, label: 'Brievenbuspakje', icon: '📮' },  // gemiddeld: blobs, kleine diertjes, haakpakketten
+    pakket:     { prijs: 6.95, label: 'Pakketpost',      icon: '📦' },  // groot: mutsen, tassen, grote knuffels
+  },
+  // Categorie -> verzendklasse (kan per item worden overschreven via item.verzendklasse)
+  verzendklassen: {
+    scrunchies:     'brief',
+    sleutelhangers: 'brief',
+    onderzetters:   'brief',
+    blobs:          'brievenbus',
+    diertjes:       'brievenbus',
+    haakpakketten:  'brievenbus',
+    mutsen:         'pakket',
+    tassen:         'pakket',
+  },
+  freeShippingThreshold: 25,  // bestelbedrag vanaf -> gratis verzending
+  // Behouden voor compatibiliteit (oudere items.json verwijzingen):
+  shippingNL: 4.75,
   shippingNLLabel: "Brievenbuspakje (PostNL)",
-  freeShippingFromBundleSize: 2,  // Bij 2+ items gratis verzending
 
   // === Social handles (gereserveerd voor later) ===
   social: {

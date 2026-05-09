@@ -29,7 +29,14 @@ window.orderUrl = function(text) {
         showToast('Zit al in je verzameldoos 💝');
         return;
       }
-      arr.push({ id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto });
+      arr.push({
+        id: item.id,
+        naam: item.naam,
+        prijs: item.prijs,
+        foto: item.foto,
+        categorie: item.categorie,
+        verzendklasse: item.verzendklasse,
+      });
       write(arr);
       showToast(`✨ ${item.naam} toegevoegd!`);
     },
@@ -38,6 +45,41 @@ window.orderUrl = function(text) {
     },
     clear() { write([]); },
   };
+
+  // ============================================================
+  // Verzending berekening — slim 3-tarief systeem
+  // ============================================================
+  // Hierarchie: brief < brievenbus < pakket. Cart krijgt het hoogste benodigde tarief.
+  const VERZEND_RANG = { brief: 1, brievenbus: 2, pakket: 3 };
+
+  function getShippingClass(item, cfg) {
+    if (item.verzendklasse && cfg.shipping?.[item.verzendklasse]) return item.verzendklasse;
+    return cfg.verzendklassen?.[item.categorie] || 'brievenbus';
+  }
+
+  function calculateShipping(items, cfg) {
+    if (!items.length || !cfg.shipping) return { klasse: 'brievenbus', kosten: 0, gratis: true, info: cfg.shipping?.brievenbus, gap: 0 };
+    let topKlasse = 'brief';
+    items.forEach(it => {
+      const k = getShippingClass(it, cfg);
+      if (VERZEND_RANG[k] > VERZEND_RANG[topKlasse]) topKlasse = k;
+    });
+    const subtotaal = items.reduce((s, i) => s + i.prijs, 0);
+    const drempel = cfg.freeShippingThreshold || 0;
+    const gratis = subtotaal >= drempel;
+    const info = cfg.shipping[topKlasse];
+    return {
+      klasse: topKlasse,
+      info,
+      kosten: gratis ? 0 : info.prijs,
+      gratis,
+      gap: Math.max(0, drempel - subtotaal),
+      drempel,
+      subtotaal,
+    };
+  }
+  // Expose voor andere modules
+  window.calculateShipping = (items) => calculateShipping(items, window.SHOP_CONFIG || {});
 
   function updateCartUI() {
     const count = read().length;
@@ -73,19 +115,35 @@ window.orderUrl = function(text) {
 
     const subtotal = items.reduce((s, i) => s + i.prijs, 0);
     const cfg = window.SHOP_CONFIG;
-    const gratisVerzending = items.length >= cfg.freeShippingFromBundleSize;
+    const ship = calculateShipping(items, cfg);
+    const eindtotaal = subtotal + ship.kosten;
+
+    // Spaarmeter: hoe ver van gratis verzending?
+    let progressHtml = '';
+    if (!ship.gratis && ship.drempel > 0) {
+      const pct = Math.min(100, Math.round((ship.subtotaal / ship.drempel) * 100));
+      progressHtml = `
+        <div class="cart-spaarmeter">
+          <div class="spaar-tekst">💡 Nog <strong>€${ship.gap.toFixed(2).replace('.', ',')}</strong> tot gratis verzending!</div>
+          <div class="spaar-bar"><div class="spaar-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    } else if (ship.gratis) {
+      progressHtml = `<div class="cart-spaarmeter gratis">🎉 Yay, <strong>gratis verzending</strong> verdiend!</div>`;
+    }
+
+    const verzendLabel = ship.gratis
+      ? '<strong style="color:#4F8A52">Gratis 💚</strong>'
+      : `${ship.info.icon} €${ship.info.prijs.toFixed(2).replace('.', ',')} <small style="color:var(--c-muted)">(${ship.info.label.toLowerCase()})</small>`;
 
     summary.style.display = 'block';
     summary.innerHTML = `
       <div class="row"><span>${items.length} item${items.length > 1 ? 's' : ''}</span><span>€${subtotal.toFixed(2).replace('.', ',')}</span></div>
       <div class="row">
         <span>Verzending</span>
-        <span>${gratisVerzending ? '<strong style="color:#4F8A52">Gratis 💚</strong>' : '€' + cfg.shippingNL.toFixed(2).replace('.', ',') + ' (of gratis lokaal)'}</span>
+        <span>${verzendLabel}</span>
       </div>
-      <div class="row total"><span>Totaal</span><span>€${(subtotal + (gratisVerzending ? 0 : cfg.shippingNL)).toFixed(2).replace('.', ',')}</span></div>
-      ${!gratisVerzending && items.length === 1
-        ? '<div class="cart-bonus">💡 Voeg er nog 1 toe voor <strong>gratis verzending</strong>!</div>'
-        : '' }
+      <div class="row total"><span>Totaal</span><span>€${eindtotaal.toFixed(2).replace('.', ',')}</span></div>
+      ${progressHtml}
     `;
 
     const checkout = document.querySelector('#cart-checkout');
@@ -128,12 +186,14 @@ window.orderUrl = function(text) {
 
     const cfg = window.SHOP_CONFIG;
     const total = items.reduce((s, i) => s + i.prijs, 0);
-    const gratisVerzending = items.length >= cfg.freeShippingFromBundleSize;
-    const verzending = gratisVerzending ? 0 : cfg.shippingNL;
+    const ship = calculateShipping(items, cfg);
+    const verzending = ship.kosten;
     const eindTotaal = total + verzending;
+    const gratisVerzending = ship.gratis;
+    const verzendInfo = ship.info;
     const lijn = items.map((i, n) => `${n + 1}. ${i.naam} — €${i.prijs.toFixed(2).replace('.', ',')}`).join('\n');
 
-    _checkout = { target, cfg, lijn, total, gratisVerzending, verzending, eindTotaal };
+    _checkout = { target, cfg, lijn, total, gratisVerzending, verzending, eindTotaal, verzendInfo };
 
     // Verberg bestaande cart-inhoud
     ['cart-list', 'cart-summary', 'cart-checkout'].forEach(id => {
@@ -218,7 +278,7 @@ Ik wil graag bestellen:
 ${lijn}
 
 Subtotaal: €${total.toFixed(2).replace('.', ',')}
-Verzending: ${gratisVerzending ? 'gratis (2+ items!)' : '€' + verzending.toFixed(2).replace('.', ',')}
+Verzending: ${gratisVerzending ? 'gratis 💚' : '€' + verzending.toFixed(2).replace('.', ',') + (_checkout?.verzendInfo ? ' (' + _checkout.verzendInfo.label.toLowerCase() + ')' : '')}
 Totaal: €${eindTotaal.toFixed(2).replace('.', ',')}
 
 ---

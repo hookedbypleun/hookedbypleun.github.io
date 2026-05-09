@@ -16,6 +16,6 @@ window.checkPostcode = function(input, resultEl) {
     resultEl.innerHTML = `🚲 <strong>Pleun Express!</strong> Je woont in ${lokaal.dorp} — gratis bezorgd op ${cfg.expressDay}.`;
   } else {
     resultEl.className = 'postcode-result verzending';
-    resultEl.innerHTML = `📮 <strong>Verzenden via ${cfg.shippingNLLabel}</strong> — €${cfg.shippingNL.toFixed(2).replace('.', ',')} (gratis bij 2+ items).`;
+    resultEl.innerHTML = `📮 <strong>Per post</strong> — vanaf €${(cfg.shipping?.brief?.prijs || 2.95).toFixed(2).replace('.', ',')} (gratis vanaf €${cfg.freeShippingThreshold || 25}).`;
   }
 };

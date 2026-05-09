@@ -710,6 +710,58 @@ section.section {
   text-align: center;
 }
 
+/* Spaarmeter — progress naar gratis verzending */
+.cart-spaarmeter {
+  background: linear-gradient(135deg, #FFF6E5, var(--c-cream));
+  border: 1px solid #FFE4A8;
+  padding: 0.7em 1em;
+  border-radius: var(--r-md);
+  margin-top: 0.6em;
+  font-size: 0.9rem;
+  color: var(--c-ink);
+}
+.cart-spaarmeter .spaar-tekst { margin-bottom: 0.4em; }
+.cart-spaarmeter .spaar-bar {
+  height: 8px;
+  background: var(--c-cream-dark);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.cart-spaarmeter .spaar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-pink), var(--c-mustard));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.cart-spaarmeter.gratis {
+  background: var(--c-success-bg);
+  border-color: #B8E0BB;
+  color: var(--c-success-text);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Verzend-tarieven blok op bestellen.html */
+.verzend-tarieven {
+  display: grid;
+  gap: 0.6rem;
+  margin: var(--gap-md) 0;
+}
+.vtarief {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  background: white;
+  padding: 0.7em 1em;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-soft);
+  border-left: 4px solid var(--c-pink);
+}
+.vtarief:nth-child(2) { border-left-color: var(--c-mustard); }
+.vtarief:nth-child(3) { border-left-color: var(--c-lavender); }
+.vtarief .vt-icon { font-size: 1.6rem; line-height: 1; }
+.vtarief small { color: var(--c-muted); font-size: 0.85rem; }
+
 /* ============================================
    Checkout details — verzendgegevens stap
    ============================================ */
