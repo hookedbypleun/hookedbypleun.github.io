@@ -3,7 +3,7 @@
 
 window.SHOP_CONFIG = {
   // === Versie ===
-  version: '2.3.3',
+  version: '2.3.4',
   versionDate: '2026-05-09',
 
   // === Cloudflare Worker (admin AI-publicatie) ===
