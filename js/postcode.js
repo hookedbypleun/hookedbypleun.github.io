@@ -1,4 +1,4 @@
-// Postcode-check: lokaal (Pleun Express) of verzenden?
+﻿// Postcode-check: lokaal (Pleun Express) of verzenden?
 
 window.checkPostcode = function(input, resultEl) {
   const cfg = window.SHOP_CONFIG;
@@ -13,9 +13,9 @@ window.checkPostcode = function(input, resultEl) {
   const lokaal = cfg.localPostcodes.find(p => p.range.includes(pc));
   if (lokaal) {
     resultEl.className = 'postcode-result lokaal';
-    resultEl.innerHTML = `🚲 <strong>Pleun Express!</strong> Je woont in ${lokaal.dorp} — gratis bezorgd op ${cfg.expressDay}.`;
+    resultEl.innerHTML = `ðŸš² <strong>Pleun Express!</strong> Je woont in ${lokaal.dorp} â€” gratis bezorgd op ${cfg.expressDay}.`;
   } else {
     resultEl.className = 'postcode-result verzending';
-    resultEl.innerHTML = `📮 <strong>Per post</strong> — vanaf €${(cfg.shipping?.brief?.prijs || 2.95).toFixed(2).replace('.', ',')} (gratis vanaf €${cfg.freeShippingThreshold || 25}).`;
+    resultEl.innerHTML = `ðŸ“® <strong>Per post</strong> â€” vanaf â‚¬${(cfg.shipping?.brief?.prijs || 2.95).toFixed(2).replace('.', ',')} (gratis vanaf â‚¬${cfg.freeShippingThreshold || 25}).`;
   }
 };

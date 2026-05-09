@@ -1,4 +1,4 @@
-// Crochet by Pleun — Service Worker registratie + Pull-to-Refresh + Update-banner
+﻿// Crochet by Pleun â€” Service Worker registratie + Pull-to-Refresh + Update-banner
 
 (function () {
   'use strict';
@@ -25,8 +25,8 @@
       }
     });
 
-    // Nieuwe SW gevonden → automatisch activeren (geen banner-knop meer)
-    // Listener MOET vóór reg.update() worden gehangen!
+    // Nieuwe SW gevonden â†’ automatisch activeren (geen banner-knop meer)
+    // Listener MOET vÃ³Ã³r reg.update() worden gehangen!
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
       if (!newWorker) return;
@@ -47,11 +47,11 @@
       });
     });
 
-    // NU pas update aanroepen — listener staat
+    // NU pas update aanroepen â€” listener staat
     reg.update().catch(() => {});
   }).catch(err => console.warn('[SW] Registratie mislukt:', err));
 
-  // Nieuwe controller = update al toegepast → auto-reload
+  // Nieuwe controller = update al toegepast â†’ auto-reload
   // Uitzondering: niet herladen als iemand midden in een checkout zit
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
@@ -84,9 +84,9 @@
     if (!banner || banner.classList.contains('zichtbaar')) return;
 
     banner.innerHTML = `
-      <span>🌸 Nieuwe versie beschikbaar${version ? ' (v' + version + ')' : ''}!</span>
+      <span>ðŸŒ¸ Nieuwe versie beschikbaar${version ? ' (v' + version + ')' : ''}!</span>
       <button onclick="window.__applyUpdate()">Bijwerken</button>
-      <button class="sluiten" onclick="document.getElementById('update-banner').classList.remove('zichtbaar')" aria-label="Sluiten">×</button>
+      <button class="sluiten" onclick="document.getElementById('update-banner').classList.remove('zichtbaar')" aria-label="Sluiten">Ã—</button>
     `;
     banner.classList.add('zichtbaar');
   }
