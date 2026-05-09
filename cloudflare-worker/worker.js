@@ -372,7 +372,7 @@ ${schemaText}`;
 // ================================================================
 // GitHub — foto + items.json bijwerken
 // ================================================================
-async function publishToGitHub({ item, photoBase64, photoFilename, extraPhotos }, env) {
+async function publishToGitHub({ item, photoBase64, photoFilename, extraPhotos, hoofdKleur, kleurVarianten }, env) {
   const ghHeaders = {
     'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
     'Accept': 'application/vnd.github+json',
@@ -419,13 +419,42 @@ async function publishToGitHub({ item, photoBase64, photoFilename, extraPhotos }
   const currentJson = JSON.parse(decodeBase64(itemsData.content));
 
   item.foto = photoPath;
-  // Als er extra foto's zijn, gebruik varianten-schema (1 variant met alle foto's)
-  if (extraPaths.length > 0) {
-    item.varianten = [{
-      kleur: '',
-      fotos: [photoPath, ...extraPaths],
-      voorraad: item.voorraad ?? 1,
-    }];
+
+  // Kleur-varianten uploaden (optioneel)
+  const kvOut = [];
+  if (Array.isArray(kleurVarianten)) {
+    for (let vi = 0; vi < kleurVarianten.length; vi++) {
+      const kv = kleurVarianten[vi];
+      const kleurSlug = String(kv.kleur || `v${vi + 2}`).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const fotos = [];
+      const arr = Array.isArray(kv.fotos) ? kv.fotos : [];
+      for (let fi = 0; fi < arr.length; fi++) {
+        const f = arr[fi];
+        if (!f?.base64) continue;
+        const fn = `${item.id}-${kleurSlug}-${fi + 1}.${f.ext || 'jpg'}`;
+        const path = await uploadOne(fn, f.base64, `🎨 Add color variant photo (${kv.kleur}) ${fi + 1} for ${item.naam || item.id}`);
+        fotos.push(path);
+      }
+      if (fotos.length) {
+        kvOut.push({
+          kleur: kv.kleur || '',
+          voorraad: kv.voorraad ?? 1,
+          fotos,
+        });
+      }
+    }
+  }
+
+  // Bouw varianten-array op als er kleur-varianten of extra foto's zijn
+  if (kvOut.length > 0 || extraPaths.length > 0 || hoofdKleur) {
+    item.varianten = [
+      {
+        kleur: hoofdKleur || '',
+        fotos: [photoPath, ...extraPaths],
+        voorraad: item.voorraad ?? 1,
+      },
+      ...kvOut,
+    ];
   }
   item.datumToegevoegd = item.datumToegevoegd || new Date().toISOString().slice(0, 10);
   const existingIdx = currentJson.items.findIndex(i => i.id === item.id);

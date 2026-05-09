@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.16">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.17">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -513,12 +513,24 @@
 
           <!-- Extra foto's (multi) -->
           <div id="step3-extra-photos" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem">
-              <strong style="color:var(--c-lavender-dark); font-size:0.9rem">📷 Extra foto's <span id="extra-count" style="color:var(--c-muted); font-weight:400">(0)</span></strong>
-              <button type="button" id="btn-extra-add" style="background:var(--c-cream); border:1.5px dashed var(--c-lavender); border-radius:var(--r-sm); padding:0.35em 0.7em; font-family:inherit; font-size:0.85rem; cursor:pointer; color:var(--c-lavender-dark)">+ Foto's toevoegen</button>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; gap:0.5rem; flex-wrap:wrap">
+              <strong style="color:var(--c-lavender-dark); font-size:0.9rem">📷 Extra foto's hoofdvariant <span id="extra-count" style="color:var(--c-muted); font-weight:400">(0)</span></strong>
+              <input type="text" id="hoofd-kleur" placeholder="Kleur hoofdvariant (bv. lichtroze)" style="flex:1; min-width:140px; padding:0.35em 0.6em; font-family:inherit; font-size:0.85rem; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); background:white">
+              <button type="button" id="btn-extra-add" style="background:var(--c-cream); border:1.5px dashed var(--c-lavender); border-radius:var(--r-sm); padding:0.35em 0.7em; font-family:inherit; font-size:0.85rem; cursor:pointer; color:var(--c-lavender-dark)">+ Foto's</button>
               <input type="file" id="extra-files" multiple accept="image/*" hidden>
             </div>
+            <p class="cd-hint" style="margin:0 0 0.4em 0; font-size:0.78rem">Kleur is alleen nodig als je hieronder ook andere kleur-varianten toevoegt.</p>
             <div id="extra-photos-list"></div>
+          </div>
+
+          <!-- Kleur-varianten -->
+          <div id="step3-color-variants" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem">
+              <strong style="color:var(--c-pink-dark); font-size:0.9rem">🎨 Kleur-varianten <span id="cv-count" style="color:var(--c-muted); font-weight:400">(0)</span></strong>
+              <button type="button" id="btn-cv-add" style="background:var(--c-cream); border:1.5px dashed var(--c-pink-dark); border-radius:var(--r-sm); padding:0.35em 0.7em; font-family:inherit; font-size:0.85rem; cursor:pointer; color:var(--c-pink-dark)">+ Kleur-variant</button>
+            </div>
+            <p class="cd-hint" style="margin:0 0 0.4em 0; font-size:0.78rem">Voor items die in meerdere kleuren bestaan — elke kleur heeft eigen foto's en voorraad.</p>
+            <div id="color-variants-list"></div>
           </div>
 
           <div id="panel-tabs-wrap" style="display:none">
@@ -934,8 +946,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.16"></script>
-  <script src="../js/sw-register.js?v=3.0.16"></script>
+  <script src="../js/config.js?v=3.0.17"></script>
+  <script src="../js/sw-register.js?v=3.0.17"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1378,7 +1390,9 @@
       approved: { website: false, social: false },
       published: { website: false, social: false },
       busy: false,
-      extraPhotos: [],       // Array van extra foto's: { id, dataURL, ext, bri, con, sat }
+      extraPhotos: [],       // Array van extra foto's hoofdvariant: { id, dataURL, ext, bri, con, sat }
+      hoofdKleur: '',
+      colorVariants: [],     // Array van kleur-varianten: { id, kleur, voorraad, fotos: [{id,dataURL,ext,bri,con,sat}] }
     };
 
     function workerUrl() {
@@ -2024,8 +2038,9 @@
       if (tabW) tabW.style.display = wizState.channels.website ? '' : 'none';
       if (tabS) tabS.style.display = wizState.channels.social  ? '' : 'none';
 
-      // Extra foto's sectie zichtbaar maken
+      // Extra foto's + kleur-varianten secties zichtbaar maken
       try { window.renderExtraPhotos?.(); } catch {}
+      try { window.renderColorVariants?.(); } catch {}
 
       // Foto-overzicht in stap 3 vullen
       const step3Photo = document.getElementById('step3-photo');
@@ -2108,6 +2123,7 @@
 
       // Bake eventuele extra foto's
       let extraPhotosPayload = [];
+      let kleurVariantenPayload = [];
       try {
         if (wizState.extraPhotos?.length) {
           aiSetStatus('📸 Extra foto\'s voorbereiden...', 'busy');
@@ -2117,8 +2133,12 @@
             filename: `${id}-${p._idx}.${p.ext}`,
           }));
         }
+        if (wizState.colorVariants?.length) {
+          aiSetStatus('🎨 Kleur-varianten voorbereiden...', 'busy');
+          kleurVariantenPayload = await bakeColorVariants();
+        }
       } catch (e) {
-        aiSetStatus('❌ Extra foto-bewerking mislukt: ' + e.message, 'error'); return;
+        aiSetStatus('❌ Foto-bewerking mislukt: ' + e.message, 'error'); return;
       }
 
       try {
@@ -2130,6 +2150,8 @@
             photoBase64: wizState.photo.base64,
             photoFilename,
             extraPhotos: extraPhotosPayload,
+            hoofdKleur: wizState.hoofdKleur || '',
+            kleurVarianten: kleurVariantenPayload,
           }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -2483,6 +2505,158 @@
         e.target.value = '';
       });
     });
+
+    // ============================================================
+    // Kleur-varianten (single-mode)
+    // ============================================================
+    function cvId() { return 'cv' + Math.random().toString(36).slice(2, 8); }
+    function cvFotoId() { return 'cf' + Math.random().toString(36).slice(2, 8); }
+
+    function renderColorVariants() {
+      const wrap = document.getElementById('step3-color-variants');
+      const list = document.getElementById('color-variants-list');
+      const cnt = document.getElementById('cv-count');
+      if (!list) return;
+      cnt.textContent = `(${wizState.colorVariants.length})`;
+      if (wrap) wrap.style.display = wizState.photoBase ? '' : 'none';
+
+      list.innerHTML = wizState.colorVariants.map((cv, ci) => `
+        <div class="cv-card" data-cv-id="${cv.id}" style="background:var(--c-cream); border-radius:var(--r-sm); padding:0.6rem; margin:0.5rem 0; border-left:3px solid var(--c-pink-dark)">
+          <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap">
+            <strong style="color:var(--c-pink-dark); font-size:0.85rem">🎨 #${ci + 2}</strong>
+            <input type="text" placeholder="Kleur (bv. lichtblauw)" value="${escEP(cv.kleur)}" data-cv-field="kleur" style="flex:1; min-width:120px; padding:0.35em 0.6em; font-family:inherit; font-size:0.85rem; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); background:white">
+            <input type="number" min="0" placeholder="vrr" value="${cv.voorraad}" data-cv-field="voorraad" style="width:60px; padding:0.35em 0.4em; font-family:inherit; font-size:0.85rem; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); background:white">
+            <button type="button" data-cv-action="add-foto" style="background:var(--c-cream); border:1.5px dashed var(--c-pink); border-radius:var(--r-sm); padding:0.3em 0.6em; font-family:inherit; font-size:0.8rem; cursor:pointer; color:var(--c-pink-dark)">+ Foto</button>
+            <button type="button" data-cv-action="remove-cv" title="Verwijder variant" style="background:none; border:none; cursor:pointer; color:#C95252; font-size:1.1rem; padding:0.2em 0.4em">×</button>
+          </div>
+          ${cv.fotos.length === 0 ? '<p class="cd-hint" style="margin:0; font-size:0.78rem">Nog geen foto\'s — klik op + Foto</p>' : ''}
+          ${cv.fotos.map((f, fi) => `
+            <div class="cv-foto-row" data-cf-id="${f.id}" style="display:flex; gap:0.6rem; align-items:flex-start; padding:0.4rem 0; border-top:1px solid var(--c-cream-dark)">
+              <img src="${f.dataURL}" alt="${escEP(cv.kleur)} ${fi + 1}" style="width:54px; height:54px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0; transition:filter 0.15s; filter: brightness(${1+f.bri/100}) contrast(${1+f.con/100}) saturate(${1+f.sat/100})">
+              <div style="flex:1; min-width:0">
+                <div class="photo-bri-row" style="margin:0 0 0.25rem">
+                  <label style="font-size:0.75rem">☀️ <span class="cv-bri-val">${f.bri > 0 ? '+' + f.bri : f.bri}</span></label>
+                  <input type="range" class="cv-slider" data-field="bri" min="-50" max="50" step="5" value="${f.bri}">
+                </div>
+                <div class="photo-bri-row" style="margin:0 0 0.25rem">
+                  <label style="font-size:0.75rem">🎚️ <span class="cv-con-val">${f.con > 0 ? '+' + f.con : f.con}</span></label>
+                  <input type="range" class="cv-slider" data-field="con" min="-50" max="50" step="5" value="${f.con}">
+                </div>
+                <div class="photo-bri-row" style="margin:0">
+                  <label style="font-size:0.75rem">🌈 <span class="cv-sat-val">${f.sat > 0 ? '+' + f.sat : f.sat}</span></label>
+                  <input type="range" class="cv-slider" data-field="sat" min="-50" max="50" step="5" value="${f.sat}">
+                </div>
+              </div>
+              <button type="button" data-cv-action="remove-foto" title="Verwijder foto" style="background:none; border:none; cursor:pointer; color:#C95252; padding:0.2em 0.4em">×</button>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+
+      // Bind handlers
+      list.querySelectorAll('.cv-card').forEach(card => {
+        const cvIdAttr = card.dataset.cvId;
+        const cv = wizState.colorVariants.find(x => x.id === cvIdAttr);
+        if (!cv) return;
+        // Velden
+        card.querySelectorAll('[data-cv-field]').forEach(inp => {
+          inp.addEventListener('input', () => {
+            const f = inp.dataset.cvField;
+            cv[f] = (f === 'voorraad') ? (parseInt(inp.value) || 0) : inp.value;
+          });
+        });
+        // + Foto
+        card.querySelector('[data-cv-action="add-foto"]')?.addEventListener('click', () => {
+          const inp = document.createElement('input');
+          inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+          inp.onchange = async ev => {
+            const files = Array.from(ev.target.files || []);
+            for (const fl of files) {
+              const dataURL = await readImageDataURL(fl);
+              const ext = (fl.name.match(/\.(jpe?g|png|webp)$/i)?.[1] || 'jpg').toLowerCase().replace('jpeg', 'jpg');
+              cv.fotos.push({ id: cvFotoId(), dataURL, ext, bri: 0, con: 0, sat: 0 });
+            }
+            renderColorVariants();
+          };
+          inp.click();
+        });
+        // Verwijder variant
+        card.querySelector('[data-cv-action="remove-cv"]')?.addEventListener('click', () => {
+          if (confirm('Verwijder deze kleur-variant?')) {
+            wizState.colorVariants = wizState.colorVariants.filter(x => x.id !== cvIdAttr);
+            renderColorVariants();
+          }
+        });
+        // Foto-rij events
+        card.querySelectorAll('.cv-foto-row').forEach(row => {
+          const cfId = row.dataset.cfId;
+          const foto = cv.fotos.find(x => x.id === cfId);
+          if (!foto) return;
+          row.querySelectorAll('.cv-slider').forEach(s => {
+            s.addEventListener('input', () => {
+              const v = parseInt(s.value);
+              foto[s.dataset.field] = v;
+              const lbl = row.querySelector(`.cv-${s.dataset.field}-val`);
+              if (lbl) lbl.textContent = v > 0 ? '+' + v : String(v);
+              const img = row.querySelector('img');
+              if (img) img.style.filter = `brightness(${1+foto.bri/100}) contrast(${1+foto.con/100}) saturate(${1+foto.sat/100})`;
+            });
+          });
+          row.querySelector('[data-cv-action="remove-foto"]')?.addEventListener('click', () => {
+            cv.fotos = cv.fotos.filter(x => x.id !== cfId);
+            renderColorVariants();
+          });
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const addBtn = document.getElementById('btn-cv-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          wizState.colorVariants.push({ id: cvId(), kleur: '', voorraad: 1, fotos: [] });
+          renderColorVariants();
+        });
+      }
+      const hoofdKleur = document.getElementById('hoofd-kleur');
+      if (hoofdKleur) {
+        hoofdKleur.addEventListener('input', () => { wizState.hoofdKleur = hoofdKleur.value; });
+      }
+    });
+
+    async function bakeColorVariants() {
+      const out = [];
+      for (const cv of wizState.colorVariants) {
+        const fotos = [];
+        for (let i = 0; i < cv.fotos.length; i++) {
+          const f = cv.fotos[i];
+          const base64 = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              const MAX = 1200;
+              let w = img.naturalWidth, h = img.naturalHeight;
+              if (w > MAX || h > MAX) {
+                if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                else { w = Math.round(w * MAX / h); h = MAX; }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w; canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.filter = `brightness(${1+f.bri/100}) contrast(${1+f.con/100}) saturate(${1+f.sat/100})`;
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/jpeg', 0.88).split(',')[1]);
+            };
+            img.onerror = () => reject(new Error('Variant-foto bake mislukt'));
+            img.src = f.dataURL;
+          });
+          fotos.push({ base64, ext: 'jpg' });
+        }
+        out.push({ kleur: cv.kleur, voorraad: cv.voorraad, fotos });
+      }
+      return out;
+    }
+    window.bakeColorVariants = bakeColorVariants;
+    window.renderColorVariants = renderColorVariants;
 
     // Helper voor publish: bake elke extra foto en geef base64 terug
     async function bakeExtraPhotos() {
