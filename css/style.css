@@ -63,11 +63,21 @@ section[id] {
 body {
   margin: 0;
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  background: var(--c-cream);
+  background: var(--c-cream) url('../img/branding/patroon.png') repeat;
+  background-size: 240px;
   color: var(--c-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(250, 246, 238, 0.82);
+  pointer-events: none;
+  z-index: 0;
+}
+body > * { position: relative; z-index: 1; }
 
 img { max-width: 100%; display: block; }
 a { color: var(--c-lavender-dark); text-decoration: none; }
