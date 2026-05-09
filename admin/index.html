@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.41">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.42">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -365,7 +365,9 @@
     <!-- ================================================ -->
     <!-- ✨ AI Wizard — voor Pleun                          -->
     <!-- ================================================ -->
-    <div class="ai-smart" id="ai-smart">
+    <details class="admin-section" id="ai-wizard-details" style="margin-bottom:1rem">
+      <summary>✨ Nieuw artikel toevoegen (AI-wizard)</summary>
+    <div class="ai-smart" id="ai-smart" style="margin-top:0.6rem">
       <h2>✨ Nieuw artikel toevoegen</h2>
       <p style="color:var(--c-text); margin-top:0">Vul iets in over je nieuwe item. AI schrijft een tekst voor de site én een post voor je WhatsApp-kanaal. Je kan alles aanpassen tot het perfect is.</p>
 
@@ -606,20 +608,16 @@
         <div class="ai-status" id="ai-status"></div>
       </div>
     </div>
+    </details>
 
-    <p style="color:var(--c-muted); margin-top:2rem">— Of beheer items handmatig hieronder —</p>
-    <p style="color:var(--c-muted)">Wijzig items en klik "Bewaren" — de wijziging staat dan automatisch live op de site (1-2 min). Geen export meer nodig 💝</p>
-
-    <div class="info-banner">
-      ✨ <strong>Volautomatisch:</strong> Pas een item aan → klik "Bewaren" → klaar! De wijziging gaat direct naar de website.
-    </div>
-
-    <details open style="margin-top:3rem" class="admin-section">
+    <details open style="margin-top:1.5rem" class="admin-section">
       <summary>📋 Huidige items <span id="huidige-count-badge" class="section-count"></span></summary>
       <div id="item-list" style="margin-top:0.8rem"></div>
     </details>
 
-    <h2>➕ Nieuw item / bewerken</h2>
+    <details class="admin-section" id="form-details" style="margin-top:1.5rem">
+      <summary>➕ Nieuw item / bewerken</summary>
+      <p style="color:var(--c-muted); font-size:0.9rem; margin:0.5rem 0">Klik op ✏️ bij een item hierboven, of vul hieronder een nieuw item in. Wijziging gaat direct live op de site.</p>
 
     <!-- AI-balk — verschijnt alleen bij bestaand item bewerken -->
     <div id="edit-ai-bar" style="display:none; background:linear-gradient(135deg,#f4ebf7,#FFF8E1); border:2px solid var(--c-lavender); border-radius:var(--r-md); padding:1rem; margin-bottom:1rem">
@@ -765,6 +763,7 @@
         <button type="reset" class="btn secondary full" onclick="resetForm()">↺ Form leegmaken</button>
       </div>
     </form>
+    </details>
 
     <details style="margin-top:3rem; opacity:0.6">
       <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🛠️ Geavanceerd — alleen voor noodgeval</summary>
@@ -994,8 +993,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.41"></script>
-  <script src="../js/sw-register.js?v=3.0.41"></script>
+  <script src="../js/config.js?v=3.0.42"></script>
+  <script src="../js/sw-register.js?v=3.0.42"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1071,12 +1070,14 @@
       const vs = document.getElementById('variant-status');
       if (vs) vs.style.display = 'none';
 
-      // Toon AI-balk
+      // Toon AI-balk + open het ingeklapte form
       const bar = document.getElementById('edit-ai-bar');
       if (bar) {
         bar.style.display = '';
         document.getElementById('edit-item-naam').textContent = it.naam || '';
       }
+      const formDetails = document.getElementById('form-details');
+      if (formDetails) formDetails.open = true;
       // Reset foto-tweak staat
       _editPhotoOpen = false;
       _editPhotoState.loaded = false;
@@ -1117,6 +1118,9 @@
       renderVariantEditor();
       const vs = document.getElementById('variant-status');
       if (vs) vs.style.display = 'none';
+      // Klap het form weer dicht voor minder clutter
+      const formDetails = document.getElementById('form-details');
+      if (formDetails) formDetails.open = false;
     }
     document.getElementById('form-item').addEventListener('submit', async e => {
       e.preventDefault();
