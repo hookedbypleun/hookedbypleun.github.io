@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.26">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.27">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -958,19 +958,20 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.26"></script>
-  <script src="../js/sw-register.js?v=3.0.26"></script>
+  <script src="../js/config.js?v=3.0.27"></script>
+  <script src="../js/sw-register.js?v=3.0.27"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
 
     async function init() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try { DATA = JSON.parse(saved); }
-        catch { await loadFromFile(); }
-      } else {
+      // Altijd vers van items.json — localStorage was stale na bulk-import fixes
+      try {
         await loadFromFile();
+      } catch {
+        // Offline fallback
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) try { DATA = JSON.parse(saved); } catch {}
       }
       renderCategories();
       renderItems();

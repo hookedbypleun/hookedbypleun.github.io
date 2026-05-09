@@ -366,6 +366,7 @@ Lokaal afhalen of versturen?`;
 
         ${heeftMeerKleuren ? `
           <div class="varianten-keuze" id="varianten-keuze">
+            <div class="kleur-keuze-hint" id="kleur-hint">🎨 Kies hieronder eerst een kleur!</div>
             <p class="varianten-label">🎨 Kies je kleur: <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong></p>
             <div class="kleur-knoppen">
               ${varianten.map((v, i) => `
@@ -493,12 +494,25 @@ Lokaal afhalen of versturen?`;
 
     // ===== Variant-keuze + foto-gallery interactie =====
     let huidigeVariantIdx = 0;
+    let kleurGekozen = !heeftMeerKleuren; // true voor items zonder varianten
 
     function huidigeVariant() { return varianten[huidigeVariantIdx]; }
+
+    function toonKleurHint() {
+      const hint = document.getElementById('kleur-hint');
+      if (!hint) return;
+      hint.classList.remove('zichtbaar');
+      void hint.offsetWidth; // reset animatie
+      hint.classList.add('zichtbaar');
+      hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => hint.classList.remove('zichtbaar'), 4000);
+    }
 
     // Kleur selecteren = bestel-keuze registreren + hoofdfoto springen; thumbs blijven compleet
     function selectVariant(idx) {
       huidigeVariantIdx = idx;
+      kleurGekozen = true;
+      document.getElementById('kleur-hint')?.classList.remove('zichtbaar');
       const v = huidigeVariant();
       const fotos = v.fotos || [];
       const hoofd = document.getElementById('foto-hoofd');
@@ -520,7 +534,7 @@ Lokaal afhalen of versturen?`;
       });
     });
 
-    // Klik op thumbnail → hoofdfoto wisselen
+    // Klik op thumbnail → hoofdfoto wisselen (variant-keuze ongewijzigd)
     wrap.addEventListener('click', e => {
       const t = e.target.closest('.foto-thumb');
       if (!t) return;
@@ -531,7 +545,7 @@ Lokaal afhalen of versturen?`;
       t.classList.add('actief');
     });
 
-    // Bestel-knoppen — gebruik huidige variant
+    // Bestel-knoppen — gebruik huidige variant; herinnering als kleur nog niet gekozen
     function huidigeCartItem() {
       const v = huidigeVariant();
       const variantSuffix = (varianten.length > 1 && v.kleur) ? `|${v.kleur}` : '';
@@ -547,9 +561,11 @@ Lokaal afhalen of versturen?`;
       };
     }
     document.getElementById('btn-bestel-direct')?.addEventListener('click', () => {
+      if (!kleurGekozen) { toonKleurHint(); return; }
       window.openCheckout(huidigeCartItem());
     });
     document.getElementById('btn-cart-add')?.addEventListener('click', () => {
+      if (!kleurGekozen) { toonKleurHint(); return; }
       Cart.add(huidigeCartItem());
       document.querySelector("#cart-overlay")?.classList.add("open");
     });

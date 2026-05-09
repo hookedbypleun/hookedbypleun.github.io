@@ -1539,6 +1539,29 @@ footer .extra-links a:hover { opacity: 1; text-decoration: underline; }
 .foto-thumb:hover { transform: translateY(-1px); border-color: var(--c-lavender); }
 .foto-thumb.actief { border-color: var(--c-lavender-dark); box-shadow: 0 0 0 2px var(--c-lavender) inset; }
 
+/* Kleur-keuze herinnering */
+@keyframes kleur-shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-5px); }
+  40%     { transform: translateX(5px); }
+  60%     { transform: translateX(-3px); }
+  80%     { transform: translateX(3px); }
+}
+.kleur-keuze-hint {
+  display: none;
+  background: var(--c-mustard);
+  color: white;
+  border-radius: var(--r-sm);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.kleur-keuze-hint.zichtbaar {
+  display: block;
+  animation: kleur-shake 0.4s ease;
+}
+
 /* Variant-keuze (kleur-knoppen op productpagina) */
 .varianten-keuze {
   margin: var(--gap-md) 0;
