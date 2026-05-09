@@ -43,6 +43,59 @@ function jsonResponse(data, status, headers) {
   });
 }
 
+// Timing-safe string compare — voorkomt timing attacks op auth
+function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+// In-memory rate limit per IP (per isolate; redelijke spam-rem zonder KV)
+const _rateBuckets = new Map();
+function checkRateLimit(ip, key, limit, windowMs) {
+  if (!ip) return true;
+  const now = Date.now();
+  const bucketKey = `${key}:${ip}`;
+  const bucket = _rateBuckets.get(bucketKey) || [];
+  const fresh = bucket.filter(t => now - t < windowMs);
+  if (fresh.length >= limit) {
+    _rateBuckets.set(bucketKey, fresh);
+    return false;
+  }
+  fresh.push(now);
+  _rateBuckets.set(bucketKey, fresh);
+  // Garbage collect ouder dan 1 uur
+  if (_rateBuckets.size > 5000) {
+    for (const [k, v] of _rateBuckets) {
+      if (!v.length || now - v[v.length - 1] > 3600000) _rateBuckets.delete(k);
+    }
+  }
+  return true;
+}
+
+// Magic-byte validatie voor foto's — alleen JPEG, PNG, WebP, GIF
+function detectImageMime(base64) {
+  const clean = String(base64 || '').replace(/^data:image\/\w+;base64,/, '');
+  if (clean.length < 16) return null;
+  // Decodeer eerste 16 bytes
+  const head = atob(clean.slice(0, 24));
+  const b = i => head.charCodeAt(i);
+  // JPEG: FF D8 FF
+  if (b(0) === 0xFF && b(1) === 0xD8 && b(2) === 0xFF) return 'image/jpeg';
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (b(0) === 0x89 && b(1) === 0x50 && b(2) === 0x4E && b(3) === 0x47) return 'image/png';
+  // GIF: 47 49 46 38
+  if (b(0) === 0x47 && b(1) === 0x49 && b(2) === 0x46 && b(3) === 0x38) return 'image/gif';
+  // WebP: RIFF....WEBP
+  if (b(0) === 0x52 && b(1) === 0x49 && b(2) === 0x46 && b(3) === 0x46
+      && b(8) === 0x57 && b(9) === 0x45 && b(10) === 0x42 && b(11) === 0x50) return 'image/webp';
+  return null;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -55,8 +108,17 @@ export default {
     const url = new URL(request.url);
 
     try {
-      // === /review POST — publieke review-inzending (GEEN auth) ===
+      // IP voor rate-limiting (Cloudflare zet deze headers)
+      const clientIp = request.headers.get('CF-Connecting-IP') ||
+                       request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
+                       'unknown';
+
+      // === /review POST — publieke review-inzending (GEEN auth, MET rate limit) ===
       if (url.pathname === '/review' && request.method === 'POST') {
+        // Max 3 reviews per 10 minuten per IP — voorkomt spam
+        if (!checkRateLimit(clientIp, 'review', 3, 10 * 60 * 1000)) {
+          return jsonResponse({ error: 'rate_limit', detail: 'Te veel reviews kort na elkaar. Probeer later opnieuw.' }, 429, cors);
+        }
         const body = await request.json().catch(() => ({}));
         const result = await submitReview(body, env);
         return jsonResponse(result, 200, cors);
@@ -72,13 +134,18 @@ export default {
         return new Response(null, { status: 302, headers: { ...cors, 'Location': target } });
       }
 
-      // === Auth check (alle overige endpoints) ===
+      // === Auth check (alle overige endpoints) — timing-safe, met brute-force rem ===
       const auth = request.headers.get('Authorization') || '';
       const token = auth.replace(/^Bearer\s+/i, '');
-      if (!env.ADMIN_PASSWORD || token !== env.ADMIN_PASSWORD) {
+      const tokenOK = env.ADMIN_PASSWORD && timingSafeEqual(token, env.ADMIN_PASSWORD);
+      if (!tokenOK) {
         if (url.pathname === '/auth') {
+          // Rate limit /auth: max 5 pogingen per 5 min per IP
+          if (!checkRateLimit(clientIp, 'auth', 5, 5 * 60 * 1000)) {
+            return jsonResponse({ error: 'rate_limit', detail: 'Te veel inlogpogingen — wacht 5 min.' }, 429, cors);
+          }
           const body = await request.json().catch(() => ({}));
-          if (body.password === env.ADMIN_PASSWORD) {
+          if (env.ADMIN_PASSWORD && timingSafeEqual(String(body.password || ''), env.ADMIN_PASSWORD)) {
             return jsonResponse({ ok: true }, 200, cors);
           }
         }
@@ -405,6 +472,12 @@ ${schemaText}`;
 async function smartEditWithGemini({ item, instructie }, env) {
   if (!item || typeof item !== 'object') throw new Error('item ontbreekt');
   if (!instructie || !instructie.trim()) throw new Error('instructie ontbreekt');
+  // Cap instructie-lengte (DOS + prompt-injection rem)
+  if (String(instructie).length > 800) {
+    throw new Error('Wijziging te lang — max 800 tekens.');
+  }
+  // Strip controle-karakters die JSON of prompt kunnen breken
+  instructie = String(instructie).replace(/[\u0000-\u001F\u007F]+/g, ' ').trim();
 
   // Verzamel alle bestaande foto-paden — Gemini mag UITSLUITEND deze gebruiken
   const bekendePaden = new Set();
@@ -506,12 +579,30 @@ async function uploadPhotoToGitHub({ photoBase64, photoFilename, mediaType }, en
   if (!photoFilename) throw new Error('photoFilename ontbreekt');
   if (!env.GITHUB_TOKEN) throw new Error('GITHUB_TOKEN niet ingesteld');
 
-  // Sanitize filename: alleen [a-z0-9.-] toegestaan
+  // Magic-byte validatie — bestand MOET een echt image-formaat zijn
+  const realMime = detectImageMime(photoBase64);
+  if (!realMime) {
+    throw new Error('Bestand is geen geldige JPEG/PNG/WebP/GIF afbeelding.');
+  }
+
+  // Max 8 MB per upload (base64 inflated ~33%)
+  const cleanLen = String(photoBase64).replace(/^data:image\/\w+;base64,/, '').length;
+  if (cleanLen > 11 * 1024 * 1024) { // ~8 MB binary
+    throw new Error('Foto is te groot — max ~8 MB.');
+  }
+
+  // Sanitize filename: alleen [a-z0-9.-] toegestaan, geen path traversal
   const safe = String(photoFilename).toLowerCase()
     .replace(/[^a-z0-9.-]+/g, '-')
+    .replace(/\.\.+/g, '.')   // geen ".." sequences
     .replace(/^-+|-+$/g, '')
     .slice(0, 100);
-  if (!safe) throw new Error('ongeldige filename');
+  if (!safe || safe.startsWith('.')) throw new Error('ongeldige filename');
+  // Forceer juiste extensie op basis van magic byte (geen .html/.exe)
+  const extByMime = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+  const correctExt = extByMime[realMime];
+  const baseSafe = safe.replace(/\.[a-z0-9]+$/, '');
+  const finalSafe = `${baseSafe}.${correctExt}`;
 
   const ghHeaders = {
     'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
@@ -522,7 +613,7 @@ async function uploadPhotoToGitHub({ photoBase64, photoFilename, mediaType }, en
   };
 
   const cleanB64 = (photoBase64 || '').replace(/^data:image\/\w+;base64,/, '');
-  const path = `img/items/${safe}`;
+  const path = `img/items/${finalSafe}`;
   const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
 
   let sha = undefined;
@@ -533,7 +624,7 @@ async function uploadPhotoToGitHub({ photoBase64, photoFilename, mediaType }, en
     method: 'PUT',
     headers: ghHeaders,
     body: JSON.stringify({
-      message: `📸 Upload foto: ${safe}`,
+      message: `📸 Upload foto: ${finalSafe}`,
       content: cleanB64,
       ...(sha && { sha }),
     }),
