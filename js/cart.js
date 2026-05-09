@@ -248,6 +248,13 @@ ${adresBlok}`;
     showCheckoutDetails(items, target);
   };
 
+  // Enkelvoudige bestelling (direct vanuit productkaart, zonder verzameldoos).
+  window.openCheckout = function(itemData) {
+    const overlay = document.querySelector('#cart-overlay');
+    if (overlay) overlay.classList.add('open');
+    showCheckoutDetails([itemData], 'pleun');
+  };
+
   // Init
   document.addEventListener('DOMContentLoaded', updateCartUI);
 })();

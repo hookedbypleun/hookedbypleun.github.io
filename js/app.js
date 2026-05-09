@@ -186,9 +186,9 @@ Lokaal afhalen of versturen?`;
           </div>
 
           <div class="bestel-acties">
-            <a class="btn full" href="${window.orderUrl(bericht)}" target="_blank" rel="noopener">
+            <button class="btn full" onclick='window.openCheckout(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto})})'>
               💬 ${escapeHtml(cfg.whatsappLabel)} — ik wil deze!
-            </a>
+            </button>
             <button class="btn secondary full" onclick='Cart.add(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto})}); document.querySelector("#cart-overlay").classList.add("open");'>
               🎁 Voeg toe aan verzameldoos
             </button>
