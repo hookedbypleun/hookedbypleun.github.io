@@ -562,6 +562,7 @@ section.section {
 }
 .postcode-box input:focus { outline: none; border-color: var(--c-lavender); }
 .postcode-result {
+  display: block;
   margin-top: var(--gap-sm);
   padding: 0.7em 1em;
   border-radius: var(--r-md);
