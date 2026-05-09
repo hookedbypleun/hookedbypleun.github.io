@@ -180,14 +180,14 @@ nav .cart-count.empty { display: none; }
 }
 .hero-hoofdlogo {
   display: block;
-  width: clamp(110px, 22vw, 150px);
+  width: clamp(180px, 35vw, 260px);
   height: auto;
   margin: 0 auto var(--gap-xs);
   filter: drop-shadow(0 3px 10px rgba(232, 168, 142, 0.15));
 }
 .hero-banner {
   display: block;
-  max-width: min(980px, 96%);
+  max-width: 100%;
   width: 100%;
   height: auto;
   margin: 0 auto var(--gap-xs);
