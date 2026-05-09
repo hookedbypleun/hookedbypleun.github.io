@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#B5A1D6">
-  <title>Product · Hooked by Pleun</title>
+  <title>Eerder gemaakt · Hooked by Pleun</title>
+  <meta name="description" content="Items die Pleun ooit heeft gehaakt — voor cadeau's, familie of als experiment. Niet meer te koop, wel te bewonderen of als inspiratie voor een eigen versie op maat.">
   <link rel="icon" type="image/png" href="img/branding/app-icon.png?v=4">
   <link rel="apple-touch-icon" href="img/branding/app-icon.png?v=4">
   <link rel="manifest" href="manifest.json">
@@ -23,16 +24,25 @@
     <div class="links">
       <a href="index.html">Home</a>
       <a href="galerij.html">Galerij</a>
-      <a href="eerder.html">Eerder gemaakt</a>
+      <a href="eerder.html" class="actief">Eerder gemaakt</a>
       <a href="bestellen.html">Bestellen</a>
       <a href="over.html">Over</a>
     </div>
     <button class="cart-btn" data-cart-open>🎁 <span class="cart-count empty">0</span></button>
   </nav>
 
-  <main class="product-detail" id="product-detail">
-    <p class="loading">Item laden... 🧶</p>
-  </main>
+  <header class="hero">
+    <h1>💝 Eerder gemaakt</h1>
+    <p class="tagline">Mijn schatkamer — items die ik ooit heb gehaakt</p>
+    <p class="lede">Cadeautjes voor familie, eerste experimenten, items die al een nieuw thuis gevonden hebben 🌸 Niet meer te koop, maar misschien zin om iets soortgelijks op maat te laten haken? Tap op een item en stel je vraag.</p>
+  </header>
+
+  <section class="section">
+    <div class="filter-balk" id="filter-balk"></div>
+    <div class="galerij-grid" id="archief-grid">
+      <p class="loading">Laden... 🧶</p>
+    </div>
+  </section>
 
   <!-- Verzameldoos modal -->
   <div class="cart-overlay" id="cart-overlay">
@@ -52,6 +62,7 @@
     <p>Gemaakt door <strong>Pleun</strong>, uit een klein Brabants dorpje 🌸</p>
     <div class="links">
       <a href="galerij.html">Galerij</a>
+      <a href="eerder.html">Eerder gemaakt</a>
       <a href="bestellen.html">Bestellen</a>
       <a href="over.html">Over</a>
     </div>
@@ -62,11 +73,11 @@
     <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> <span class="version-tag">v3.0.21</span></small>
   </footer>
 
-  <script src="js/config.js"></script>
-  <script src="js/cart.js"></script>
-  <script src="js/postcode.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/modals.js"></script>
-  <script src="js/sw-register.js"></script>
+  <script src="js/config.js?v=3.0.21"></script>
+  <script src="js/cart.js?v=3.0.21"></script>
+  <script src="js/postcode.js?v=3.0.21"></script>
+  <script src="js/app.js?v=3.0.21"></script>
+  <script src="js/modals.js?v=3.0.21"></script>
+  <script src="js/sw-register.js?v=3.0.21"></script>
 </body>
 </html>

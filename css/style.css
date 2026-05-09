@@ -1447,6 +1447,12 @@ footer .extra-links a {
 }
 footer .extra-links a:hover { opacity: 1; text-decoration: underline; }
 
+/* Archief tag (eerder gemaakt) */
+.tag.archief {
+  background: var(--c-pink);
+  color: var(--c-ink);
+}
+
 /* ============================================
    Varianten — kleur-dotjes (galerij) + kleur-knoppen (product)
    ============================================ */

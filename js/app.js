@@ -22,11 +22,12 @@
   function tagHTML(item) {
     const tags = [];
     if (item.status === 'uitverkocht') tags.push('<span class="tag uitverkocht">Verkocht 💕</span>');
+    else if (item.status === 'archief') tags.push('<span class="tag archief">Eerder gemaakt 💝</span>');
     else if (item.status === 'binnenkort') tags.push('<span class="tag binnenkort">Binnenkort ✨</span>');
     else if (item.status === 'showcase') tags.push('<span class="tag showcase">Op maat</span>');
     else if (item.afgeprijsd) tags.push('<span class="tag afgeprijsd">Sale!</span>');
     else if (item.nieuw) tags.push('<span class="tag nieuw">Nieuw 🌸</span>');
-    if (item.uitgelicht && item.status !== 'uitverkocht') tags.push('<span class="tag uitgelicht">Favoriet</span>');
+    if (item.uitgelicht && item.status !== 'uitverkocht' && item.status !== 'archief') tags.push('<span class="tag uitgelicht">Favoriet</span>');
     if (item.eigenPatroon) tags.push('<span class="tag eigen">⭐ Eigen ontwerp</span>');
     return tags.join('');
   }
@@ -102,7 +103,7 @@
     const grid = document.getElementById('home-uitgelicht');
     if (!grid) return;
     const data = await loadData();
-    const uitgelicht = data.items.filter(i => i.uitgelicht && i.status !== 'uitverkocht').slice(0, 4);
+    const uitgelicht = data.items.filter(i => i.uitgelicht && i.status !== 'uitverkocht' && i.status !== 'archief').slice(0, 4);
     grid.innerHTML = uitgelicht.map(kaartHTML).join('') ||
       '<p class="leeg">Nog geen items 🧶</p>';
 
@@ -205,13 +206,15 @@
     if (!grid) return;
     const data = await loadData();
 
+    // Galerij toont GEEN archief-items (die staan op eerder.html)
+    const galerijItems = data.items.filter(i => i.status !== 'archief');
     const cats = data.categories.sort((a, b) => a.volgorde - b.volgorde);
 
     let huidig = (new URL(location.href)).searchParams.get('cat') || 'alle';
     let huidigSort = 'datum';
 
     function render() {
-      const filtered = huidig === 'alle' ? data.items : data.items.filter(i => i.categorie === huidig);
+      const filtered = huidig === 'alle' ? galerijItems : galerijItems.filter(i => i.categorie === huidig);
       const statusOrder = { beschikbaar: 0, binnenkort: 1, showcase: 2, uitverkocht: 3 };
       const sorted = [...filtered].sort((a, b) => {
         const sd = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
@@ -229,7 +232,7 @@
       filterBalk.innerHTML = `
         <button data-cat="alle" class="${huidig === 'alle' ? 'actief' : ''}">Alles</button>
         ${cats.map(c => {
-          const aantal = data.items.filter(i => i.categorie === c.id).length;
+          const aantal = galerijItems.filter(i => i.categorie === c.id).length;
           if (aantal === 0) return '';
           return `<button data-cat="${c.id}" class="${huidig === c.id ? 'actief' : ''}">${c.emoji} ${escapeHtml(c.naam)} (${aantal})</button>`;
         }).join('')}
@@ -259,6 +262,48 @@
     render();
   }
 
+  // ===== Eerder gemaakt (archief) =====
+  async function renderArchief() {
+    const grid = document.getElementById('archief-grid');
+    const filterBalk = document.getElementById('filter-balk');
+    if (!grid) return;
+    const data = await loadData();
+
+    const archiefItems = data.items.filter(i => i.status === 'archief');
+    const cats = data.categories.sort((a, b) => a.volgorde - b.volgorde);
+
+    let huidig = (new URL(location.href)).searchParams.get('cat') || 'alle';
+
+    function render() {
+      const filtered = huidig === 'alle' ? archiefItems : archiefItems.filter(i => i.categorie === huidig);
+      const sorted = [...filtered].sort((a, b) => (b.datumToegevoegd || '').localeCompare(a.datumToegevoegd || ''));
+      grid.innerHTML = sorted.length
+        ? sorted.map(kaartHTML).join('')
+        : '<p class="leeg">Nog geen items in mijn schatkamer 💝</p>';
+    }
+
+    if (filterBalk) {
+      filterBalk.innerHTML = `
+        <button data-cat="alle" class="${huidig === 'alle' ? 'actief' : ''}">Alles</button>
+        ${cats.map(c => {
+          const aantal = archiefItems.filter(i => i.categorie === c.id).length;
+          if (aantal === 0) return '';
+          return `<button data-cat="${c.id}" class="${huidig === c.id ? 'actief' : ''}">${c.emoji} ${escapeHtml(c.naam)} (${aantal})</button>`;
+        }).join('')}
+      `;
+      filterBalk.addEventListener('click', e => {
+        const b = e.target.closest('button[data-cat]');
+        if (!b) return;
+        huidig = b.dataset.cat;
+        filterBalk.querySelectorAll('button').forEach(x => x.classList.toggle('actief', x.dataset.cat === huidig));
+        history.replaceState(null, '', huidig === 'alle' ? 'eerder.html' : 'eerder.html?cat=' + huidig);
+        render();
+      });
+    }
+
+    render();
+  }
+
   // ===== Product =====
   async function renderProduct() {
     const wrap = document.getElementById('product-detail');
@@ -276,6 +321,7 @@
     const showcase = item.status === 'showcase';
     const binnenkort = item.status === 'binnenkort';
     const koopbaar = item.status === 'beschikbaar';
+    const archief = item.status === 'archief';
     const cat = data.categories.find(c => c.id === item.categorie);
 
     const bericht =
@@ -307,6 +353,7 @@ Lokaal afhalen of versturen?`;
           ${item.prijsOud ? `<span class="prijs-oud-groot">${fmtPrijs(item.prijsOud)}</span>` : ''}
           ${koopbaar || item.afgeprijsd ? fmtPrijs(item.prijs) + (item.perStuk ? ' / stuk' : '') :
             sold ? '<span style="color:var(--c-sold)">Verkocht 💕</span>' :
+            archief ? '<span style="color:var(--c-pink-dark)">Eerder gemaakt 💝</span>' :
             binnenkort ? '<span style="color:var(--c-mustard-dark)">Binnenkort ✨</span>' :
             showcase ? '<span style="color:var(--c-lavender-dark)">Op maat</span>' : '—'}
         </div>
@@ -419,6 +466,19 @@ Lokaal afhalen of versturen?`;
           <div class="bestel-acties" style="margin-top:var(--gap-md)">
             <a class="btn mustard full" href="${cfg.channelInviteUrl}" target="_blank" rel="noopener">
               🔔 Volg het kanaal — krijg launch-bericht
+            </a>
+          </div>
+        ` : archief ? `
+          <div class="bestel-acties" style="margin-top:var(--gap-md)">
+            <p style="color:var(--c-muted); font-size:0.95rem; line-height:1.5">
+              💝 Dit item heb ik ooit gemaakt — niet meer te koop, maar leuk om te laten zien!
+              Heb je een vraag, of wil je iets soortgelijks op maat?
+            </p>
+            <a class="btn full" href="${window.orderUrl('Hoi Pleun! 💝 Ik zag op je website dat je ooit een ' + item.naam + ' hebt gemaakt. Ik heb daar een vraag over!')}" target="_blank" rel="noopener">
+              💬 Stel een vraag
+            </a>
+            <a class="btn secondary full" href="${window.orderUrl('Hoi Pleun! 💝 Ik zag de ' + item.naam + ' op je website. Zou je iets soortgelijks voor mij op maat kunnen haken?')}" target="_blank" rel="noopener">
+              💌 Vraag een eigen versie
             </a>
           </div>
         ` : `
@@ -647,6 +707,7 @@ Lokaal afhalen of versturen?`;
   document.addEventListener('DOMContentLoaded', () => {
     renderHome();
     renderGalerij();
+    renderArchief();
     renderProduct();
     renderKanaalLink();
     startCountdown();

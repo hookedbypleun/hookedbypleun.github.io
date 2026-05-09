@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.20">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.21">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -868,6 +868,13 @@
     }
     .bulk-item-head .item-nr { font-weight: 800; color: var(--c-lavender-dark); font-size: 1.1rem; }
     .bulk-item-head .item-actions { margin-left: auto; display:flex; gap:0.3rem; }
+    .bulk-item-card.is-archief { background: #FBE9EE; border-color: var(--c-pink); }
+    .bulk-item-card.is-archief .bulk-variant { border-left-color: var(--c-pink-dark); }
+    .item-status-select {
+      padding: 0.3em 0.5em; font-family: inherit; font-size: 0.85rem;
+      border: 1.5px solid var(--c-cream-dark); border-radius: var(--r-sm);
+      background: white; cursor: pointer;
+    }
     .bulk-item-head button { background:none; border:1.5px solid var(--c-cream-dark); padding:0.3em 0.7em; border-radius: var(--r-sm); cursor:pointer; font-family:inherit; font-size:0.85rem; }
     .bulk-item-head button:hover { border-color: var(--c-lavender); }
     .bulk-item-head button.delete { color: #C95252; }
@@ -946,8 +953,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.20"></script>
-  <script src="../js/sw-register.js?v=3.0.20"></script>
+  <script src="../js/config.js?v=3.0.21"></script>
+  <script src="../js/sw-register.js?v=3.0.21"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2820,6 +2827,7 @@
           id: uid(),
           tekst: '', prijs: '', voorraad: 1,
           categorie: '', afmeting: '',
+          itemStatus: 'beschikbaar',  // 'beschikbaar' = te koop, 'archief' = eerder gemaakt
           varianten: [{ id: vid(), kleur: '', fotoIdxs: [idx], voorraad: 1 }],
         });
       }
@@ -2842,9 +2850,13 @@
       itemsWrap().innerHTML = STATE.items.map((it, i) => {
         const allItemNrs = STATE.items.map((_, idx) => idx).filter(idx => idx !== i);
         return `
-        <div class="bulk-item-card" data-item-id="${it.id}">
+        <div class="bulk-item-card ${it.itemStatus === 'archief' ? 'is-archief' : ''}" data-item-id="${it.id}">
           <div class="bulk-item-head">
             <span class="item-nr">#${i + 1}</span>
+            <select class="item-status-select" data-action="status" data-item-id="${it.id}" title="Type item">
+              <option value="beschikbaar"${it.itemStatus === 'beschikbaar' ? ' selected' : ''}>🛒 Te koop</option>
+              <option value="archief"${it.itemStatus === 'archief' ? ' selected' : ''}>💝 Eerder gemaakt</option>
+            </select>
             <div class="item-actions">
               ${allItemNrs.length ? `<select class="merge-target" data-item-id="${it.id}">
                 <option value="">Voeg samen met...</option>
@@ -2978,6 +2990,16 @@
     });
 
     itemsWrap().addEventListener('change', e => {
+      // Status-dropdown: te koop / eerder gemaakt
+      if (e.target.dataset.action === 'status') {
+        const item = findItem(e.target.dataset.itemId);
+        if (item) {
+          item.itemStatus = e.target.value;
+          render();
+        }
+        return;
+      }
+      // Merge dropdown
       if (!e.target.classList.contains('merge-target')) return;
       const sourceId = e.target.dataset.itemId;
       const targetId = e.target.value;
@@ -3078,6 +3100,7 @@
           const intakeItem = {
             slug, tekst: it.tekst, prijs: it.prijs,
             voorraad: it.voorraad, afmeting: it.afmeting, categorie: it.categorie,
+            status: it.itemStatus || 'beschikbaar',
             varianten: [],
           };
 
