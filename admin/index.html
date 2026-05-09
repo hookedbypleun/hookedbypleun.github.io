@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.32">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.33">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1006,8 +1006,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.32"></script>
-  <script src="../js/sw-register.js?v=3.0.32"></script>
+  <script src="../js/config.js?v=3.0.33"></script>
+  <script src="../js/sw-register.js?v=3.0.33"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1144,8 +1144,6 @@
       }
 
       const hoofdfoto = cleanVarianten[0].fotos[0];
-      // Als er maar 1 variant is zonder kleur-naam: oud-formaat (geen varianten array)
-      const useVarianten = cleanVarianten.length > 1 || cleanVarianten[0].kleur !== '';
 
       const item = {
         id,
@@ -1157,7 +1155,8 @@
         afmeting: document.getElementById('f-afmeting').value.trim() || undefined,
         kleuren: document.getElementById('f-kleuren').value.split(',').map(s=>s.trim()).filter(Boolean),
         foto: hoofdfoto,
-        varianten: useVarianten ? cleanVarianten : undefined,
+        // ALTIJD varianten meesturen — anders behoudt de Worker-merge de oude variant-array
+        varianten: cleanVarianten,
         status: document.getElementById('f-status').value,
         datumToegevoegd: new Date().toISOString().slice(0,10),
         uitgelicht: document.getElementById('f-uitgelicht').checked || undefined,
@@ -2435,7 +2434,7 @@
       if (!_variantState.length) {
         _variantState = [{ kleur: '', fotos: [] }];
       }
-      const miniBtnStyle = `flex:1; min-width:0; padding:0.15rem 0; background:white; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); cursor:pointer; font-size:0.75rem; color:var(--c-text); line-height:1; font-family:inherit`;
+      const miniBtnStyle = `flex:1; min-width:0; min-height:30px; padding:0.4rem 0; background:white; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); cursor:pointer; font-size:1rem; color:var(--c-text); line-height:1; font-family:inherit; font-weight:700`;
       const moveBtnStyle = `background:white; border:1.5px solid var(--c-cream-dark); cursor:pointer; font-size:0.85rem; color:var(--c-text); width:28px; height:28px; border-radius:var(--r-sm); padding:0; line-height:1`;
       wrap.innerHTML = _variantState.map((v, idx) => {
         const fotos = v.fotos || [];
