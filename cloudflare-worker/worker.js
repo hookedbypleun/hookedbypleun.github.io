@@ -103,6 +103,21 @@ export default {
         return jsonResponse(result, 200, cors);
       }
 
+      // === /update-item POST — sla bestaand item op zonder foto-upload ===
+      // Wordt aangeroepen door admin-edit "Bewaren"-knop voor full-auto sync.
+      if (url.pathname === '/update-item' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await updateItemInGitHub(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
+      // === /delete-item POST — verwijder bestaand item ===
+      if (url.pathname === '/delete-item' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await deleteItemInGitHub(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
       }
@@ -481,6 +496,97 @@ async function publishToGitHub({ item, photoBase64, photoFilename, extraPhotos, 
     photoPath,
     siteUrl: 'https://hookedbypleun.github.io/',
   };
+}
+
+// ================================================================
+// Item update zonder foto-upload — voor admin-edit "Bewaren"-flow
+// ================================================================
+async function updateItemInGitHub({ item }, env) {
+  if (!item || !item.id) throw new Error('item + item.id verplicht');
+
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'crochet-by-pleun-worker',
+    'Content-Type': 'application/json',
+  };
+
+  const itemsUrl = `https://api.github.com/repos/${REPO}/contents/data/items.json`;
+  const itemsRes = await fetch(itemsUrl, { headers: ghHeaders });
+  if (!itemsRes.ok) throw new Error('items.json ophalen mislukt');
+  const itemsData = await itemsRes.json();
+  const currentJson = JSON.parse(decodeBase64(itemsData.content));
+
+  const idx = currentJson.items.findIndex(i => i.id === item.id);
+  if (idx < 0) {
+    // Bestaat nog niet → toevoegen (defensief, maar primair update-flow)
+    currentJson.items.push(item);
+  } else {
+    // Behoud bestaande foto's/varianten als ze niet meegestuurd zijn
+    const existing = currentJson.items[idx];
+    const merged = { ...existing, ...item };
+    if (!item.foto && existing.foto) merged.foto = existing.foto;
+    if (!item.varianten && existing.varianten) merged.varianten = existing.varianten;
+    currentJson.items[idx] = merged;
+  }
+
+  const newContent = encodeBase64(JSON.stringify(currentJson, null, 2));
+  const updateRes = await fetch(itemsUrl, {
+    method: 'PUT',
+    headers: ghHeaders,
+    body: JSON.stringify({
+      message: `✏️ Bewerk item: ${item.naam || item.id}`,
+      content: newContent,
+      sha: itemsData.sha,
+    }),
+  });
+  if (!updateRes.ok) {
+    throw new Error('items.json update mislukt: ' + (await updateRes.text()));
+  }
+
+  return { ok: true, itemId: item.id, siteUrl: 'https://hookedbypleun.github.io/' };
+}
+
+// ================================================================
+// Item verwijderen — voor admin-delete "Verwijderen"-knop
+// ================================================================
+async function deleteItemInGitHub({ id }, env) {
+  if (!id) throw new Error('id verplicht');
+
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'crochet-by-pleun-worker',
+    'Content-Type': 'application/json',
+  };
+
+  const itemsUrl = `https://api.github.com/repos/${REPO}/contents/data/items.json`;
+  const itemsRes = await fetch(itemsUrl, { headers: ghHeaders });
+  if (!itemsRes.ok) throw new Error('items.json ophalen mislukt');
+  const itemsData = await itemsRes.json();
+  const currentJson = JSON.parse(decodeBase64(itemsData.content));
+
+  const idx = currentJson.items.findIndex(i => i.id === id);
+  if (idx < 0) return { ok: true, itemId: id, deleted: false };
+
+  const removed = currentJson.items.splice(idx, 1)[0];
+  const newContent = encodeBase64(JSON.stringify(currentJson, null, 2));
+  const updateRes = await fetch(itemsUrl, {
+    method: 'PUT',
+    headers: ghHeaders,
+    body: JSON.stringify({
+      message: `🗑️ Verwijder item: ${removed?.naam || id}`,
+      content: newContent,
+      sha: itemsData.sha,
+    }),
+  });
+  if (!updateRes.ok) {
+    throw new Error('items.json delete mislukt: ' + (await updateRes.text()));
+  }
+
+  return { ok: true, itemId: id, deleted: true };
 }
 
 // ================================================================

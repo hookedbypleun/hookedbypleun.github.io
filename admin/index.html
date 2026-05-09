@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.23">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.24">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -608,10 +608,10 @@
     </div>
 
     <p style="color:var(--c-muted); margin-top:2rem">— Of beheer items handmatig hieronder —</p>
-    <p style="color:var(--c-muted)">Beheer items lokaal. Wijzigingen blijven in je browser bewaard tot je ze exporteert. Exporteer regelmatig naar <code>data/items.json</code>!</p>
+    <p style="color:var(--c-muted)">Wijzig items en klik "Bewaren" — de wijziging staat dan automatisch live op de site (1-2 min). Geen export meer nodig 💝</p>
 
     <div class="info-banner">
-      💡 <strong>Workflow:</strong> Pas items aan → klik "Bewaren" → klik "Exporteer JSON" → kopieer & plak in <code>data/items.json</code> → push naar GitHub. Site is dan bijgewerkt.
+      ✨ <strong>Volautomatisch:</strong> Pas een item aan → klik "Bewaren" → klaar! De wijziging gaat direct naar de website.
     </div>
 
     <h2>📥 Bulk import — sleep meerdere foto's tegelijk</h2>
@@ -777,14 +777,19 @@
       </div>
     </form>
 
-    <h2 style="margin-top:3rem">📤 Export naar items.json</h2>
-    <p>Klik om de huidige inhoud te genereren. Kopieer de tekst en plak in <code>data/items.json</code>.</p>
-    <button class="btn mustard" onclick="exportJSON()">📋 Genereer + kopieer naar klembord</button>
-    <pre class="json-export" id="json-output" style="margin-top:1rem; display:none"></pre>
+    <details style="margin-top:3rem; opacity:0.6">
+      <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🛠️ Geavanceerd — alleen voor noodgeval</summary>
+      <div style="padding:1rem 0">
+        <h3 style="margin-top:1rem">📤 Export naar items.json</h3>
+        <p style="color:var(--c-muted); font-size:0.9rem">Alleen nodig als auto-publish niet werkt (bv. internet weg). Genereer JSON en plak handmatig in <code>data/items.json</code>.</p>
+        <button class="btn secondary" onclick="exportJSON()">📋 Genereer + kopieer naar klembord</button>
+        <pre class="json-export" id="json-output" style="margin-top:1rem; display:none"></pre>
 
-    <h2 style="margin-top:3rem">🔄 Reset</h2>
-    <p style="color:var(--c-muted)">Herlaad data uit <code>items.json</code> (verlies van niet-geëxporteerde wijzigingen).</p>
-    <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">↺ Herlaad uit items.json</button>
+        <h3 style="margin-top:2rem">🔄 Reset</h3>
+        <p style="color:var(--c-muted); font-size:0.9rem">Haal de live data van de site op (lokale niet-gesynchroniseerde wijzigingen verdwijnen).</p>
+        <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">↺ Herlaad uit items.json</button>
+      </div>
+    </details>
 
     <!-- =============================== -->
     <!-- AUTO-CHANGELOG                  -->
@@ -953,8 +958,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.23"></script>
-  <script src="../js/sw-register.js?v=3.0.23"></script>
+  <script src="../js/config.js?v=3.0.24"></script>
+  <script src="../js/sw-register.js?v=3.0.24"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1040,10 +1045,23 @@
 
       window.scrollTo({ top: document.getElementById('edit-ai-bar').offsetTop - 80, behavior: 'smooth' });
     }
-    function deleteItem(id) {
-      if (!confirm('Item verwijderen? Dit kan niet teruggedraaid worden (tot herlaad).')) return;
+    async function deleteItem(id) {
+      if (!confirm('Item verwijderen? Dit kan niet teruggedraaid worden.')) return;
       DATA.items = DATA.items.filter(i => i.id !== id);
       save();
+      try {
+        if (workerUrl() && AI_PASSWORD) {
+          const res = await fetch(workerUrl() + '/delete-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+            body: JSON.stringify({ id }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          alert('🗑️ Verwijderd op de site! Geef het 1-2 min om door te komen.');
+        }
+      } catch (err) {
+        alert('⚠️ Lokaal verwijderd, maar live zetten mislukte: ' + (err.message || err));
+      }
     }
     function resetForm() {
       document.getElementById('f-id-original').value = '';
@@ -1051,7 +1069,7 @@
       const bar = document.getElementById('edit-ai-bar');
       if (bar) bar.style.display = 'none';
     }
-    document.getElementById('form-item').addEventListener('submit', e => {
+    document.getElementById('form-item').addEventListener('submit', async e => {
       e.preventDefault();
       const orig = document.getElementById('f-id-original').value;
       const id = document.getElementById('f-id').value.trim().toLowerCase().replace(/\s+/g,'-');
@@ -1066,7 +1084,6 @@
         kleuren: document.getElementById('f-kleuren').value.split(',').map(s=>s.trim()).filter(Boolean),
         foto: document.getElementById('f-foto').value.trim(),
         status: document.getElementById('f-status').value,
-        voorraad: parseInt(document.getElementById('f-voorraad').value) || 0,
         datumToegevoegd: new Date().toISOString().slice(0,10),
         uitgelicht: document.getElementById('f-uitgelicht').checked || undefined,
         nieuw: document.getElementById('f-nieuw').checked || undefined,
@@ -1082,8 +1099,30 @@
         DATA.items.push(item);
       }
       save();
-      resetForm();
-      alert('✨ Bewaard! Vergeet niet te exporteren.');
+
+      // Auto-publish naar GitHub via Worker — geen export-stap meer nodig.
+      const submitBtn = e.target.querySelector('button[type=submit]');
+      const oldLabel = submitBtn?.textContent;
+      try {
+        if (workerUrl() && AI_PASSWORD) {
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Live zetten...'; }
+          const res = await fetch(workerUrl() + '/update-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+            body: JSON.stringify({ item }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          resetForm();
+          alert('✅ Live op de site! De wijziging is direct naar de website gestuurd. Geef het 1-2 min om door te komen.');
+        } else {
+          resetForm();
+          alert('✨ Lokaal bewaard. Log in op de admin (sleutel boven) om wijzigingen direct live te zetten.');
+        }
+      } catch (err) {
+        alert('⚠️ Lokaal bewaard, maar live zetten mislukte: ' + (err.message || err) + '\n\nLog opnieuw in en probeer nog een keer.');
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = oldLabel || 'Bewaren'; }
+      }
     });
     function exportJSON() {
       const out = JSON.stringify(DATA, null, 2);
