@@ -114,6 +114,13 @@ nav .logo {
   gap: 0.4rem;
 }
 nav .logo span.icon { font-size: 1.4rem; }
+nav .logo img.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
+}
 nav .links {
   display: flex;
   gap: var(--gap-md);
@@ -169,13 +176,23 @@ nav .cart-count.empty { display: none; }
   position: relative;
   overflow: hidden;
 }
-.hero-banner {
+.hero-hoofdlogo {
   display: block;
-  max-width: min(560px, 92%);
-  width: 100%;
+  width: clamp(180px, 32vw, 260px);
   height: auto;
   margin: 0 auto var(--gap-sm);
-  filter: drop-shadow(0 4px 12px rgba(232, 168, 142, 0.15));
+  filter: drop-shadow(0 6px 20px rgba(232, 168, 142, 0.25));
+}
+.hero-banner {
+  display: block;
+  max-width: min(820px, 100%);
+  width: 100%;
+  height: auto;
+  margin: calc(-1 * var(--gap-md)) auto var(--gap-xs);
+  filter: drop-shadow(0 6px 20px rgba(232, 168, 142, 0.25));
+}
+@media (max-width: 600px) {
+  .hero-banner { margin-top: 0; }
 }
 .visually-hidden {
   position: absolute !important;
