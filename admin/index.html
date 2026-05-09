@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.4.1">
+  <link rel="stylesheet" href="../css/style.css?v=2.4.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -746,7 +746,7 @@
 
     <!-- Versie footer -->
     <div id="admin-footer" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--c-cream-dark); text-align:center; color:var(--c-muted); font-size:0.85rem">
-      <div>🧶 <span class="version-tag">v…</span> · <span id="admin-version-date">…</span></div>
+      <div>🧶 <span class="version-tag" style="cursor:pointer; text-decoration:underline dotted" onclick="openChangelog()" title="Bekijk changelog">v…</span> · <span id="admin-version-date">…</span></div>
       <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh ↓</div>
     </div>
   </div>
@@ -1099,6 +1099,64 @@
       const vd = document.getElementById('admin-version-date');
       if (vd) vd.textContent = cfg.versionDate || '';
     })();
+
+    // ================================================
+    // Changelog modal
+    // ================================================
+    const CHANGELOG = [
+      { v: '2.4.2', d: '2026-05-09', items: [
+        'Admin wizard: afmeting-veld toegevoegd (bv. "4 cm breed")',
+        'Disclaimer: tekst over grote bestellingen toegevoegd',
+      ]},
+      { v: '2.4.1', d: '2026-05-09', items: [
+        'Cart mobiel: namen afgekapt met ellipsis, +/− knoppen altijd zichtbaar',
+        'Productpagina: Info / Reviews tabbladen met badge-teller',
+        'Brabant-tekst: persoonlijker gemaakt ("uit een klein Brabants dorpje 🌸")',
+        'Ideeënbus CTA toegevoegd op bestellen-pagina',
+      ]},
+      { v: '2.4.0', d: '2026-05-09', items: [
+        'Verzameldoos: meerdere stuks per item (+/− knoppen)',
+        'Maatwerk offerte-flow voor showcase-items',
+        'Ideeënbus modal (WhatsApp feedback)',
+        'Reviews-tabblad op productpagina met sterbeoordeling',
+        'Disclaimer modal ("Goed om te weten")',
+        'Cloudflare Worker: /review endpoint voor klantreviews',
+        'Admin: reviews modereren (goedkeuren / afwijzen / uitlichten)',
+      ]},
+      { v: '2.3.x', d: '2026-04', items: [
+        'Verzameldoos (winkelwagen) geïntroduceerd',
+        'Gratis verzending boven €25',
+        'Drie verzendtarieven (brief / brievenbuspakje / pakket)',
+        'Postcode-check voor Pleun Express',
+        'Galerij: categoriefilter + zoeken',
+      ]},
+    ];
+
+    function openChangelog() {
+      let existing = document.getElementById('changelog-modal');
+      if (!existing) {
+        existing = document.createElement('div');
+        existing.id = 'changelog-modal';
+        existing.className = 'modal-overlay';
+        existing.innerHTML = `
+          <div class="modal-box" role="dialog" aria-modal="true" style="max-width:520px">
+            <button class="modal-close" onclick="document.getElementById('changelog-modal').classList.remove('open')" aria-label="Sluiten">×</button>
+            <h2>📋 Changelog</h2>
+            ${CHANGELOG.map(r => `
+              <div style="margin-bottom:1.2rem">
+                <div style="font-weight:700; color:var(--c-lavender-dark)">v${r.v} <span style="font-weight:400; color:var(--c-muted); font-size:0.85em">${r.d}</span></div>
+                <ul style="margin:0.3rem 0 0 1.1rem; padding:0; color:var(--c-ink); font-size:0.92rem; line-height:1.6">
+                  ${r.items.map(i => `<li>${i}</li>`).join('')}
+                </ul>
+              </div>
+            `).join('')}
+          </div>`;
+        document.body.appendChild(existing);
+        existing.addEventListener('click', e => { if (e.target === existing) existing.classList.remove('open'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') existing.classList.remove('open'); });
+      }
+      existing.classList.add('open');
+    }
 
     // ================================================
     // ✨ AI SMART MODE — voor Pleun

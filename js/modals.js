@@ -63,6 +63,7 @@
       <ul class="disclaimer-lijst">
         <li>Ik maak alles zelf 💪 Ik doe dit erg zelfstandig, onder lichte supervisie van mijn ouders.</li>
         <li>Alles is met de hand gemaakt — kleine variaties horen erbij en dat maakt elk item uniek 🧶</li>
+        <li>Grote bestellingen (meerdere items tegelijk) kunnen iets langer duren — ik maak of haak dan alles speciaal voor jou af. We spreken het tijdspad gewoon af in de chat!</li>
         <li>Niet blij met je bestelling? Stuur me een berichtje binnen 14 dagen — samen vinden we een oplossing 💝</li>
         <li>Maatwerk items worden speciaal voor jou gemaakt en kunnen helaas niet worden teruggestuurd.</li>
         <li>Ik deel niets met derden. Jouw naam en adres gebruik ik alleen om je bestelling te bezorgen.</li>
