@@ -1,4 +1,4 @@
-﻿// Crochet by Pleun â€” Hoofd-applicatielogica
+// Crochet by Pleun â€” Hoofd-applicatielogica
 // Laadt items.json, vult galerij, productpagina, uitgelichte items.
 
 (function() {

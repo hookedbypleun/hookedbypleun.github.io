@@ -1,4 +1,4 @@
-﻿// Crochet by Pleun â€” Centrale configuratie
+// Crochet by Pleun â€” Centrale configuratie
 // Wijzig hier 1 regel om gedrag op de hele site aan te passen.
 
 window.SHOP_CONFIG = {

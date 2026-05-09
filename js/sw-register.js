@@ -1,4 +1,4 @@
-﻿// Crochet by Pleun â€” Service Worker registratie + Pull-to-Refresh + Update-banner
+// Crochet by Pleun â€” Service Worker registratie + Pull-to-Refresh + Update-banner
 
 (function () {
   'use strict';

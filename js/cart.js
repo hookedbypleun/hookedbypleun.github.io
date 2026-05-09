@@ -1,4 +1,4 @@
-﻿// Verzameldoos â€” items verzamelen voor 1 bestelling.
+// Verzameldoos â€” items verzamelen voor 1 bestelling.
 // LocalStorage zodat hij blijft staan als je tussen pagina's klikt.
 
 // Globale helper: bouwt de juiste WhatsApp-bestel-URL.

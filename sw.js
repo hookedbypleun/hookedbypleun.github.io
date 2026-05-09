@@ -1,4 +1,4 @@
-﻿// Crochet by Pleun â€” Service Worker
+// Crochet by Pleun â€” Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
 const CACHE_VERSION = '3.0.13';

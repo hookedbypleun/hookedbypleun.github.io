@@ -1,4 +1,4 @@
-﻿// Hooked by Pleun â€” Gedeelde modals: IdeeÃ«nbus + Disclaimer
+// Hooked by Pleun â€” Gedeelde modals: IdeeÃ«nbus + Disclaimer
 (function () {
 
   function createModal(id, contentHtml) {

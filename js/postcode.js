@@ -1,4 +1,4 @@
-﻿// Postcode-check: lokaal (Pleun Express) of verzenden?
+// Postcode-check: lokaal (Pleun Express) of verzenden?
 
 window.checkPostcode = function(input, resultEl) {
   const cfg = window.SHOP_CONFIG;
