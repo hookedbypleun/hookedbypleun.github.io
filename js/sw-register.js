@@ -37,9 +37,12 @@
     });
   }).catch(err => console.warn('[SW] Registratie mislukt:', err));
 
-  // Nieuwe controller = update al toegepast
+  // Nieuwe controller = update al toegepast → auto-reload
+  // Uitzondering: niet herladen als iemand midden in een checkout zit
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (pendingReload) window.location.reload();
+    const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
+    const inCheckout = document.getElementById('cart-overlay')?.classList.contains('open') && cartItems.length > 0;
+    if (!inCheckout) window.location.reload();
   });
 
   // Berichten van SW
