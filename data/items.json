@@ -335,6 +335,24 @@
       "nieuw": true,
       "datumToegevoegd": "2026-05-09",
       "foto": "img/items/sleutelhangers-aardbei-sleutelhanger.jpg"
+    },
+    {
+      "id": "sleutelhangers-aardbei",
+      "naam": "Aardbei",
+      "categorie": "sleutelhangers",
+      "prijs": 1,
+      "beschrijving": "Dit ZO schattige aardbeitje heb ik gehaakt met superzacht chenille garen. Het is ZO lekker fluffy! Perfect als sleutelhanger om je tas of sleutels op te fleuren. Zo vrolijk! 🍓",
+      "kleuren": [
+        "aardbeirood",
+        "lichtgroen"
+      ],
+      "altText": "Gehaakte rode aardbei sleutelhanger met groene blaadjes en kraaloogjes.",
+      "extraKaartje": "Wist je dat ik dit garen ZO zacht vind? Het voelt echt pappoi!",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/sleutelhangers-aardbei.jpg"
     }
   ]
 }
