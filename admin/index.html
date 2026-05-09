@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.31">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1006,8 +1006,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.31"></script>
-  <script src="../js/sw-register.js?v=3.0.31"></script>
+  <script src="../js/config.js?v=3.0.32"></script>
+  <script src="../js/sw-register.js?v=3.0.32"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2436,11 +2436,18 @@
         _variantState = [{ kleur: '', fotos: [] }];
       }
       const miniBtnStyle = `flex:1; min-width:0; padding:0.15rem 0; background:white; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); cursor:pointer; font-size:0.75rem; color:var(--c-text); line-height:1; font-family:inherit`;
+      const moveBtnStyle = `background:white; border:1.5px solid var(--c-cream-dark); cursor:pointer; font-size:0.85rem; color:var(--c-text); width:28px; height:28px; border-radius:var(--r-sm); padding:0; line-height:1`;
       wrap.innerHTML = _variantState.map((v, idx) => {
         const fotos = v.fotos || [];
+        const isFirst = idx === 0;
+        const isLast = idx === _variantState.length - 1;
         return `
         <div class="variant-block" data-vi="${idx}" style="background:white; border:2px solid var(--c-cream-dark); border-radius:var(--r-md); padding:0.7rem; margin-bottom:0.5rem">
-          <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.5rem">
+          <div style="display:flex; gap:0.4rem; align-items:center; margin-bottom:0.5rem">
+            <div style="display:flex; flex-direction:column; gap:2px">
+              <button type="button" onclick="moveVariant(${idx},-1)" ${isFirst ? 'disabled' : ''} style="${moveBtnStyle}; height:18px; ${isFirst ? 'opacity:0.3; cursor:default' : ''}" title="Variant omhoog">↑</button>
+              <button type="button" onclick="moveVariant(${idx},1)" ${isLast ? 'disabled' : ''} style="${moveBtnStyle}; height:18px; ${isLast ? 'opacity:0.3; cursor:default' : ''}" title="Variant omlaag">↓</button>
+            </div>
             <span style="font-size:0.8rem; color:var(--c-muted); white-space:nowrap">🎨</span>
             <input class="var-kleur" value="${escapeHtmlAdmin(v.kleur || '')}" placeholder="Kleur (bv. lichtgroen, of leeg laten als geen kleur-variant)"
                    style="flex:1; padding:0.4em 0.6em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:0.9rem"
@@ -2536,6 +2543,16 @@
       renderVariantEditor();
     }
     window.moveFoto = moveFoto;
+
+    function moveVariant(idx, dir) {
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= _variantState.length) return;
+      const tmp = _variantState[idx];
+      _variantState[idx] = _variantState[newIdx];
+      _variantState[newIdx] = tmp;
+      renderVariantEditor();
+    }
+    window.moveVariant = moveVariant;
 
     // === Tweak modal: helderheid + contrast op een foto, upload als nieuwe foto ===
     let _tweakState = { vIdx: -1, fIdx: -1, image: null, bri: 0, con: 0 };
