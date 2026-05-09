@@ -1039,3 +1039,128 @@ footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md);
   vertical-align: middle;
   margin-left: 0.4em;
 }
+
+/* ============================================
+   Dark mode — Pleun Night 🌙
+   Warm aubergine-purples, kleuren blijven speels
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-lavender:      #C9B3E8;
+    --c-lavender-dark: #B09ADA;
+    --c-cream:         #1C1628;
+    --c-cream-dark:    #261E35;
+    --c-pink:          #F5B4BA;
+    --c-pink-dark:     #E8909A;
+    --c-mustard:       #F0C050;
+    --c-mustard-dark:  #D4A030;
+    --c-ink:           #EDE6F8;
+    --c-text:          #C4B8D4;
+    --c-muted:         #8A7E99;
+    --shadow-soft:     0 4px 16px rgba(0,0,0,0.35);
+    --shadow-medium:   0 8px 24px rgba(0,0,0,0.45);
+    --shadow-warm:     0 6px 20px rgba(0,0,0,0.4);
+  }
+
+  body { background: #150F20; color: var(--c-text); }
+
+  /* Nav */
+  nav { background: rgba(24,16,36,0.94); border-bottom-color: #2E2342; }
+
+  /* Hero — zachte lila-nacht gradient */
+  .hero { background: linear-gradient(135deg, #251840 0%, #1C1228 100%); }
+  .hero h1 { color: var(--c-ink); }
+  .hero .tagline { color: var(--c-lavender); }
+  .hero .lede { color: var(--c-text); }
+
+  /* Feature-kaartjes in de hero */
+  .feature.lavender { background: #3A2860; }
+  .feature.mustard  { background: #3D2E0A; }
+  .feature.pink     { background: #40181F; }
+  .feature-title    { color: var(--c-ink); }
+  .feature-sub      { color: var(--c-text); opacity: 1; }
+
+  /* CTA knoppen */
+  .btn { background: var(--c-lavender); color: #1C1628; }
+  .btn:hover { background: var(--c-lavender-dark); }
+  .btn.secondary { background: transparent; color: var(--c-lavender); border-color: var(--c-lavender); }
+  .btn.mustard { background: var(--c-mustard); color: #1C1628; }
+
+  /* Galerij-kaarten */
+  .item-kaart { background: var(--c-cream-dark); }
+  .item-kaart .foto { background: #1C1628; }
+  .item-kaart h3 { color: var(--c-ink); }
+  .tag { background: var(--c-cream-dark); color: var(--c-ink); }
+
+  /* Kanaal-pulse */
+  .kanaal-pulse { background: var(--c-cream-dark); border-color: #2E2342; }
+
+  /* Sectie-kaarten en witte vlakken */
+  .item-kaart,
+  .step,
+  .postcode-box,
+  .verhaal-blok,
+  .feit,
+  .proof,
+  .countdown-box { box-shadow: var(--shadow-soft); }
+
+  .step { background: var(--c-cream-dark); }
+  .step .nr { background: var(--c-lavender); color: #1C1628; }
+
+  .social-proof { background: var(--c-cream-dark); }
+  .proof { background: var(--c-cream); }
+  .proof .big { color: var(--c-lavender); }
+
+  .verhaal-blok { background: var(--c-cream-dark); }
+  .foto-caption { background: var(--c-cream-dark); }
+
+  .over-pleun .feiten { gap: var(--gap-sm); }
+  .feit { background: var(--c-cream-dark); }
+  .feit .nummer { color: var(--c-lavender); }
+
+  .eigen-spotlight { background: linear-gradient(135deg, #2A1F40 0%, var(--c-cream-dark) 100%); border-left-color: var(--c-lavender); }
+
+  /* Postcode */
+  .postcode-box { background: var(--c-cream-dark); }
+  .postcode-box input { background: var(--c-cream); border-color: #3D2F55; color: var(--c-ink); }
+  .postcode-result.lokaal     { background: #1A3A22; color: #7CD49A; border-color: #2A5A35; }
+  .postcode-result.verzending { background: #3A3010; color: #F0C050; border-color: #5A4A15; }
+
+  /* Cart modal */
+  .cart-modal { background: var(--c-cream-dark); }
+  .cart-list li { background: var(--c-cream); }
+  .cart-summary { background: var(--c-cream); }
+  .cart-summary .row.total { border-top-color: #3D2F55; }
+  .cart-bonus { background: #1A3320; color: #7CD49A; }
+
+  /* Checkout details */
+  .cd-field input,
+  .checkout-preview textarea { background: var(--c-cream); border-color: #3D2F55; color: var(--c-ink); }
+  .cd-field input::placeholder,
+  .checkout-preview textarea::placeholder { color: var(--c-muted); }
+  .cd-optional { background: #3D2F55; color: var(--c-muted); }
+
+  /* Bestel-stappen */
+  .steps { gap: var(--gap-md); }
+
+  /* Product detail */
+  .specs { background: var(--c-cream-dark); }
+  .specs dl dt { color: var(--c-muted); }
+  .specs dl dd { color: var(--c-ink); }
+
+  /* Filter balk */
+  .filter-balk .filter-btn { background: var(--c-cream-dark); color: var(--c-text); border-color: #3D2F55; }
+  .filter-balk .filter-btn.actief { background: var(--c-lavender); color: #1C1628; }
+
+  /* Update banner */
+  #update-banner { background: #3A2860; color: var(--c-ink); }
+
+  /* Footer blijft donker maar wat warmer */
+  footer { background: #0F0A18; }
+
+  /* Scrollbar (Webkit) */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #150F20; }
+  ::-webkit-scrollbar-thumb { background: #3A2860; border-radius: 4px; }
+}
