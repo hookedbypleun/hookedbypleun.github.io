@@ -62,7 +62,7 @@ section[id] {
 }
 html {
   background: var(--c-cream) url('../img/branding/patroon.png') repeat fixed;
-  background-size: 240px;
+  background-size: 420px;
 }
 body {
   margin: 0;
