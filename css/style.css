@@ -178,21 +178,18 @@ nav .cart-count.empty { display: none; }
 }
 .hero-hoofdlogo {
   display: block;
-  width: clamp(180px, 32vw, 260px);
+  width: clamp(110px, 22vw, 150px);
   height: auto;
-  margin: 0 auto var(--gap-sm);
-  filter: drop-shadow(0 6px 20px rgba(232, 168, 142, 0.25));
+  margin: 0 auto var(--gap-xs);
+  filter: drop-shadow(0 3px 10px rgba(232, 168, 142, 0.15));
 }
 .hero-banner {
   display: block;
-  max-width: min(820px, 100%);
+  max-width: min(420px, 78%);
   width: 100%;
   height: auto;
-  margin: calc(-1 * var(--gap-md)) auto var(--gap-xs);
-  filter: drop-shadow(0 6px 20px rgba(232, 168, 142, 0.25));
-}
-@media (max-width: 600px) {
-  .hero-banner { margin-top: 0; }
+  margin: 0 auto var(--gap-xs);
+  filter: drop-shadow(0 3px 10px rgba(232, 168, 142, 0.15));
 }
 .visually-hidden {
   position: absolute !important;
