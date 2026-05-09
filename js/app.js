@@ -332,16 +332,18 @@ Mijn postcode + adres:
 Lokaal afhalen of versturen?`;
 
     const varianten = getVarianten(item);
-    const startFotos = varianten[0].fotos || [];
+    // Alle unieke foto's van ALLE varianten — direct zichtbaar, kleur-knop = bestel-keuze
+    const alleFotos = [...new Set(varianten.flatMap(v => v.fotos || []))];
+    if (!alleFotos.length && item.foto) alleFotos.push(item.foto);
     const heeftMeerKleuren = varianten.length > 1;
 
     wrap.innerHTML = `
       <div class="foto-galerij" id="foto-galerij">
         <div class="foto-groot">
-          <img src="${startFotos[0] || item.foto || ''}" alt="${escapeHtml(item.naam)}" id="foto-hoofd">
+          <img src="${alleFotos[0] || item.foto || ''}" alt="${escapeHtml(item.naam)}" id="foto-hoofd">
         </div>
         <div class="foto-thumbs" id="foto-thumbs">
-          ${startFotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('')}
+          ${alleFotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('')}
         </div>
       </div>
       <div class="product-info">
@@ -364,7 +366,7 @@ Lokaal afhalen of versturen?`;
 
         ${heeftMeerKleuren ? `
           <div class="varianten-keuze" id="varianten-keuze">
-            <p class="varianten-label">🎨 Kleur: <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong></p>
+            <p class="varianten-label">🎨 Kies je kleur: <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong></p>
             <div class="kleur-knoppen">
               ${varianten.map((v, i) => `
                 <button class="kleur-knop${i === 0 ? ' actief' : ''}"
@@ -494,27 +496,27 @@ Lokaal afhalen of versturen?`;
 
     function huidigeVariant() { return varianten[huidigeVariantIdx]; }
 
-    function toonVariantFotos(idx) {
+    // Kleur selecteren = bestel-keuze registreren + hoofdfoto springen; thumbs blijven compleet
+    function selectVariant(idx) {
       huidigeVariantIdx = idx;
       const v = huidigeVariant();
       const fotos = v.fotos || [];
       const hoofd = document.getElementById('foto-hoofd');
-      const thumbs = document.getElementById('foto-thumbs');
       if (hoofd && fotos[0]) hoofd.src = fotos[0];
-      if (thumbs) {
-        thumbs.innerHTML = fotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('');
-      }
+      document.querySelectorAll('.foto-thumb').forEach(t => {
+        t.classList.toggle('actief', t.dataset.foto === fotos[0]);
+      });
       const kleurEl = document.getElementById('huidige-kleur');
       if (kleurEl) kleurEl.textContent = v.kleur;
     }
 
-    // Klik op kleur-knop → wissel variant
+    // Klik op kleur-knop → bestel-keuze + springt naar eerste foto van die kleur
     document.querySelectorAll('.kleur-knop').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.variantIdx);
         document.querySelectorAll('.kleur-knop').forEach(b => b.classList.remove('actief'));
         btn.classList.add('actief');
-        toonVariantFotos(idx);
+        selectVariant(idx);
       });
     });
 
