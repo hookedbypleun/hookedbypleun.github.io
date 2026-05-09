@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>ðŸ”§ Admin Â· Hooked by Pleun</title>
+  <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.1">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.14">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -222,7 +222,7 @@
     .wiz-panel.approved h4 .badge-status { background: #2E7D32; color: white; }
     .wiz-panel.busy { position: relative; }
     .wiz-panel.busy::after {
-      content: 'ðŸŒ¸ AI is bezig...';
+      content: '🌸 AI is bezig...';
       position: absolute; inset: 0;
       background: rgba(244, 235, 247, 0.92);
       display: flex; align-items: center; justify-content: center;
@@ -298,26 +298,83 @@
 <body>
 
   <nav>
-    <a href="../index.html" class="logo"><span class="icon">ðŸ”§</span> Admin Â· Hooked by Pleun</a>
-    <div class="links"><a href="../index.html">â† terug naar shop</a></div>
+    <a href="../index.html" class="logo"><span class="icon">🔧</span> Admin · Hooked by Pleun</a>
+    <div class="links"><a href="../index.html">← terug naar shop</a></div>
   </nav>
 
   <div class="admin-form">
-    <h1>ðŸ”§ Admin paneel</h1>
+    <h1>🔧 Admin paneel</h1>
+
+    <!-- Modus-switcher -->
+    <div class="modus-switcher">
+      <button class="ms-btn actief" data-modus="single">✨ Eén item</button>
+      <button class="ms-btn" data-modus="bulk">📦 Bulk import</button>
+    </div>
 
     <!-- ================================================ -->
-    <!-- âœ¨ AI Wizard â€” voor Pleun                          -->
+    <!-- 📦 BULK IMPORT — voor Dave                        -->
+    <!-- ================================================ -->
+    <div class="bulk-section" id="bulk-section" hidden>
+      <h2>📦 Bulk import — meerdere items tegelijk</h2>
+      <p style="color:var(--c-text); margin-top:0">
+        Upload alle foto's, groepeer ze per artikel en vul tekst + prijs in.
+        Dave's chat genereert daarna de leuke Pleun-stem teksten en zet alles op de site.
+      </p>
+
+      <div class="bulk-step">
+        <h3>Stap 1 — Foto's kiezen</h3>
+        <button class="btn full" id="bulk-pick-btn">📸 Selecteer foto's uit een map</button>
+        <input type="file" id="bulk-files" multiple accept="image/*" hidden>
+        <p class="cd-hint">Tip: tik op de eerste foto, scroll, shift-tik op de laatste om alles tegelijk te kiezen.</p>
+      </div>
+
+      <div class="bulk-step" id="bulk-items-wrap" hidden>
+        <h3>Stap 2 — Groeperen en invullen</h3>
+        <p class="cd-hint">Elke foto = standaard 1 item. Voeg foto's bij een item toe via <em>+ extra foto</em>, of voeg een kleur-variant toe via <em>+ kleur</em>.</p>
+        <div id="bulk-items"></div>
+      </div>
+
+      <div class="bulk-step" id="bulk-export-wrap" hidden>
+        <h3>Stap 3 — Exporteren</h3>
+        <p class="cd-hint">Download een ZIP met alle bewerkte foto's + intake.json. Geef die aan Dave's chat — hij regelt de rest.</p>
+        <button class="btn full" id="bulk-export-btn">💾 Download intake.zip</button>
+        <p id="bulk-export-status" class="cd-hint" style="margin-top:0.5em"></p>
+      </div>
+    </div>
+
+    <!-- Foto-bewerk modal -->
+    <div class="bulk-photo-modal" id="bulk-photo-modal" hidden>
+      <div class="bulk-photo-box">
+        <button class="bulk-photo-close" aria-label="Sluiten">×</button>
+        <div class="bulk-photo-preview"><canvas id="bulk-photo-canvas"></canvas></div>
+        <div class="bulk-photo-controls">
+          <label>☀️ Helderheid <span id="bulk-bri-val">0</span></label>
+          <input type="range" id="bulk-bri" min="-50" max="50" step="5" value="0">
+          <label>🎚️ Contrast <span id="bulk-con-val">0</span></label>
+          <input type="range" id="bulk-con" min="-50" max="50" step="5" value="0">
+          <label>🌈 Saturatie <span id="bulk-sat-val">0</span></label>
+          <input type="range" id="bulk-sat" min="-50" max="50" step="5" value="0">
+          <div style="display:flex; gap:0.5rem; margin-top:0.6rem">
+            <button class="btn secondary" id="bulk-photo-reset" style="flex:1">↺ Reset</button>
+            <button class="btn" id="bulk-photo-save" style="flex:2">✅ Toepassen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================ -->
+    <!-- ✨ AI Wizard — voor Pleun                          -->
     <!-- ================================================ -->
     <div class="ai-smart" id="ai-smart">
-      <h2>âœ¨ Nieuw artikel toevoegen</h2>
-      <p style="color:var(--c-text); margin-top:0">Vul iets in over je nieuwe item. AI schrijft een tekst voor de site Ã©n een post voor je WhatsApp-kanaal. Je kan alles aanpassen tot het perfect is.</p>
+      <h2>✨ Nieuw artikel toevoegen</h2>
+      <p style="color:var(--c-text); margin-top:0">Vul iets in over je nieuwe item. AI schrijft een tekst voor de site én een post voor je WhatsApp-kanaal. Je kan alles aanpassen tot het perfect is.</p>
 
       <!-- Wachtwoord-poort -->
       <div class="ai-gate" id="ai-gate">
-        <p style="margin-top:0">ðŸ”’ Wachtwoord nodig</p>
+        <p style="margin-top:0">🔒 Wachtwoord nodig</p>
         <input type="password" id="ai-password" placeholder="Wachtwoord">
         <br>
-        <button class="btn" onclick="aiUnlock()">ðŸ”“ Inloggen</button>
+        <button class="btn" onclick="aiUnlock()">🔓 Inloggen</button>
         <p id="ai-gate-msg" style="color:var(--c-muted); font-size:0.9rem; margin-bottom:0"></p>
       </div>
 
@@ -332,11 +389,11 @@
 
         <!-- ===== STAP 1: INPUT ===== -->
         <div class="wiz-pane active" data-pane="1">
-          <h3>ðŸ“¸ Vertel iets over je nieuwe item</h3>
+          <h3>📸 Vertel iets over je nieuwe item</h3>
 
           <div class="ai-drop" id="ai-drop">
             <div id="ai-drop-content">
-              <p style="font-size:2.5rem; margin:0">ðŸ“¸</p>
+              <p style="font-size:2.5rem; margin:0">📸</p>
               <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">
                 Tap om foto te kiezen <em>of sleep 'm hierin</em>
               </p>
@@ -352,7 +409,7 @@
                 <input id="w-naam" placeholder="bv. Lichtroze scrunchie">
               </div>
               <div class="veld">
-                <label>Prijs (â‚¬) *</label>
+                <label>Prijs (€) *</label>
                 <input id="w-prijs" type="number" step="0.25" min="0" placeholder="8">
               </div>
             </div>
@@ -361,7 +418,7 @@
               <div class="veld">
                 <label>Categorie</label>
                 <select id="w-categorie">
-                  <option value="">â€” laat AI raden â€”</option>
+                  <option value="">— laat AI raden —</option>
                   <option>diertjes</option>
                   <option>scrunchies</option>
                   <option>blobs</option>
@@ -381,7 +438,7 @@
             <div class="veld">
               <label>Kleuren of welke wol</label>
               <p class="hint">Als je het zelf invult is AI accurater dan wanneer ie alleen de foto ziet.</p>
-              <input id="w-kleuren" placeholder="bv. lila, peach, beige Â· katoen Drops Paris">
+              <input id="w-kleuren" placeholder="bv. lila, peach, beige · katoen Drops Paris">
             </div>
 
             <div class="veld">
@@ -412,42 +469,42 @@
             <p class="hint" style="margin:0 0 0.5em">Vink aan wat je wil. AI maakt alleen het aangevinkte.</p>
             <label style="display:flex; align-items:center; gap:0.5em; font-weight:500; margin:0.3em 0; cursor:pointer">
               <input type="checkbox" id="ch-website" checked style="width:1.2em; height:1.2em; cursor:pointer">
-              <span>ðŸŒ Een tekst voor op de website</span>
+              <span>🌐 Een tekst voor op de website</span>
             </label>
             <label style="display:flex; align-items:center; gap:0.5em; font-weight:500; margin:0.3em 0; cursor:pointer">
               <input type="checkbox" id="ch-social" checked style="width:1.2em; height:1.2em; cursor:pointer">
-              <span>ðŸ“± Een post voor het WhatsApp-kanaal</span>
+              <span>📱 Een post voor het WhatsApp-kanaal</span>
             </label>
           </div>
 
-          <button class="btn full" id="btn-generate" onclick="wizGenerate()">âœ¨ Maak voorstellen (AI)</button>
+          <button class="btn full" id="btn-generate" onclick="wizGenerate()">✨ Maak voorstellen (AI)</button>
         </div>
 
         <!-- ===== STAP 2: LOADING ===== -->
         <div class="wiz-pane" data-pane="2">
           <div class="wiz-loader">
-            <div class="wiz-loader-icon">ðŸŒ¸</div>
+            <div class="wiz-loader-icon">🌸</div>
             <p>AI is aan het werk...<br><small style="color:var(--c-muted)">Foto bekijken + tekst schrijven (~5-15 sec)</small></p>
           </div>
         </div>
 
         <!-- ===== STAP 3: REVIEW ===== -->
         <div class="wiz-pane" data-pane="3">
-          <h3>ðŸ‘€ Bekijk en pas aan</h3>
-          <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "âœ“ Akkoord" â†’ krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiÃ«ren, of allebei.</p>
+          <h3>👀 Bekijk en pas aan</h3>
+          <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "✓ Akkoord" → krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiëren, of allebei.</p>
 
           <!-- Foto-overzicht + sliders -->
           <div id="step3-photo" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
             <div style="display:flex; gap:0.8rem; align-items:flex-start">
               <img id="step3-thumb" src="" alt="gekozen foto" style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0; transition:filter 0.15s">
               <div style="flex:1; min-width:0">
-                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">ðŸ“¸ Foto</div>
+                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Foto</div>
                 <div class="photo-bri-row" style="margin:0 0 0.4rem">
-                  <label>â˜€ï¸ Helderheid <span id="bri-val3">0</span></label>
+                  <label>☀️ Helderheid <span id="bri-val3">0</span></label>
                   <input type="range" id="photo-bri3" min="-50" max="50" step="5" value="0">
                 </div>
                 <div class="photo-bri-row" style="margin:0">
-                  <label>ðŸŽšï¸ Contrast <span id="con-val3">0</span></label>
+                  <label>🎚️ Contrast <span id="con-val3">0</span></label>
                   <input type="range" id="photo-con3" min="-50" max="50" step="5" value="0">
                 </div>
               </div>
@@ -456,8 +513,8 @@
 
           <div id="panel-tabs-wrap" style="display:none">
             <div class="wiz-panel-tabs" id="panel-tabs">
-              <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">ðŸŒ Website</button>
-              <button class="wiz-panel-tab" id="tab-social" onclick="selectPanelTab('social')">ðŸ“± WhatsApp</button>
+              <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">🌐 Website</button>
+              <button class="wiz-panel-tab" id="tab-social" onclick="selectPanelTab('social')">📱 WhatsApp</button>
             </div>
             <p style="font-size:0.78rem; color:var(--c-muted); margin:0.2em 0 0.6em; text-align:center">Schakel hier tussen de website-tekst en de WhatsApp-post</p>
           </div>
@@ -465,9 +522,9 @@
           <div class="wiz-panels">
             <!-- Website panel -->
             <div class="wiz-panel" id="panel-website">
-              <h4>ðŸŒ Op de website <span class="badge-status">in review</span></h4>
+              <h4>🌐 Op de website <span class="badge-status">in review</span></h4>
               <div class="wiz-preview" id="prev-website"></div>
-              <textarea class="wiz-cmt" id="cmt-website" placeholder="Wat moet anders? (laat leeg = âœ“ akkoord)"></textarea>
+              <textarea class="wiz-cmt" id="cmt-website" placeholder="Wat moet anders? (laat leeg = ✓ akkoord)"></textarea>
               <div class="wiz-chips" id="chips-website">
                 <button type="button" class="wiz-chip" data-chip="korter">korter</button>
                 <button type="button" class="wiz-chip" data-chip="vrolijker">vrolijker</button>
@@ -476,20 +533,20 @@
                 <button type="button" class="wiz-chip" data-chip="korter en speelser">korter en speelser</button>
               </div>
               <div class="wiz-panel-actions">
-                <button class="btn secondary refine-btn" data-type="website" onclick="wizRefine('website')">ðŸ”„ Andere versie</button>
-                <button class="btn mustard" onclick="wizApprove('website')">âœ“ Akkoord</button>
+                <button class="btn secondary refine-btn" data-type="website" onclick="wizRefine('website')">🔄 Andere versie</button>
+                <button class="btn mustard" onclick="wizApprove('website')">✓ Akkoord</button>
               </div>
               <div class="wiz-panel-publish">
-                <button class="btn full mustard" onclick="wizPublish()">ðŸŒ Plaats op de site</button>
+                <button class="btn full mustard" onclick="wizPublish()">🌐 Plaats op de site</button>
                 <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0; text-align:center">Foto + tekst gaan naar GitHub</p>
               </div>
             </div>
 
             <!-- Social panel -->
             <div class="wiz-panel" id="panel-social">
-              <h4>ðŸ“± WhatsApp-kanaal <span class="badge-status">in review</span></h4>
+              <h4>📱 WhatsApp-kanaal <span class="badge-status">in review</span></h4>
               <div class="wiz-preview" id="prev-social"></div>
-              <textarea class="wiz-cmt" id="cmt-social" placeholder="Wat moet anders? (laat leeg = âœ“ akkoord)"></textarea>
+              <textarea class="wiz-cmt" id="cmt-social" placeholder="Wat moet anders? (laat leeg = ✓ akkoord)"></textarea>
               <div class="wiz-chips" id="chips-social">
                 <button type="button" class="wiz-chip" data-chip="meer emoji">meer emoji</button>
                 <button type="button" class="wiz-chip" data-chip="spannender">spannender</button>
@@ -498,11 +555,11 @@
                 <button type="button" class="wiz-chip" data-chip="rustiger">rustiger</button>
               </div>
               <div class="wiz-panel-actions">
-                <button class="btn secondary refine-btn" data-type="social" onclick="wizRefine('social')">ðŸ”„ Andere versie</button>
-                <button class="btn mustard" onclick="wizApprove('social')">âœ“ Akkoord</button>
+                <button class="btn secondary refine-btn" data-type="social" onclick="wizRefine('social')">🔄 Andere versie</button>
+                <button class="btn mustard" onclick="wizApprove('social')">✓ Akkoord</button>
               </div>
               <div class="wiz-panel-publish">
-                <button class="btn full mustard" onclick="wizCopySocial()">ðŸ“¤ Deel via WhatsApp (+ foto)</button>
+                <button class="btn full mustard" onclick="wizCopySocial()">📤 Deel via WhatsApp (+ foto)</button>
                 <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0; text-align:center">Plak in je WhatsApp-kanaal</p>
               </div>
             </div>
@@ -514,12 +571,12 @@
         <!-- ===== STAP 4: SUCCESS ===== -->
         <div class="wiz-pane" data-pane="4">
           <div style="text-align:center; padding:2rem 1rem">
-            <div style="font-size:3rem">âœ…</div>
+            <div style="font-size:3rem">✅</div>
             <h3 id="success-title">Klaar!</h3>
             <p id="success-msg" style="color:var(--c-text)"></p>
             <div class="bestel-acties" style="max-width:340px; margin:1rem auto">
-              <button class="btn full" onclick="wizCopySocial()">ðŸ“¤ Deel via WhatsApp (+ foto)</button>
-              <button class="btn secondary full" onclick="wizReset()">âž• Volgend item</button>
+              <button class="btn full" onclick="wizCopySocial()">📤 Deel via WhatsApp (+ foto)</button>
+              <button class="btn secondary full" onclick="wizReset()">➕ Volgend item</button>
             </div>
           </div>
         </div>
@@ -528,15 +585,15 @@
       </div>
     </div>
 
-    <p style="color:var(--c-muted); margin-top:2rem">â€” Of beheer items handmatig hieronder â€”</p>
+    <p style="color:var(--c-muted); margin-top:2rem">— Of beheer items handmatig hieronder —</p>
     <p style="color:var(--c-muted)">Beheer items lokaal. Wijzigingen blijven in je browser bewaard tot je ze exporteert. Exporteer regelmatig naar <code>data/items.json</code>!</p>
 
     <div class="info-banner">
-      ðŸ’¡ <strong>Workflow:</strong> Pas items aan â†’ klik "Bewaren" â†’ klik "Exporteer JSON" â†’ kopieer & plak in <code>data/items.json</code> â†’ push naar GitHub. Site is dan bijgewerkt.
+      💡 <strong>Workflow:</strong> Pas items aan → klik "Bewaren" → klik "Exporteer JSON" → kopieer & plak in <code>data/items.json</code> → push naar GitHub. Site is dan bijgewerkt.
     </div>
 
-    <h2>ðŸ“¥ Bulk import â€” sleep meerdere foto's tegelijk</h2>
-    <p style="color:var(--c-muted)">Sleep alle foto's in Ã©Ã©n keer hierin (vanuit Verkenner of WhatsApp). Voor elke foto vul je snel naam/prijs/categorie in. Aan het eind: 1x exporteren + foto's downloaden.</p>
+    <h2>📥 Bulk import — sleep meerdere foto's tegelijk</h2>
+    <p style="color:var(--c-muted)">Sleep alle foto's in één keer hierin (vanuit Verkenner of WhatsApp). Voor elke foto vul je snel naam/prijs/categorie in. Aan het eind: 1x exporteren + foto's downloaden.</p>
 
     <div id="drop-zone" style="
       border: 3px dashed var(--c-lavender);
@@ -547,60 +604,60 @@
       cursor: pointer;
       transition: all 0.2s;
       margin-bottom: 1rem;">
-      <p style="font-size: 2rem; margin: 0">ðŸ“¸</p>
+      <p style="font-size: 2rem; margin: 0">📸</p>
       <p style="font-weight: 700; color: var(--c-lavender-dark); margin: 0.5em 0">
         Sleep foto's hierin <em>of</em> klik om te bladeren
       </p>
-      <p style="color: var(--c-muted); font-size: 0.9rem">JPG, PNG of HEIC â€” meerdere tegelijk OK</p>
+      <p style="color: var(--c-muted); font-size: 0.9rem">JPG, PNG of HEIC — meerdere tegelijk OK</p>
       <input id="file-input" type="file" accept="image/*" multiple style="display:none">
     </div>
 
     <div id="bulk-list"></div>
 
     <div id="bulk-actions" style="display:none; margin-top:1rem; background: white; padding: 1rem; border-radius: var(--r-md); box-shadow: var(--shadow-soft)">
-      <p style="margin-top:0"><strong>ðŸ“¦ Klaar?</strong> Doe deze 2 stappen in volgorde:</p>
+      <p style="margin-top:0"><strong>📦 Klaar?</strong> Doe deze 2 stappen in volgorde:</p>
       <div class="bestel-acties">
-        <button class="btn full" onclick="bulkSaveItems()">1ï¸âƒ£ Voeg alle items toe aan catalogus</button>
-        <button class="btn mustard full" onclick="bulkDownloadPhotos()">2ï¸âƒ£ Download alle foto's (komen in je Downloads-map)</button>
-        <button class="btn secondary full" onclick="document.getElementById('bulk-list').innerHTML=''; document.getElementById('bulk-actions').style.display='none'; window.BULK_PHOTOS=[];">â†º Wissen</button>
+        <button class="btn full" onclick="bulkSaveItems()">1️⃣ Voeg alle items toe aan catalogus</button>
+        <button class="btn mustard full" onclick="bulkDownloadPhotos()">2️⃣ Download alle foto's (komen in je Downloads-map)</button>
+        <button class="btn secondary full" onclick="document.getElementById('bulk-list').innerHTML=''; document.getElementById('bulk-actions').style.display='none'; window.BULK_PHOTOS=[];">↺ Wissen</button>
       </div>
       <p style="font-size: 0.9rem; color: var(--c-muted); margin: 0.5em 0 0">
         Na stap 2: verplaats de gedownloade foto's naar <code>img/items/</code> in de projectmap.
       </p>
     </div>
 
-    <h2 style="margin-top:3rem">ðŸ“‹ Huidige items</h2>
+    <h2 style="margin-top:3rem">📋 Huidige items</h2>
     <div id="item-list"></div>
 
-    <h2>âž• Nieuw item / bewerken</h2>
+    <h2>➕ Nieuw item / bewerken</h2>
 
-    <!-- AI-balk â€” verschijnt alleen bij bestaand item bewerken -->
+    <!-- AI-balk — verschijnt alleen bij bestaand item bewerken -->
     <div id="edit-ai-bar" style="display:none; background:linear-gradient(135deg,#f4ebf7,#FFF8E1); border:2px solid var(--c-lavender); border-radius:var(--r-md); padding:1rem; margin-bottom:1rem">
-      <div style="font-weight:700; margin:0 0 0.7rem; color:var(--c-lavender-dark); font-size:0.95rem">âœï¸ Bezig met: <span id="edit-item-naam"></span></div>
+      <div style="font-weight:700; margin:0 0 0.7rem; color:var(--c-lavender-dark); font-size:0.95rem">✏️ Bezig met: <span id="edit-item-naam"></span></div>
       <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
-        <button type="button" class="btn secondary" onclick="editWithAI()">âœ¨ AI herzien</button>
-        <button type="button" class="btn secondary" id="edit-photo-toggle-btn" onclick="toggleEditPhotoTweak()">ðŸ“¸ Foto tweaken</button>
+        <button type="button" class="btn secondary" onclick="editWithAI()">✨ AI herzien</button>
+        <button type="button" class="btn secondary" id="edit-photo-toggle-btn" onclick="toggleEditPhotoTweak()">📸 Foto tweaken</button>
       </div>
 
       <!-- Foto-tweak panel -->
       <div id="edit-photo-tweak" style="display:none; margin-top:1rem; padding-top:1rem; border-top:2px dashed var(--c-cream-dark)">
-        <div id="edit-photo-loading" style="text-align:center; padding:1rem; color:var(--c-muted)">ðŸ“¸ Foto laden...</div>
+        <div id="edit-photo-loading" style="text-align:center; padding:1rem; color:var(--c-muted)">📸 Foto laden...</div>
         <div id="edit-photo-ui" style="display:none">
           <div class="photo-large-wrap">
             <img id="ep-preview" src="" alt="foto preview">
           </div>
           <div class="photo-mode-tabs">
-            <button class="photo-mode-btn active" data-mode="auto"      onclick="editPhotoSetMode('auto')">ðŸ¤– Automatisch</button>
-            <button class="photo-mode-btn"         data-mode="origineel" onclick="editPhotoSetMode('origineel')">ðŸ“· Origineel</button>
-            <button class="photo-mode-btn"         data-mode="handmatig" onclick="editPhotoSetMode('handmatig')">âœï¸ Handmatig</button>
+            <button class="photo-mode-btn active" data-mode="auto"      onclick="editPhotoSetMode('auto')">🤖 Automatisch</button>
+            <button class="photo-mode-btn"         data-mode="origineel" onclick="editPhotoSetMode('origineel')">📷 Origineel</button>
+            <button class="photo-mode-btn"         data-mode="handmatig" onclick="editPhotoSetMode('handmatig')">✏️ Handmatig</button>
           </div>
           <div class="photo-sliders" id="ep-sliders" style="display:none">
             <div class="photo-slider-row">
-              <label>â˜€ï¸ Helderheid <span id="ep-bri-val">0</span></label>
+              <label>☀️ Helderheid <span id="ep-bri-val">0</span></label>
               <input type="range" id="ep-bri" min="-50" max="50" step="5" value="0">
             </div>
             <div class="photo-slider-row">
-              <label>ðŸŽšï¸ Contrast <span id="ep-con-val">0</span></label>
+              <label>🎚️ Contrast <span id="ep-con-val">0</span></label>
               <input type="range" id="ep-con" min="-50" max="50" step="5" value="0">
             </div>
           </div>
@@ -612,12 +669,12 @@
             </div>
             <div class="pc-card selected" data-pick="enhanced" onclick="editPhotoPickBase('enhanced')">
               <img id="ep-enh-thumb" src="" alt="opgefrist">
-              <div class="pc-label">Opgefrist âœ¨</div>
+              <div class="pc-label">Opgefrist ✨</div>
               <div class="pc-sub" id="ep-enh-sub">lichter &amp; kleurvoller</div>
             </div>
           </div>
           <div class="photo-actions">
-            <button type="button" class="btn mustard" onclick="editPhotoDownload()">ðŸ“¥ Download getweakte foto</button>
+            <button type="button" class="btn mustard" onclick="editPhotoDownload()">📥 Download getweakte foto</button>
           </div>
           <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0">Verplaats de gedownloade foto naar <code>img/items/</code> en push naar GitHub.</p>
         </div>
@@ -639,15 +696,15 @@
       </div>
       <div class="veld">
         <label for="f-naam">Naam</label>
-        <input id="f-naam" placeholder="bv. Stress-bal Blob â€” Paars" required>
+        <input id="f-naam" placeholder="bv. Stress-bal Blob — Paars" required>
       </div>
       <div class="veld">
         <label for="f-naam-en">Naam (Engels, optioneel)</label>
-        <input id="f-naam-en" placeholder="bv. Stress-ball Blob â€” Purple">
+        <input id="f-naam-en" placeholder="bv. Stress-ball Blob — Purple">
       </div>
       <div class="row">
         <div class="veld">
-          <label for="f-prijs">Prijs (â‚¬)</label>
+          <label for="f-prijs">Prijs (€)</label>
           <input id="f-prijs" type="number" step="0.25" min="0" placeholder="5.25" required>
         </div>
         <div class="veld">
@@ -690,35 +747,35 @@
       </div>
       <div class="veld">
         <label><input type="checkbox" id="f-uitgelicht"> Uitgelicht (op homepage tonen)</label>
-        <label><input type="checkbox" id="f-nieuw"> Nieuw (label "Nieuw ðŸŒ¸")</label>
+        <label><input type="checkbox" id="f-nieuw"> Nieuw (label "Nieuw 🌸")</label>
       </div>
       <div class="bestel-acties">
-        <button type="submit" class="btn full">ðŸ’¾ Bewaren</button>
-        <button type="reset" class="btn secondary full" onclick="resetForm()">â†º Form leegmaken</button>
+        <button type="submit" class="btn full">💾 Bewaren</button>
+        <button type="reset" class="btn secondary full" onclick="resetForm()">↺ Form leegmaken</button>
       </div>
     </form>
 
-    <h2 style="margin-top:3rem">ðŸ“¤ Export naar items.json</h2>
+    <h2 style="margin-top:3rem">📤 Export naar items.json</h2>
     <p>Klik om de huidige inhoud te genereren. Kopieer de tekst en plak in <code>data/items.json</code>.</p>
-    <button class="btn mustard" onclick="exportJSON()">ðŸ“‹ Genereer + kopieer naar klembord</button>
+    <button class="btn mustard" onclick="exportJSON()">📋 Genereer + kopieer naar klembord</button>
     <pre class="json-export" id="json-output" style="margin-top:1rem; display:none"></pre>
 
-    <h2 style="margin-top:3rem">ðŸ”„ Reset</h2>
-    <p style="color:var(--c-muted)">Herlaad data uit <code>items.json</code> (verlies van niet-geÃ«xporteerde wijzigingen).</p>
-    <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">â†º Herlaad uit items.json</button>
+    <h2 style="margin-top:3rem">🔄 Reset</h2>
+    <p style="color:var(--c-muted)">Herlaad data uit <code>items.json</code> (verlies van niet-geëxporteerde wijzigingen).</p>
+    <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">↺ Herlaad uit items.json</button>
 
     <!-- =============================== -->
     <!-- AUTO-CHANGELOG                  -->
     <!-- =============================== -->
-    <h2 style="margin-top:3rem">ðŸ“ Recent toegevoegd</h2>
+    <h2 style="margin-top:3rem">📝 Recent toegevoegd</h2>
     <p style="color:var(--c-muted)">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
     <div id="auto-changelog" style="margin-bottom:1rem"></div>
 
     <!-- =============================== -->
     <!-- REVIEWS MODERATIE               -->
     <!-- =============================== -->
-    <h2 style="margin-top:3rem">ðŸ’¬ Reviews modereren</h2>
-    <p style="color:var(--c-muted)">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet â­ om ze op de homepage te tonen. Zet ðŸŽ als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
+    <h2 style="margin-top:3rem">💬 Reviews modereren</h2>
+    <p style="color:var(--c-muted)">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
     <div id="reviews-admin-list"><p style="color:var(--c-muted)">Reviews laden...</p></div>
 
     <style>
@@ -747,23 +804,128 @@
 
     <!-- Versie footer -->
     <div id="admin-footer" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--c-cream-dark); text-align:center; color:var(--c-muted); font-size:0.85rem">
-      <div>ðŸ§¶ <span class="version-tag" style="cursor:pointer; text-decoration:underline dotted" onclick="openChangelog()" title="Bekijk changelog">vâ€¦</span> Â· <span id="admin-version-date">â€¦</span></div>
-      <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh â†“</div>
+      <div>🧶 <span class="version-tag" style="cursor:pointer; text-decoration:underline dotted" onclick="openChangelog()" title="Bekijk changelog">v…</span> · <span id="admin-version-date">…</span></div>
+      <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh ↓</div>
     </div>
   </div>
 
   <!-- Pull-to-refresh indicator + update banner -->
-  <div id="ptr-indicator" style="position:fixed; top:0; left:0; right:0; height:0; background:linear-gradient(180deg, var(--c-lavender), var(--c-pink)); opacity:0; z-index:9999; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; pointer-events:none">â†“ pull to refresh</div>
+  <div id="ptr-indicator" style="position:fixed; top:0; left:0; right:0; height:0; background:linear-gradient(180deg, var(--c-lavender), var(--c-pink)); opacity:0; z-index:9999; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; pointer-events:none">↓ pull to refresh</div>
   <div id="update-banner" style="position:fixed; bottom:1rem; left:1rem; right:1rem; background:white; padding:0.8em 1em; border-radius:var(--r-md); box-shadow:0 4px 16px rgba(0,0,0,0.15); display:none; align-items:center; gap:0.6em; z-index:9999; max-width:480px; margin:0 auto"></div>
   <style>
     #update-banner.zichtbaar { display:flex; }
     #update-banner button { background:var(--c-lavender); color:white; border:none; padding:0.4em 0.9em; border-radius:99px; font-weight:700; cursor:pointer; font-family:inherit }
     #update-banner button.sluiten { background:transparent; color:var(--c-muted); padding:0 0.4em; font-size:1.3rem }
     #ptr-indicator.klaar { opacity:1 !important; }
+
+    /* ===== Modus-switcher ===== */
+    .modus-switcher {
+      display:flex; gap:0.4rem; margin: 0 0 1.5rem 0;
+      background: white; padding: 0.4rem; border-radius: 99px;
+      box-shadow: var(--shadow-soft);
+    }
+    .ms-btn {
+      flex: 1; padding: 0.6em 1em; border: none; border-radius: 99px;
+      font-family: inherit; font-weight: 700; cursor: pointer;
+      background: transparent; color: var(--c-muted); font-size: 0.95rem;
+      transition: all 0.15s;
+    }
+    .ms-btn.actief { background: var(--c-lavender); color: white; }
+
+    /* ===== Bulk import ===== */
+    .bulk-section { background: linear-gradient(135deg, #FFF8E1 0%, #f4ebf7 100%); border: 2px solid var(--c-mustard); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-soft); }
+    .bulk-section h2 { margin-top: 0; }
+    .bulk-step { margin: 1.2rem 0; padding: 1rem; background: white; border-radius: var(--r-md); }
+    .bulk-step h3 { margin-top: 0; color: var(--c-ink); font-size: 1.05rem; }
+    .bulk-item-card {
+      background: var(--c-cream); border: 2px solid var(--c-cream-dark);
+      border-radius: var(--r-md); padding: 0.8rem; margin-bottom: 0.8rem;
+    }
+    .bulk-item-head {
+      display:flex; align-items:center; gap:0.6rem; margin-bottom:0.6rem;
+    }
+    .bulk-item-head .item-nr { font-weight: 800; color: var(--c-lavender-dark); font-size: 1.1rem; }
+    .bulk-item-head .item-actions { margin-left: auto; display:flex; gap:0.3rem; }
+    .bulk-item-head button { background:none; border:1.5px solid var(--c-cream-dark); padding:0.3em 0.7em; border-radius: var(--r-sm); cursor:pointer; font-family:inherit; font-size:0.85rem; }
+    .bulk-item-head button:hover { border-color: var(--c-lavender); }
+    .bulk-item-head button.delete { color: #C95252; }
+
+    .bulk-variant {
+      background: white; border-radius: var(--r-sm); padding: 0.5rem;
+      margin: 0.5rem 0; border-left: 3px solid var(--c-pink);
+    }
+    .bulk-variant-head { display:flex; align-items:center; gap:0.5rem; margin-bottom: 0.4rem; }
+    .bulk-variant-head input[type="text"] { flex:1; max-width: 180px; padding: 0.35em 0.6em; }
+    .bulk-variant-head button { background:none; border:none; cursor:pointer; padding:0.2em 0.4em; font-size:1rem; color: #C95252; }
+
+    .bulk-fotos {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem;
+    }
+    .bulk-foto {
+      position: relative; width: 64px; height: 64px;
+      border-radius: var(--r-sm); overflow: hidden; cursor: pointer;
+      background: white; border: 2px solid transparent; transition: border 0.15s;
+    }
+    .bulk-foto:hover { border-color: var(--c-lavender); }
+    .bulk-foto img { width:100%; height:100%; object-fit: cover; display:block; transition: filter 0.15s; }
+    .bulk-foto.bewerkt::after {
+      content:"✓"; position:absolute; top:1px; right:1px;
+      background: #4F8A52; color: white; width: 16px; height: 16px;
+      border-radius: 50%; font-size: 11px; line-height: 16px; text-align:center;
+      font-weight: 700;
+    }
+    .bulk-foto .remove-foto {
+      position:absolute; top:1px; left:1px; background: rgba(0,0,0,0.5);
+      color:white; border:none; width:16px; height:16px; border-radius: 50%;
+      font-size: 12px; line-height: 14px; cursor: pointer; padding: 0;
+    }
+    .bulk-add-foto {
+      width: 64px; height: 64px; border: 2px dashed var(--c-lavender);
+      border-radius: var(--r-sm); background: white; cursor: pointer;
+      font-size: 1.5rem; color: var(--c-lavender);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .bulk-fields { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+    .bulk-fields-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+    .bulk-fields textarea, .bulk-fields input, .bulk-fields-row2 input, .bulk-fields-row2 select {
+      width:100%; padding: 0.5em 0.7em; border: 1.5px solid var(--c-cream-dark);
+      border-radius: var(--r-sm); font-family: inherit; font-size: 0.9rem; background: white;
+    }
+    .bulk-fields textarea { grid-column: 1/-1; min-height: 70px; resize: vertical; }
+    .bulk-add-variant {
+      width: 100%; padding: 0.4em; background: transparent;
+      border: 1.5px dashed var(--c-lavender); border-radius: var(--r-sm);
+      cursor: pointer; color: var(--c-lavender-dark); font-family: inherit;
+      font-weight: 700; margin-top: 0.5rem;
+    }
+    .voorraad-mini { width: 60px !important; }
+
+    /* Foto-bewerk modal */
+    .bulk-photo-modal {
+      position: fixed; inset: 0; background: rgba(62,52,71,0.7);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem; z-index: 200;
+    }
+    .bulk-photo-modal[hidden] { display: none; }
+    .bulk-photo-box {
+      background: white; border-radius: var(--r-lg); padding: 1rem;
+      max-width: 600px; width: 100%; max-height: 90vh; overflow: auto;
+      position: relative;
+    }
+    .bulk-photo-close {
+      position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px;
+      background: var(--c-cream); border: none; border-radius: 50%;
+      font-size: 1.5rem; cursor: pointer; line-height: 1;
+    }
+    .bulk-photo-preview { text-align: center; margin: 0.5rem 0 1rem; }
+    .bulk-photo-preview canvas { max-width: 100%; max-height: 50vh; border-radius: var(--r-md); }
+    .bulk-photo-controls label { display: block; margin: 0.5rem 0 0.2rem; font-weight: 700; font-size: 0.9rem; }
+    .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/sw-register.js"></script>
+  <script src="../js/config.js?v=3.0.14"></script>
+  <script src="../js/sw-register.js?v=3.0.14"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -802,11 +964,11 @@
           <img src="../${i.foto}" alt="" onerror="this.style.background='#FAF6EE'">
           <div class="name">
             ${i.naam}
-            <small style="display:block;font-weight:400;color:var(--c-muted)">â‚¬${(i.prijs||0).toFixed(2)} Â· ${i.status} Â· ${i.categorie}</small>
+            <small style="display:block;font-weight:400;color:var(--c-muted)">€${(i.prijs||0).toFixed(2)} · ${i.status} · ${i.categorie}</small>
           </div>
           <div class="actions">
-            <button onclick="editItem('${i.id}')" title="Bewerken">âœï¸</button>
-            <button onclick="deleteItem('${i.id}')" title="Verwijderen">ðŸ—‘ï¸</button>
+            <button onclick="editItem('${i.id}')" title="Bewerken">✏️</button>
+            <button onclick="deleteItem('${i.id}')" title="Verwijderen">🗑️</button>
           </div>
         </div>
       `).join('');
@@ -842,7 +1004,7 @@
       const tweak = document.getElementById('edit-photo-tweak');
       if (tweak) tweak.style.display = 'none';
       const tBtn = document.getElementById('edit-photo-toggle-btn');
-      if (tBtn) tBtn.textContent = 'ðŸ“¸ Foto tweaken';
+      if (tBtn) tBtn.textContent = '📸 Foto tweaken';
       document.getElementById('edit-photo-ui').style.display = 'none';
       document.getElementById('edit-photo-loading').style.display = '';
       document.getElementById('edit-photo-error').style.display = 'none';
@@ -892,7 +1054,7 @@
       }
       save();
       resetForm();
-      alert('âœ¨ Bewaard! Vergeet niet te exporteren.');
+      alert('✨ Bewaard! Vergeet niet te exporteren.');
     });
     function exportJSON() {
       const out = JSON.stringify(DATA, null, 2);
@@ -900,11 +1062,11 @@
       pre.textContent = out;
       pre.style.display = 'block';
       navigator.clipboard?.writeText(out);
-      alert('ðŸ“‹ Gekopieerd naar klembord!\n\nPlak nu in data/items.json (vervang de hele inhoud).');
+      alert('📋 Gekopieerd naar klembord!\n\nPlak nu in data/items.json (vervang de hele inhoud).');
     }
 
     // ============================================
-    // BULK IMPORT â€” drag & drop meerdere foto's
+    // BULK IMPORT — drag & drop meerdere foto's
     // ============================================
     window.BULK_PHOTOS = [];
     const dropZone = document.getElementById('drop-zone');
@@ -932,7 +1094,7 @@
 
     function slugify(s) {
       return String(s).toLowerCase()
-        .normalize('NFD').replace(/[Ì€-Í¯]/g, '')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') || 'item';
     }
@@ -976,17 +1138,17 @@
       div.innerHTML = `
         <img src="${photo.dataURL}" alt="" style="width:80px; height:80px;">
         <div style="flex:1; min-width: 280px; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem">
-          <input class="bulk-naam"  placeholder="Naam (bv. Stress-bal Blob â€” Roze)" style="grid-column: 1 / -1; padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
+          <input class="bulk-naam"  placeholder="Naam (bv. Stress-bal Blob — Roze)" style="grid-column: 1 / -1; padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
           <select class="bulk-cat" style="padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
             ${DATA.categories.map(c => `<option value="${c.id}">${c.emoji} ${c.naam}</option>`).join('')}
           </select>
-          <input class="bulk-prijs" type="number" step="0.25" min="0" placeholder="Prijs â‚¬" style="padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
+          <input class="bulk-prijs" type="number" step="0.25" min="0" placeholder="Prijs €" style="padding: 0.4em 0.7em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-sm); font-family: inherit;">
           <label style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--c-text)">
-            <input type="checkbox" class="bulk-eigen"> â­ Pleun's eigen ontwerp
-            &nbsp;<input type="checkbox" class="bulk-uit"> ðŸŒ¸ Uitgelicht
+            <input type="checkbox" class="bulk-eigen"> ⭐ Pleun's eigen ontwerp
+            &nbsp;<input type="checkbox" class="bulk-uit"> 🌸 Uitgelicht
           </label>
         </div>
-        <button onclick="removeBulkRow(${photo.idx})" style="background:none; border:none; cursor:pointer; font-size:1.4rem; color:var(--c-muted)">Ã—</button>
+        <button onclick="removeBulkRow(${photo.idx})" style="background:none; border:none; cursor:pointer; font-size:1.4rem; color:var(--c-muted)">×</button>
       `;
       bulkList.appendChild(div);
     }
@@ -1032,7 +1194,7 @@
         added++;
       });
       save();
-      alert(`âœ¨ ${added} item${added !== 1 ? 's' : ''} toegevoegd${skipped ? ' Â· ' + skipped + ' overgeslagen (naam/prijs leeg)' : ''}!\n\nVergeet niet:\n1. Klik "Download alle foto's"\n2. Verplaats foto's naar img/items/\n3. Klik "Genereer + kopieer naar klembord" en plak in data/items.json`);
+      alert(`✨ ${added} item${added !== 1 ? 's' : ''} toegevoegd${skipped ? ' · ' + skipped + ' overgeslagen (naam/prijs leeg)' : ''}!\n\nVergeet niet:\n1. Klik "Download alle foto's"\n2. Verplaats foto's naar img/items/\n3. Klik "Genereer + kopieer naar klembord" en plak in data/items.json`);
     };
 
     window.bulkDownloadPhotos = function() {
@@ -1048,16 +1210,16 @@
         downloaded++;
       });
       if (downloaded === 0) {
-        alert('Geen foto\'s om te downloaden â€” voeg eerst items toe (stap 1).');
+        alert('Geen foto\'s om te downloaden — voeg eerst items toe (stap 1).');
       } else {
-        alert(`ðŸ“¥ ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar:\nC:\\Users\\Dave\\projects\\crochet-by-pleun\\img\\items\\`);
+        alert(`📥 ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar:\nC:\\Users\\Dave\\projects\\crochet-by-pleun\\img\\items\\`);
       }
     };
 
     init();
 
     // ============================================
-    // AUTO-CHANGELOG â€” afgeleid uit items.json
+    // AUTO-CHANGELOG — afgeleid uit items.json
     // ============================================
     function fmtDate(d) {
       if (!d) return '';
@@ -1080,15 +1242,15 @@
       });
       const dates = Object.keys(byDate).sort().reverse().slice(0, 10);
       if (dates.length === 0) {
-        list.innerHTML = '<p style="color:var(--c-muted)">Nog geen items toegevoegd â€” voeg er een toe via de wizard hierboven ðŸŒ¸</p>';
+        list.innerHTML = '<p style="color:var(--c-muted)">Nog geen items toegevoegd — voeg er een toe via de wizard hierboven 🌸</p>';
         return;
       }
       list.innerHTML = dates.map(d => {
         const dayItems = byDate[d];
         return `
           <div style="background:white; padding:0.7rem 1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft); margin-bottom:0.5rem;">
-            <div style="font-weight:700; color:var(--c-lavender-dark); font-size:0.85rem; margin-bottom:0.3em">${fmtDate(d)} Â· ${dayItems.length} ${dayItems.length === 1 ? 'item' : 'items'}</div>
-            <div style="font-size:0.92rem; line-height:1.5">${dayItems.map(i => `âœ¨ ${i.naam}`).join('<br>')}</div>
+            <div style="font-weight:700; color:var(--c-lavender-dark); font-size:0.85rem; margin-bottom:0.3em">${fmtDate(d)} · ${dayItems.length} ${dayItems.length === 1 ? 'item' : 'items'}</div>
+            <div style="font-size:0.92rem; line-height:1.5">${dayItems.map(i => `✨ ${i.naam}`).join('<br>')}</div>
           </div>
         `;
       }).join('');
@@ -1106,7 +1268,7 @@
     // ================================================
     const CHANGELOG = [
       { v: '3.0.0', d: '2026-05-09', items: [
-        'ðŸŽ€ Major branding update â€” Pleun\'s eigen logo\'s overal verwerkt',
+        '🎀 Major branding update — Pleun\'s eigen logo\'s overal verwerkt',
         'Hoofdlogo, banner, app-icoon en achtergrondpatroon (door Pleun via nano banana)',
         'PWA installeerbaar als app met Pleun\'s ronde icoon',
         'Favicon, apple-touch-icon en OG-image vervangen',
@@ -1120,23 +1282,23 @@
         'Disclaimer: tekst over grote bestellingen toegevoegd',
       ]},
       { v: '2.4.1', d: '2026-05-09', items: [
-        'Cart mobiel: namen afgekapt met ellipsis, +/âˆ’ knoppen altijd zichtbaar',
+        'Cart mobiel: namen afgekapt met ellipsis, +/− knoppen altijd zichtbaar',
         'Productpagina: Info / Reviews tabbladen met badge-teller',
-        'Brabant-tekst: persoonlijker gemaakt ("uit een klein Brabants dorpje ðŸŒ¸")',
-        'IdeeÃ«nbus CTA toegevoegd op bestellen-pagina',
+        'Brabant-tekst: persoonlijker gemaakt ("uit een klein Brabants dorpje 🌸")',
+        'Ideeënbus CTA toegevoegd op bestellen-pagina',
       ]},
       { v: '2.4.0', d: '2026-05-09', items: [
-        'Verzameldoos: meerdere stuks per item (+/âˆ’ knoppen)',
+        'Verzameldoos: meerdere stuks per item (+/− knoppen)',
         'Maatwerk offerte-flow voor showcase-items',
-        'IdeeÃ«nbus modal (WhatsApp feedback)',
+        'Ideeënbus modal (WhatsApp feedback)',
         'Reviews-tabblad op productpagina met sterbeoordeling',
         'Disclaimer modal ("Goed om te weten")',
         'Cloudflare Worker: /review endpoint voor klantreviews',
         'Admin: reviews modereren (goedkeuren / afwijzen / uitlichten)',
       ]},
       { v: '2.3.x', d: '2026-04', items: [
-        'Verzameldoos (winkelwagen) geÃ¯ntroduceerd',
-        'Gratis verzending boven â‚¬25',
+        'Verzameldoos (winkelwagen) geïntroduceerd',
+        'Gratis verzending boven €25',
         'Drie verzendtarieven (brief / brievenbuspakje / pakket)',
         'Postcode-check voor Pleun Express',
         'Galerij: categoriefilter + zoeken',
@@ -1151,8 +1313,8 @@
         existing.className = 'modal-overlay';
         existing.innerHTML = `
           <div class="modal-box" role="dialog" aria-modal="true" style="max-width:520px">
-            <button class="modal-close" onclick="document.getElementById('changelog-modal').classList.remove('open')" aria-label="Sluiten">Ã—</button>
-            <h2>ðŸ“‹ Changelog</h2>
+            <button class="modal-close" onclick="document.getElementById('changelog-modal').classList.remove('open')" aria-label="Sluiten">×</button>
+            <h2>📋 Changelog</h2>
             ${CHANGELOG.map(r => `
               <div style="margin-bottom:1.2rem">
                 <div style="font-weight:700; color:var(--c-lavender-dark)">v${r.v} <span style="font-weight:400; color:var(--c-muted); font-size:0.85em">${r.d}</span></div>
@@ -1170,7 +1332,7 @@
     }
 
     // ================================================
-    // âœ¨ AI SMART MODE â€” voor Pleun
+    // ✨ AI SMART MODE — voor Pleun
     // ================================================
     const AI_PW_KEY = 'pleun_ai_pw_v2';
     const AI_PW_TTL_MS = 12 * 60 * 60 * 1000;  // 12 uur
@@ -1195,7 +1357,7 @@
     // Wizard state
     // ============================================================
     const wizState = {
-      photo: null,           // { dataURL, base64, mediaType, ext } â€” final (gebakken)
+      photo: null,           // { dataURL, base64, mediaType, ext } — final (gebakken)
       photoBase: null,       // base zonder sliders
       photoBrightness: 0,    // slider -50..+50
       photoContrast: 0,      // slider -50..+50
@@ -1236,7 +1398,7 @@
       const url = workerUrl();
       if (!url) {
         document.getElementById('ai-gate-msg').textContent =
-          'âš ï¸ workerUrl is leeg in js/config.js. Vul deze in nadat je de Cloudflare Worker hebt gedeployed (zie cloudflare-worker/README.md).';
+          '⚠️ workerUrl is leeg in js/config.js. Vul deze in nadat je de Cloudflare Worker hebt gedeployed (zie cloudflare-worker/README.md).';
         return;
       }
       const pw = document.getElementById('ai-password').value.trim();
@@ -1248,7 +1410,7 @@
           body: JSON.stringify({ password: pw }),
         });
         if (!res.ok) {
-          document.getElementById('ai-gate-msg').textContent = 'âŒ Verkeerd wachtwoord.';
+          document.getElementById('ai-gate-msg').textContent = '❌ Verkeerd wachtwoord.';
           return;
         }
         AI_PASSWORD = pw;
@@ -1256,7 +1418,7 @@
         document.getElementById('ai-gate').style.display = 'none';
         document.getElementById('ai-main').style.display = 'block';
       } catch (err) {
-        document.getElementById('ai-gate-msg').textContent = 'âŒ Worker niet bereikbaar: ' + err.message;
+        document.getElementById('ai-gate-msg').textContent = '❌ Worker niet bereikbaar: ' + err.message;
       }
     }
 
@@ -1265,7 +1427,7 @@
       document.getElementById('ai-main').style.display = 'block';
     } else if (!workerUrl()) {
       document.getElementById('ai-gate-msg').textContent =
-        'â„¹ï¸ AI-modus nog niet geconfigureerd. Vul workerUrl in js/config.js â€” zie cloudflare-worker/README.md.';
+        'ℹ️ AI-modus nog niet geconfigureerd. Vul workerUrl in js/config.js — zie cloudflare-worker/README.md.';
     }
 
     // ============================================================
@@ -1286,12 +1448,12 @@
     });
 
     function handleAIPhoto(file) {
-      if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto ðŸ™ƒ', 'error'); return; }
+      if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto 🙃', 'error'); return; }
       if (file.size > 12_000_000) {
-        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB â€” maak 'm kleiner (max 12 MB) ðŸ“`, 'error');
+        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB — maak 'm kleiner (max 12 MB) 📐`, 'error');
         return;
       }
-      aiSetStatus('âœ¨ Foto wordt geanalyseerd...', 'busy');
+      aiSetStatus('✨ Foto wordt geanalyseerd...', 'busy');
       const reader = new FileReader();
       reader.onload = async ev => {
         try {
@@ -1307,13 +1469,13 @@
           showPhotoChoice(wasChanged ? 'enhanced' : 'original');
           aiSetStatus('', '');
         } catch (err) {
-          aiSetStatus('âŒ Foto-bewerking mislukt: ' + err.message, 'error');
+          aiSetStatus('❌ Foto-bewerking mislukt: ' + err.message, 'error');
         }
       };
       reader.readAsDataURL(file);
     }
 
-    // Resize zonder kleur-bewerking â€” voor de 'origineel' optie
+    // Resize zonder kleur-bewerking — voor de 'origineel' optie
     async function resizeOnly(dataURL) {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -1343,7 +1505,7 @@
       const initSrc  = initMode === 'auto' ? enh.dataURL : orig.dataURL;
 
       document.getElementById('ai-drop-content').innerHTML = `
-        <p style="margin:0 0 0.5rem; font-weight:700; font-size:0.9rem; color:var(--c-lavender-dark)">ðŸ“¸ Foto verfijnen</p>
+        <p style="margin:0 0 0.5rem; font-weight:700; font-size:0.9rem; color:var(--c-lavender-dark)">📸 Foto verfijnen</p>
 
         <!-- Grote preview -->
         <div class="photo-large-wrap">
@@ -1352,19 +1514,19 @@
 
         <!-- Modi -->
         <div class="photo-mode-tabs">
-          <button class="photo-mode-btn ${initMode==='auto'?'active':''}" data-mode="auto"      onclick="setPhotoMode('auto');event.stopPropagation()">ðŸ¤– Automatisch</button>
-          <button class="photo-mode-btn ${initMode==='origineel'?'active':''}" data-mode="origineel" onclick="setPhotoMode('origineel');event.stopPropagation()">ðŸ“· Origineel</button>
-          <button class="photo-mode-btn" data-mode="handmatig" onclick="setPhotoMode('handmatig');event.stopPropagation()">âœï¸ Handmatig</button>
+          <button class="photo-mode-btn ${initMode==='auto'?'active':''}" data-mode="auto"      onclick="setPhotoMode('auto');event.stopPropagation()">🤖 Automatisch</button>
+          <button class="photo-mode-btn ${initMode==='origineel'?'active':''}" data-mode="origineel" onclick="setPhotoMode('origineel');event.stopPropagation()">📷 Origineel</button>
+          <button class="photo-mode-btn" data-mode="handmatig" onclick="setPhotoMode('handmatig');event.stopPropagation()">✏️ Handmatig</button>
         </div>
 
         <!-- Sliders (alleen zichtbaar in Handmatig) -->
         <div class="photo-sliders" id="photo-sliders" style="display:none">
           <div class="photo-slider-row">
-            <label>â˜€ï¸ Helderheid <span id="bri-val">0</span></label>
+            <label>☀️ Helderheid <span id="bri-val">0</span></label>
             <input type="range" id="photo-bri" min="-50" max="50" step="5" value="0">
           </div>
           <div class="photo-slider-row">
-            <label>ðŸŽšï¸ Contrast <span id="con-val">0</span></label>
+            <label>🎚️ Contrast <span id="con-val">0</span></label>
             <input type="range" id="photo-con" min="-50" max="50" step="5" value="0">
           </div>
         </div>
@@ -1378,13 +1540,13 @@
           </div>
           <div class="pc-card ${initMode==='auto'?'selected':''}" data-pick="enhanced">
             <img src="${enh.dataURL}" alt="opgefrist">
-            <div class="pc-label">Opgefrist âœ¨</div>
+            <div class="pc-label">Opgefrist ✨</div>
             <div class="pc-sub">${subEnh}</div>
           </div>
         </div>
 
         <div class="photo-actions">
-          <button class="btn secondary" type="button" onclick="aiResetPhoto(); event.stopPropagation();">â†º Andere foto</button>
+          <button class="btn secondary" type="button" onclick="aiResetPhoto(); event.stopPropagation();">↺ Andere foto</button>
         </div>
       `;
 
@@ -1442,7 +1604,7 @@
         if (preview) { preview.src = src; preview.style.filter = ''; }
         document.querySelectorAll('#photo-compare .pc-card').forEach(c => c.classList.toggle('selected', c.dataset.pick === 'original'));
       } else {
-        // Handmatig â€” start vanuit opgefrist als base
+        // Handmatig — start vanuit opgefrist als base
         if (sliders) sliders.style.display = '';
         const src = wizState.photoEnhanced.dataURL;
         setPhotoBase(src);
@@ -1523,7 +1685,7 @@
               const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) | 0;
               hist[lum]++;
             }
-            // Vind P2 en P98 (negeer 2% extreme outliers â€” sensorruis, witte rand, etc.)
+            // Vind P2 en P98 (negeer 2% extreme outliers — sensorruis, witte rand, etc.)
             const lo = total * 0.02, hi = total * 0.98;
             let cum = 0, p2 = 0, p98 = 255, found2 = false;
             for (let i = 0; i < 256; i++) {
@@ -1533,12 +1695,12 @@
             }
             const range = p98 - p2;
 
-            // Beslis: foto al goed â†’ alleen resizen + comprimeren
+            // Beslis: foto al goed → alleen resizen + comprimeren
             let info;
             if (range >= 180) {
               info = `al goed belicht (range ${range})`;
             } else {
-              // Auto-levels: stretch P2..P98 â†’ 15..240 (zachter, geen over-contrast)
+              // Auto-levels: stretch P2..P98 → 15..240 (zachter, geen over-contrast)
               const targetLo = 15, targetHi = 240;
               const scale = (targetHi - targetLo) / Math.max(1, range);
               for (let i = 0; i < data.length; i += 4) {
@@ -1571,7 +1733,7 @@
       wizState.photo = null;
       aiDrop.classList.remove('has-photo');
       document.getElementById('ai-drop-content').innerHTML = `
-        <p style="font-size:2.5rem; margin:0">ðŸ“¸</p>
+        <p style="font-size:2.5rem; margin:0">📸</p>
         <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">Tap om foto te kiezen <em>of sleep 'm hierin</em></p>
         <p style="color:var(--c-muted); font-size:0.9rem; margin:0">JPG of PNG</p>`;
       aiFile.value = '';
@@ -1602,7 +1764,7 @@
       const catOpts = WIZ_CATEGORIES.map(c =>
         `<option value="${c}" ${c === w.categorie ? 'selected' : ''}>${c}</option>`).join('');
       return `
-        <p class="wiz-edit-hint">âœï¸ Klik op de tekst om aan te passen</p>
+        <p class="wiz-edit-hint">✏️ Klik op de tekst om aan te passen</p>
         <span class="pv-label">Naam</span>
         <input class="pv-edit" data-type="website" data-key="naam" value="${esc(w.naam || '')}">
         <span class="pv-label">Beschrijving</span>
@@ -1622,7 +1784,7 @@
       if (!s) return '';
       const tags = (s.hashtags || []).join(' ');
       return `
-        <p class="wiz-edit-hint">âœï¸ Klik op de tekst om aan te passen</p>
+        <p class="wiz-edit-hint">✏️ Klik op de tekst om aan te passen</p>
         <span class="pv-label">Bericht voor WhatsApp-kanaal</span>
         <textarea class="pv-edit" data-type="social" data-key="tekst" style="min-height:140px">${esc(s.tekst || '')}</textarea>
         <span class="pv-label">Hashtags (spatie-gescheiden, optioneel)</span>
@@ -1630,7 +1792,7 @@
       `;
     }
 
-    // Live two-way binding: edits in preview â†’ wizState.output
+    // Live two-way binding: edits in preview → wizState.output
     document.addEventListener('input', e => {
       const el = e.target;
       if (!el.classList) return;
@@ -1650,7 +1812,7 @@
         return;
       }
       if (el.classList.contains('wiz-cmt')) {
-        // 'Wat moet anders?' textarea â€” update refine-knop label
+        // 'Wat moet anders?' textarea — update refine-knop label
         updateRefineButtonLabels();
       }
     });
@@ -1661,7 +1823,7 @@
         const btn = document.querySelector('.refine-btn[data-type="' + type + '"]');
         if (!cmt || !btn) return;
         btn.classList.remove('btn-empty');
-        btn.textContent = cmt.value.trim() ? 'ðŸ”„ Pas aan op feedback' : 'ðŸ”„ Andere versie';
+        btn.textContent = cmt.value.trim() ? '🔄 Pas aan op feedback' : '🔄 Andere versie';
       });
     }
 
@@ -1673,14 +1835,14 @@
     }
 
     // ============================================================
-    // STAP 1 â†’ STAP 2: Generate
+    // STAP 1 → STAP 2: Generate
     // ============================================================
     async function wizGenerate() {
-      if (!wizState.photo) { aiSetStatus('Upload eerst een foto ðŸ“¸', 'error'); return; }
+      if (!wizState.photo) { aiSetStatus('Upload eerst een foto 📸', 'error'); return; }
       const naam = document.getElementById('w-naam').value.trim();
       const prijs = parseFloat(document.getElementById('w-prijs').value);
-      if (!naam) { aiSetStatus('Vul eerst een naam in ðŸ’', 'error'); return; }
-      if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in ðŸ’¸', 'error'); return; }
+      if (!naam) { aiSetStatus('Vul eerst een naam in 💝', 'error'); return; }
+      if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in 💸', 'error'); return; }
 
       // Lees kanaal-selectie
       wizState.channels = {
@@ -1688,7 +1850,7 @@
         social: document.getElementById('ch-social').checked,
       };
       if (!wizState.channels.website && !wizState.channels.social) {
-        aiSetStatus('Vink minstens Ã©Ã©n kanaal aan ðŸŽ¯', 'error'); return;
+        aiSetStatus('Vink minstens één kanaal aan 🎯', 'error'); return;
       }
 
       wizState.input = {
@@ -1707,7 +1869,7 @@
       document.getElementById('panel-website').classList.toggle('ch-off', !wizState.channels.website);
       document.getElementById('panel-social').classList.toggle('ch-off', !wizState.channels.social);
 
-      // Bak CSS-filter in canvas vÃ³Ã³r upload naar AI
+      // Bak CSS-filter in canvas vóór upload naar AI
       await bakePhotoFilters();
 
       wizGoStep(2);
@@ -1731,7 +1893,7 @@
         wizGoStep(3);
         initPanelTabs();
       } catch (err) {
-        aiSetStatus('âŒ ' + err.message, 'error');
+        aiSetStatus('❌ ' + err.message, 'error');
         wizGoStep(1);
       }
     }
@@ -1751,9 +1913,9 @@
       panel.classList.add('busy');
       if (refineBtn) {
         refineBtn.classList.add('refine-busy');
-        refineBtn.textContent = 'â³ AI is bezig...';
+        refineBtn.textContent = '⏳ AI is bezig...';
       }
-      aiSetStatus('ðŸ”„ Nieuwe versie aan het maken...', 'busy');
+      aiSetStatus('🔄 Nieuwe versie aan het maken...', 'busy');
 
       try {
         const res = await fetch(workerUrl() + '/refine', {
@@ -1771,7 +1933,7 @@
         if (!res.ok) {
           const errText = await res.text();
           if (res.status === 429 || /quota|rate|limit/i.test(errText)) {
-            throw new Error('Te veel requests â€” wacht een minuut en probeer opnieuw.');
+            throw new Error('Te veel requests — wacht een minuut en probeer opnieuw.');
           }
           throw new Error(errText);
         }
@@ -1781,10 +1943,10 @@
         cmtEl.value = '';
         refreshPreviews();
         updateApprovalUI();
-        aiSetStatus('âœ… Nieuwe versie klaar', 'success');
+        aiSetStatus('✅ Nieuwe versie klaar', 'success');
         setTimeout(() => aiSetStatus('', ''), 3000);
       } catch (err) {
-        aiSetStatus('âŒ ' + err.message, 'error');
+        aiSetStatus('❌ ' + err.message, 'error');
       } finally {
         btns.forEach(b => b.disabled = false);
         panel.classList.remove('busy');
@@ -1814,7 +1976,7 @@
         const tab = document.getElementById('tab-' + type);
         if (wizState.approved[type]) {
           panel.classList.add('approved');
-          badge.textContent = 'âœ“ akkoord';
+          badge.textContent = '✓ akkoord';
           if (tab) tab.classList.add('tab-done');
         } else {
           panel.classList.remove('approved');
@@ -1888,11 +2050,11 @@
     }
 
     // ============================================================
-    // STAP 3 â†’ STAP 4: Publish
+    // STAP 3 → STAP 4: Publish
     // ============================================================
     function slugifyAI(s) {
       return String(s).toLowerCase()
-        .normalize('NFD').replace(/[Ì€-Í¯]/g, '')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') || 'item';
     }
@@ -1900,14 +2062,14 @@
     async function wizPublish() {
       // Confirm-flow als nog niet alles gecheckt is
       if (!wizState.approved.website) {
-        if (!confirm('Je hebt nog geen âœ“ Akkoord gegeven op de website-tekst. Toch plaatsen?')) return;
+        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de website-tekst. Toch plaatsen?')) return;
       }
       // Alleen waarschuwen voor social als ze die WEL had aangevinkt
       if (wizState.channels?.social && !wizState.published?.social && !wizState.approved.social) {
-        if (!confirm('Je doet nu alleen de WEBSITE-post â€” geen WhatsApp-bericht. Doorgaan?')) return;
+        if (!confirm('Je doet nu alleen de WEBSITE-post — geen WhatsApp-bericht. Doorgaan?')) return;
       }
       if (!wizState.photo) {
-        alert('Eerst een foto kiezen ðŸ“¸'); return;
+        alert('Eerst een foto kiezen 📸'); return;
       }
       const w = wizState.output.website;
       const id = slugifyAI((w.categorie || '') + '-' + (w.naam || ''));
@@ -1928,7 +2090,7 @@
       };
       const photoFilename = `${id}.${wizState.photo.ext}`;
 
-      aiSetStatus('ðŸš€ Publiceren naar GitHub... (15-30 sec)', 'busy');
+      aiSetStatus('🚀 Publiceren naar GitHub... (15-30 sec)', 'busy');
 
       try {
         const res = await fetch(workerUrl() + '/publish', {
@@ -1945,31 +2107,31 @@
         wizState.published = wizState.published || {};
         wizState.published.website = true;
         aiSetStatus('', '');
-        document.getElementById('success-title').textContent = 'âœ… Live op de site!';
+        document.getElementById('success-title').textContent = '✅ Live op de site!';
         document.getElementById('success-msg').innerHTML =
-          `Het item staat nu op <a href="${result.siteUrl}" target="_blank">${result.siteUrl}</a> (kan 1-2 minuten duren tot de build klaar is).<br><br>Hieronder kun je je WhatsApp-post kopiÃ«ren en in je kanaal plakken.`;
+          `Het item staat nu op <a href="${result.siteUrl}" target="_blank">${result.siteUrl}</a> (kan 1-2 minuten duren tot de build klaar is).<br><br>Hieronder kun je je WhatsApp-post kopiëren en in je kanaal plakken.`;
         wizGoStep(4);
       } catch (err) {
-        aiSetStatus('âŒ ' + err.message, 'error');
+        aiSetStatus('❌ ' + err.message, 'error');
       }
     }
 
     async function wizCopySocial() {
       // Confirm-flow als nog niet alles gecheckt is
       if (!wizState.approved.social) {
-        if (!confirm('Je hebt nog geen âœ“ Akkoord gegeven op de WhatsApp-tekst. Toch delen?')) return;
+        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de WhatsApp-tekst. Toch delen?')) return;
       }
       // Alleen waarschuwen voor website als ze die WEL had aangevinkt
       if (wizState.channels?.website && !wizState.published?.website && !wizState.approved.website) {
-        if (!confirm('Je doet nu alleen de WHATSAPP-post â€” de website wordt niet bijgewerkt. Doorgaan?')) return;
+        if (!confirm('Je doet nu alleen de WHATSAPP-post — de website wordt niet bijgewerkt. Doorgaan?')) return;
       }
       const tekst = wizState.output?.social?.tekst || '';
-      if (!tekst) { aiSetStatus('Geen WhatsApp-tekst gevonden ðŸ¤”', 'error'); return; }
+      if (!tekst) { aiSetStatus('Geen WhatsApp-tekst gevonden 🤔', 'error'); return; }
 
       wizState.published = wizState.published || {};
       wizState.published.social = true;
 
-      // Probeer native share (foto + tekst in Ã©Ã©n keer) â€” werkt op Android/iOS
+      // Probeer native share (foto + tekst in één keer) — werkt op Android/iOS
       const photoDataURL = wizState.photo?.dataURL;
       if (photoDataURL && navigator.share) {
         try {
@@ -1979,7 +2141,7 @@
             ? { files: [file], text: tekst }
             : { text: tekst };
           await navigator.share(shareData);
-          aiSetStatus('âœ“ Gedeeld! ðŸ“¤', 'success');
+          aiSetStatus('✓ Gedeeld! 📤', 'success');
           setTimeout(() => aiSetStatus('', ''), 3000);
           return;
         } catch (e) {
@@ -1995,7 +2157,7 @@
         a.click();
       }
       navigator.clipboard.writeText(tekst).then(() => {
-        aiSetStatus('ðŸ“¥ Foto gedownload + tekst gekopieerd â€” stuur ze samen in WhatsApp!', 'success');
+        aiSetStatus('📥 Foto gedownload + tekst gekopieerd — stuur ze samen in WhatsApp!', 'success');
         setTimeout(() => aiSetStatus('', ''), 5000);
       }).catch(() => {
         prompt('Kopieer onderstaande tekst handmatig:', tekst);
@@ -2024,7 +2186,7 @@
     }
 
     // ============================================================
-    // Edit form â€” AI herzien + foto tweaken
+    // Edit form — AI herzien + foto tweaken
     // ============================================================
     let _editPhotoOpen = false;
     let _editPhotoState = { original: null, enhanced: null, base: null, brightness: 0, contrast: 0, mode: 'auto', loaded: false };
@@ -2047,7 +2209,7 @@
       document.getElementById('ai-smart').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       if (fotoPath) {
-        aiSetStatus('ðŸ“¸ Foto laden...', 'busy');
+        aiSetStatus('📸 Foto laden...', 'busy');
         try {
           const res = await fetch('../' + fotoPath + '?v=' + Date.now());
           if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2056,7 +2218,7 @@
           await handleAIPhoto(new File([blob], filename, { type: blob.type || 'image/jpeg' }));
           aiSetStatus('', '');
         } catch(e) {
-          aiSetStatus('Foto kon niet automatisch worden geladen. Upload hem handmatig ðŸ“¸', 'error');
+          aiSetStatus('Foto kon niet automatisch worden geladen. Upload hem handmatig 📸', 'error');
         }
       }
     }
@@ -2067,11 +2229,11 @@
       const btn   = document.getElementById('edit-photo-toggle-btn');
       if (!_editPhotoOpen) {
         panel.style.display = 'none';
-        btn.textContent = 'ðŸ“¸ Foto tweaken';
+        btn.textContent = '📸 Foto tweaken';
         return;
       }
       panel.style.display = '';
-      btn.textContent = 'ðŸ“¸ Foto verbergen';
+      btn.textContent = '📸 Foto verbergen';
       if (_editPhotoState.loaded) return;
 
       const fotoPath = document.getElementById('f-foto').value.trim();
@@ -2123,7 +2285,7 @@
         document.getElementById('edit-photo-ui').style.display = '';
       } catch(e) {
         document.getElementById('edit-photo-loading').style.display = 'none';
-        document.getElementById('edit-photo-error').textContent = 'âŒ ' + e.message;
+        document.getElementById('edit-photo-error').textContent = '❌ ' + e.message;
         document.getElementById('edit-photo-error').style.display = '';
       }
     }
@@ -2239,24 +2401,24 @@
           return (order[a.status] ?? 9) - (order[b.status] ?? 9) || (b.datum || '').localeCompare(a.datum || '');
         });
         if (reviews.length === 0) {
-          container.innerHTML = '<p style="color:var(--c-muted)">Nog geen reviews ðŸŒ¸</p>';
+          container.innerHTML = '<p style="color:var(--c-muted)">Nog geen reviews 🌸</p>';
           return;
         }
         container.innerHTML = reviews.map(r => {
-          const sterren = 'â˜…'.repeat(r.rating || 5) + 'â˜†'.repeat(5 - (r.rating || 5));
+          const sterren = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
           return `
           <div class="rv-admin-kaart ${r.status}" id="rv-${r.id}">
             <div class="rv-admin-meta">
-              <strong>${r.naam || 'Anoniem'}</strong> Â· ${sterren} Â· ${r.datum || ''}
-              Â· <a href="../product.html?id=${encodeURIComponent(r.productId)}" target="_blank">${r.productNaam || r.productId}</a>
-              Â· <em style="text-transform:uppercase;font-size:0.78rem">${r.status}</em>
+              <strong>${r.naam || 'Anoniem'}</strong> · ${sterren} · ${r.datum || ''}
+              · <a href="../product.html?id=${encodeURIComponent(r.productId)}" target="_blank">${r.productNaam || r.productId}</a>
+              · <em style="text-transform:uppercase;font-size:0.78rem">${r.status}</em>
             </div>
             <p class="rv-admin-tekst">"${r.tekst}"</p>
             <div class="rv-admin-actions">
-              ${r.status !== 'approved' ? `<button class="btn-approve" onclick="modereerReview('${r.id}','approve')">âœ… Goedkeuren</button>` : ''}
-              ${r.status !== 'rejected' ? `<button class="btn-reject"  onclick="modereerReview('${r.id}','reject')">ðŸ—‘ Afwijzen</button>` : ''}
-              <button class="btn-toggle${r.cadeau ? ' on' : ''}"     onclick="modereerReview('${r.id}','cadeau')">ðŸŽ Cadeautje${r.cadeau ? ' âœ“' : ''}</button>
-              <button class="btn-toggle${r.uitgelicht ? ' on' : ''}" onclick="modereerReview('${r.id}','uitgelicht')">â­ Homepage${r.uitgelicht ? ' âœ“' : ''}</button>
+              ${r.status !== 'approved' ? `<button class="btn-approve" onclick="modereerReview('${r.id}','approve')">✅ Goedkeuren</button>` : ''}
+              ${r.status !== 'rejected' ? `<button class="btn-reject"  onclick="modereerReview('${r.id}','reject')">🗑 Afwijzen</button>` : ''}
+              <button class="btn-toggle${r.cadeau ? ' on' : ''}"     onclick="modereerReview('${r.id}','cadeau')">🎁 Cadeautje${r.cadeau ? ' ✓' : ''}</button>
+              <button class="btn-toggle${r.uitgelicht ? ' on' : ''}" onclick="modereerReview('${r.id}','uitgelicht')">⭐ Homepage${r.uitgelicht ? ' ✓' : ''}</button>
             </div>
           </div>`;
         }).join('');
@@ -2267,7 +2429,7 @@
 
     async function modereerReview(id, actie) {
       const token = sessionStorage.getItem('pleun_admin_token');
-      if (!token) { alert('Eerst inloggen ðŸ”’'); return; }
+      if (!token) { alert('Eerst inloggen 🔒'); return; }
       const cfg = window.SHOP_CONFIG || {};
       try {
         const res = await fetch(cfg.workerUrl.replace(/\/$/, '') + '/review', {
@@ -2293,6 +2455,377 @@
     };
     // Ook direct laden als al ingelogd (page refresh)
     if (sessionStorage.getItem('pleun_admin_token')) loadAdminReviews();
+  </script>
+
+  <!-- ===== Modus-switcher ===== -->
+  <script>
+    document.querySelectorAll('.ms-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modus = btn.dataset.modus;
+        document.querySelectorAll('.ms-btn').forEach(b => b.classList.toggle('actief', b === btn));
+        document.getElementById('bulk-section').hidden = (modus !== 'bulk');
+        document.getElementById('ai-smart').style.display = (modus === 'bulk') ? 'none' : '';
+      });
+    });
+  </script>
+
+  <!-- ===== JSZip CDN voor export ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+  <!-- ===== Bulk import wizard ===== -->
+  <script>
+  (function() {
+    const STATE = { items: [] };  // [{id, fotos:[], varianten:[{kleur, fotoIdxs:[]}], tekst, prijs, voorraad, categorie, afmeting}]
+    const FOTOS = []; // [{file, dataUrl, bewerkt:{bri,con,sat}|null, naam}]
+
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+    const itemsWrap = () => $('#bulk-items');
+
+    function uid() { return 'i' + Math.random().toString(36).slice(2, 8); }
+    function vid() { return 'v' + Math.random().toString(36).slice(2, 8); }
+
+    // ===== Foto-laden =====
+    $('#bulk-pick-btn').addEventListener('click', () => $('#bulk-files').click());
+
+    $('#bulk-files').addEventListener('change', async e => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      for (const file of files) {
+        const dataUrl = await fileToDataUrl(file);
+        const idx = FOTOS.length;
+        FOTOS.push({ file, dataUrl, bewerkt: null, naam: file.name });
+        // Standaard: 1 nieuw item per foto, met 1 lege variant
+        STATE.items.push({
+          id: uid(),
+          tekst: '', prijs: '', voorraad: 1,
+          categorie: '', afmeting: '',
+          varianten: [{ id: vid(), kleur: '', fotoIdxs: [idx], voorraad: 1 }],
+        });
+      }
+      $('#bulk-items-wrap').hidden = false;
+      $('#bulk-export-wrap').hidden = false;
+      render();
+      e.target.value = '';
+    });
+
+    function fileToDataUrl(file) {
+      return new Promise(res => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.readAsDataURL(file);
+      });
+    }
+
+    // ===== Render =====
+    function render() {
+      itemsWrap().innerHTML = STATE.items.map((it, i) => {
+        const allItemNrs = STATE.items.map((_, idx) => idx).filter(idx => idx !== i);
+        return `
+        <div class="bulk-item-card" data-item-id="${it.id}">
+          <div class="bulk-item-head">
+            <span class="item-nr">#${i + 1}</span>
+            <div class="item-actions">
+              ${allItemNrs.length ? `<select class="merge-target" data-item-id="${it.id}">
+                <option value="">Voeg samen met...</option>
+                ${allItemNrs.map(idx => `<option value="${STATE.items[idx].id}">→ #${idx + 1}</option>`).join('')}
+              </select>` : ''}
+              <button class="delete" data-action="delete" data-item-id="${it.id}">🗑 verwijder</button>
+            </div>
+          </div>
+
+          ${it.varianten.map((v, vi) => `
+            <div class="bulk-variant" data-variant-id="${v.id}">
+              <div class="bulk-variant-head">
+                ${it.varianten.length > 1 ? '🎨' : ''}
+                <input type="text" placeholder="${it.varianten.length > 1 ? 'Kleur (bv. lichtroze)' : 'Kleur (optioneel — alleen invullen bij meer kleuren)'}" value="${esc(v.kleur)}" data-action="kleur" data-item-id="${it.id}" data-variant-id="${v.id}">
+                ${it.varianten.length > 1 ? `<input type="number" min="0" class="voorraad-mini" placeholder="vrr" value="${v.voorraad}" data-action="voorraad-variant" data-item-id="${it.id}" data-variant-id="${v.id}">` : ''}
+                ${it.varianten.length > 1 ? `<button data-action="del-variant" data-item-id="${it.id}" data-variant-id="${v.id}" title="Verwijder variant">×</button>` : ''}
+              </div>
+              <div class="bulk-fotos">
+                ${v.fotoIdxs.map(fi => `
+                  <div class="bulk-foto ${FOTOS[fi].bewerkt ? 'bewerkt' : ''}" data-action="open-photo" data-foto-idx="${fi}" title="${esc(FOTOS[fi].naam)}">
+                    <img src="${FOTOS[fi].dataUrl}" alt="" style="${fotoFilter(FOTOS[fi])}">
+                    <button class="remove-foto" data-action="remove-foto" data-item-id="${it.id}" data-variant-id="${v.id}" data-foto-idx="${fi}" title="Verwijder">×</button>
+                  </div>
+                `).join('')}
+                <button class="bulk-add-foto" data-action="add-foto" data-item-id="${it.id}" data-variant-id="${v.id}" title="Extra foto">+</button>
+              </div>
+            </div>
+          `).join('')}
+
+          <button class="bulk-add-variant" data-action="add-variant" data-item-id="${it.id}">+ extra kleur-variant</button>
+
+          <div class="bulk-fields">
+            <textarea placeholder="📝 Plak hier de WhatsApp-tekst over dit item (optioneel — als leeg verzint Dave's chat zelf iets)" data-action="tekst" data-item-id="${it.id}">${esc(it.tekst)}</textarea>
+          </div>
+          <div class="bulk-fields-row2">
+            <input type="number" step="0.25" min="0" placeholder="Prijs €" value="${it.prijs}" data-action="prijs" data-item-id="${it.id}">
+            ${it.varianten.length === 1 ? `<input type="number" min="0" placeholder="Voorraad" value="${it.voorraad}" data-action="voorraad" data-item-id="${it.id}">` : `<input type="text" placeholder="Afmeting (optioneel)" value="${esc(it.afmeting)}" data-action="afmeting" data-item-id="${it.id}">`}
+          </div>
+          ${it.varianten.length > 1 ? `<div class="bulk-fields-row2"><input type="text" placeholder="Afmeting (optioneel)" value="${esc(it.afmeting)}" data-action="afmeting" data-item-id="${it.id}"><input type="text" placeholder="Categorie hint (optioneel)" value="${esc(it.categorie)}" data-action="categorie" data-item-id="${it.id}"></div>` : `<div class="bulk-fields-row2"><input type="text" placeholder="Afmeting (optioneel)" value="${esc(it.afmeting)}" data-action="afmeting" data-item-id="${it.id}"><input type="text" placeholder="Categorie hint (optioneel)" value="${esc(it.categorie)}" data-action="categorie" data-item-id="${it.id}"></div>`}
+        </div>`;
+      }).join('') || '<p class="cd-hint">Nog geen foto\'s gekozen.</p>';
+    }
+
+    function fotoFilter(foto) {
+      if (!foto.bewerkt) return '';
+      const { bri = 0, con = 0, sat = 0 } = foto.bewerkt;
+      return `filter: brightness(${1 + bri/100}) contrast(${1 + con/100}) saturate(${1 + sat/100})`;
+    }
+
+    function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function findItem(id) { return STATE.items.find(x => x.id === id); }
+    function findVariant(item, id) { return item?.varianten.find(v => v.id === id); }
+
+    // ===== Event delegation =====
+    itemsWrap().addEventListener('click', e => {
+      const t = e.target.closest('[data-action]');
+      if (!t) return;
+      const action = t.dataset.action;
+      const itemId = t.dataset.itemId;
+      const item = findItem(itemId);
+
+      if (action === 'delete') {
+        if (confirm('Verwijder dit item?')) {
+          STATE.items = STATE.items.filter(x => x.id !== itemId);
+          render();
+        }
+        return;
+      }
+      if (action === 'add-variant') {
+        item.varianten.push({ id: vid(), kleur: '', fotoIdxs: [], voorraad: 1 });
+        render(); return;
+      }
+      if (action === 'del-variant') {
+        const v = findVariant(item, t.dataset.variantId);
+        if (item.varianten.length > 1) {
+          item.varianten = item.varianten.filter(x => x.id !== v.id);
+          render();
+        }
+        return;
+      }
+      if (action === 'add-foto') {
+        const variantId = t.dataset.variantId;
+        // Open file-picker voor extra foto
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+        input.onchange = async ev => {
+          const files = Array.from(ev.target.files || []);
+          for (const f of files) {
+            const dataUrl = await fileToDataUrl(f);
+            const idx = FOTOS.length;
+            FOTOS.push({ file: f, dataUrl, bewerkt: null, naam: f.name });
+            const v = findVariant(item, variantId);
+            v.fotoIdxs.push(idx);
+          }
+          render();
+        };
+        input.click();
+        return;
+      }
+      if (action === 'remove-foto') {
+        e.stopPropagation();
+        const v = findVariant(item, t.dataset.variantId);
+        v.fotoIdxs = v.fotoIdxs.filter(fi => fi !== parseInt(t.dataset.fotoIdx));
+        render();
+        return;
+      }
+      if (action === 'open-photo') {
+        const fi = parseInt(t.dataset.fotoIdx);
+        openPhotoEditor(fi);
+        return;
+      }
+    });
+
+    itemsWrap().addEventListener('input', e => {
+      const t = e.target.closest('[data-action]');
+      if (!t) return;
+      const action = t.dataset.action;
+      const item = findItem(t.dataset.itemId);
+      if (!item) return;
+      if (action === 'tekst') item.tekst = t.value;
+      else if (action === 'prijs') item.prijs = t.value;
+      else if (action === 'voorraad') item.voorraad = parseInt(t.value || 0);
+      else if (action === 'categorie') item.categorie = t.value;
+      else if (action === 'afmeting') item.afmeting = t.value;
+      else if (action === 'kleur') {
+        const v = findVariant(item, t.dataset.variantId); if (v) v.kleur = t.value;
+      } else if (action === 'voorraad-variant') {
+        const v = findVariant(item, t.dataset.variantId); if (v) v.voorraad = parseInt(t.value || 0);
+      }
+    });
+
+    itemsWrap().addEventListener('change', e => {
+      if (!e.target.classList.contains('merge-target')) return;
+      const sourceId = e.target.dataset.itemId;
+      const targetId = e.target.value;
+      if (!targetId) return;
+      const source = findItem(sourceId);
+      const target = findItem(targetId);
+      if (!source || !target) return;
+      // Voeg de varianten van source toe als nieuwe varianten van target
+      target.varianten.push(...source.varianten);
+      STATE.items = STATE.items.filter(x => x.id !== sourceId);
+      render();
+    });
+
+    // ===== Foto-bewerker =====
+    let currentPhotoIdx = -1;
+    function openPhotoEditor(idx) {
+      currentPhotoIdx = idx;
+      const foto = FOTOS[idx];
+      const bri = foto.bewerkt?.bri ?? 0;
+      const con = foto.bewerkt?.con ?? 0;
+      const sat = foto.bewerkt?.sat ?? 0;
+      $('#bulk-bri').value = bri; $('#bulk-bri-val').textContent = bri;
+      $('#bulk-con').value = con; $('#bulk-con-val').textContent = con;
+      $('#bulk-sat').value = sat; $('#bulk-sat-val').textContent = sat;
+      drawCanvas(idx, { bri, con, sat });
+      $('#bulk-photo-modal').hidden = false;
+    }
+
+    function drawCanvas(idx, vals) {
+      const canvas = $('#bulk-photo-canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.filter = `brightness(${1 + vals.bri/100}) contrast(${1 + vals.con/100}) saturate(${1 + vals.sat/100})`;
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = FOTOS[idx].dataUrl;
+    }
+
+    function liveUpdate() {
+      const vals = {
+        bri: parseInt($('#bulk-bri').value),
+        con: parseInt($('#bulk-con').value),
+        sat: parseInt($('#bulk-sat').value),
+      };
+      $('#bulk-bri-val').textContent = vals.bri;
+      $('#bulk-con-val').textContent = vals.con;
+      $('#bulk-sat-val').textContent = vals.sat;
+      drawCanvas(currentPhotoIdx, vals);
+    }
+    ['#bulk-bri', '#bulk-con', '#bulk-sat'].forEach(s => $(s).addEventListener('input', liveUpdate));
+
+    $('#bulk-photo-reset').addEventListener('click', () => {
+      $('#bulk-bri').value = 0; $('#bulk-con').value = 0; $('#bulk-sat').value = 0;
+      liveUpdate();
+    });
+    $('#bulk-photo-save').addEventListener('click', () => {
+      const vals = {
+        bri: parseInt($('#bulk-bri').value),
+        con: parseInt($('#bulk-con').value),
+        sat: parseInt($('#bulk-sat').value),
+      };
+      const niets = vals.bri === 0 && vals.con === 0 && vals.sat === 0;
+      FOTOS[currentPhotoIdx].bewerkt = niets ? null : vals;
+      $('#bulk-photo-modal').hidden = true;
+      render();
+    });
+    $('.bulk-photo-close').addEventListener('click', () => $('#bulk-photo-modal').hidden = true);
+
+    // ===== Export =====
+    $('#bulk-export-btn').addEventListener('click', async () => {
+      const status = $('#bulk-export-status');
+      const btn = $('#bulk-export-btn');
+      if (!STATE.items.length) { status.textContent = 'Geen items!'; return; }
+      btn.disabled = true; btn.textContent = '⏳ ZIP maken...';
+      try {
+        const zip = new JSZip();
+        const intake = { generated: new Date().toISOString(), items: [] };
+
+        // Slugs uniek houden
+        const slugCount = {};
+        function slugify(s) {
+          let base = (s || 'item').toLowerCase()
+            .normalize('NFD').replace(/[̀-ͯ]/g, '')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'item';
+          const n = (slugCount[base] || 0) + 1;
+          slugCount[base] = n;
+          return n > 1 ? `${base}-${n}` : base;
+        }
+
+        for (let i = 0; i < STATE.items.length; i++) {
+          const it = STATE.items[i];
+          const slug = slugify((it.tekst || '').slice(0, 30) || `item-${i+1}`);
+          status.textContent = `Bezig met item ${i+1}/${STATE.items.length}...`;
+
+          const intakeItem = {
+            slug, tekst: it.tekst, prijs: it.prijs,
+            voorraad: it.voorraad, afmeting: it.afmeting, categorie: it.categorie,
+            varianten: [],
+          };
+
+          for (let vi = 0; vi < it.varianten.length; vi++) {
+            const v = it.varianten[vi];
+            const variantData = { kleur: v.kleur, voorraad: v.voorraad ?? it.voorraad, fotos: [] };
+            for (let fi = 0; fi < v.fotoIdxs.length; fi++) {
+              const fotoIdx = v.fotoIdxs[fi];
+              const foto = FOTOS[fotoIdx];
+              const ext = (foto.naam.match(/\.(jpe?g|png|webp)$/i)?.[1] || 'jpg').toLowerCase().replace('jpeg','jpg');
+              const fileName = it.varianten.length > 1
+                ? `${slug}-${(v.kleur || ('v'+(vi+1))).toLowerCase().replace(/\s/g,'-')}-${fi+1}.${ext}`
+                : `${slug}${v.fotoIdxs.length > 1 ? `-${fi+1}` : ''}.${ext}`;
+              const blob = await renderFoto(foto);
+              zip.file(`img/items/${fileName}`, blob);
+              variantData.fotos.push(`img/items/${fileName}`);
+            }
+            intakeItem.varianten.push(variantData);
+          }
+          intake.items.push(intakeItem);
+        }
+
+        zip.file('intake.json', JSON.stringify(intake, null, 2));
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `intake-${new Date().toISOString().slice(0,10)}.zip`;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        status.innerHTML = '✅ <strong>Klaar!</strong> ZIP is gedownload. Geef hem aan Dave\'s chat.';
+      } catch (e) {
+        console.error(e);
+        status.textContent = '😕 Fout: ' + e.message;
+      } finally {
+        btn.disabled = false; btn.textContent = '💾 Download intake.zip';
+      }
+    });
+
+    async function renderFoto(foto) {
+      // Past helderheid/contrast toe + resize naar max 1200px lange kant + JPEG-encode
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1200;
+          let w = img.naturalWidth, h = img.naturalHeight;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else      { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (foto.bewerkt) {
+            const { bri = 0, con = 0, sat = 0 } = foto.bewerkt;
+            ctx.filter = `brightness(${1 + bri/100}) contrast(${1 + con/100}) saturate(${1 + sat/100})`;
+          }
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas encode mislukt')), 'image/jpeg', 0.88);
+        };
+        img.onerror = () => reject(new Error('Foto laden mislukt'));
+        img.src = foto.dataUrl;
+      });
+    }
+
+    // Initial render
+    render();
+  })();
   </script>
 </body>
 </html>

@@ -39,7 +39,9 @@ window.orderUrl = function(text) {
       }
       arr.push({
         id: item.id,
+        baseId: item.baseId || item.id,
         naam: item.naam,
+        kleur: item.kleur || '',
         prijs: item.prijs,
         foto: item.foto,
         categorie: item.categorie,
@@ -137,7 +139,7 @@ window.orderUrl = function(text) {
       const maxBereikt = i.voorraad > 0 && n >= i.voorraad;
       return `
       <li>
-        <a class="cart-item-link" href="product.html?id=${encodeURIComponent(i.id)}">
+        <a class="cart-item-link" href="product.html?id=${encodeURIComponent(i.baseId || i.id)}">
           <img src="${i.foto}" alt="${escapeHtml(i.naam)}">
           <span class="name">${escapeHtml(i.naam)}</span>
         </a>

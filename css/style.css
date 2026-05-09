@@ -1446,3 +1446,102 @@ footer .extra-links a {
   text-decoration: none;
 }
 footer .extra-links a:hover { opacity: 1; text-decoration: underline; }
+
+/* ============================================
+   Varianten — kleur-dotjes (galerij) + kleur-knoppen (product)
+   ============================================ */
+
+/* Galerij-kaart kleur-dotjes onder de prijs */
+.kleur-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.4em;
+}
+.kleur-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+.kleur-meer {
+  font-size: 0.78rem;
+  color: var(--c-muted);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* Product foto-galerij */
+.foto-galerij { display: flex; flex-direction: column; gap: 0.6rem; }
+.foto-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.foto-thumb {
+  width: 64px; height: 64px;
+  border: 2px solid var(--c-cream-dark);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: white;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-thumb:hover { transform: translateY(-1px); border-color: var(--c-lavender); }
+.foto-thumb.actief { border-color: var(--c-lavender-dark); box-shadow: 0 0 0 2px var(--c-lavender) inset; }
+
+/* Variant-keuze (kleur-knoppen op productpagina) */
+.varianten-keuze {
+  margin: var(--gap-md) 0;
+  padding: var(--gap-sm);
+  background: var(--c-cream);
+  border-radius: var(--r-md);
+}
+.varianten-label {
+  margin: 0 0 0.5em 0;
+  font-size: 0.95rem;
+  color: var(--c-text);
+}
+.varianten-label strong { color: var(--c-ink); }
+.kleur-knoppen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.kleur-knop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.45em 0.8em 0.45em 0.45em;
+  background: white;
+  border: 2px solid var(--c-cream-dark);
+  border-radius: 99px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--c-text);
+  transition: all 0.15s;
+}
+.kleur-knop:hover { border-color: var(--c-lavender); transform: translateY(-1px); }
+.kleur-knop.actief {
+  border-color: var(--c-lavender-dark);
+  background: var(--c-lavender);
+  color: white;
+}
+.kleur-knop[data-soldout] {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.kleur-dot-groot {
+  display: inline-block;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+.kleur-naam { font-weight: 700; }

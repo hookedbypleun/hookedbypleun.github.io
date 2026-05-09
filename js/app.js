@@ -31,6 +31,40 @@
     return tags.join('');
   }
 
+  // ===== Varianten helpers =====
+  // Geeft alle varianten voor een item, of een dummy-variant op basis van het oude foto/kleuren-formaat
+  function getVarianten(item) {
+    if (item.varianten && item.varianten.length) return item.varianten;
+    return [{
+      kleur: item.kleuren?.[0] || '',
+      fotos: [item.foto].filter(Boolean),
+      voorraad: item.voorraad || 0,
+    }];
+  }
+  function getHoofdfoto(item) {
+    const v = getVarianten(item);
+    return v[0]?.fotos?.[0] || item.foto || '';
+  }
+  function totaalVoorraad(item) {
+    return getVarianten(item).reduce((s, v) => s + (v.voorraad || 0), 0);
+  }
+  // Kleur → hex voor CSS dotjes (klein vocabulaire — fallback grijs)
+  const KLEUR_HEX = {
+    'lichtroze':'#F5C6CB','roze':'#E5959D','wit':'#F5F1EA','crème':'#EFE3CC','creme':'#EFE3CC',
+    'beige':'#D9C5A8','koraal':'#F5B79E','oranje':'#E89B6B','geel':'#E5C871','mosterd':'#C99838',
+    'lichtblauw':'#C5DDED','blauw':'#8FBCD8','donkerblauw':'#5479A0',
+    'mint':'#C7E6D2','groen':'#9ABF9A','olijf':'#A8A572',
+    'lavendel':'#B5A1D6','paars':'#8F7DA8','lila':'#D6C5E0',
+    'grijs':'#B8B0B8','zwart':'#3E3447','bruin':'#A28066',
+    'multi':'linear-gradient(135deg,#F5C6CB,#C5DDED,#E5C871)',
+  };
+  function kleurDot(kleur) {
+    const k = String(kleur || '').toLowerCase().trim();
+    const hex = KLEUR_HEX[k] || '#D9C5A8';
+    const isMulti = hex.startsWith('linear');
+    return `<span class="kleur-dot" title="${escapeHtml(kleur)}" style="background:${hex}"></span>`;
+  }
+
   function prijsHTML(item) {
     if (item.status === 'showcase' || item.status === 'binnenkort' || item.prijs === 0) {
       return `<p class="prijs">${item.status === 'binnenkort' ? '✨ binnenkort' : item.opMaat ? 'op maat' : '—'}</p>`;
@@ -43,16 +77,22 @@
 
   function kaartHTML(item) {
     const sold = item.status === 'uitverkocht';
+    const varianten = getVarianten(item);
+    const hoofdfoto = getHoofdfoto(item);
+    const kleurDots = varianten.length > 1
+      ? `<div class="kleur-dots">${varianten.slice(0, 5).map(v => kleurDot(v.kleur)).join('')}${varianten.length > 5 ? `<span class="kleur-meer">+${varianten.length - 5}</span>` : ''}</div>`
+      : '';
     return `
       <a href="product.html?id=${encodeURIComponent(item.id)}" class="item-kaart ${sold ? 'uitverkocht' : ''}">
         <div class="foto">
           ${tagHTML(item)}
-          <img src="${item.foto}" alt="${escapeHtml(item.naam)}" loading="lazy" onerror="this.style.background='#FAF6EE'">
+          <img src="${hoofdfoto}" alt="${escapeHtml(item.naam)}" loading="lazy" onerror="this.style.background='#FAF6EE'">
         </div>
         <div class="info">
           <h3>${escapeHtml(item.naam)}</h3>
           ${prijsHTML(item)}
           ${item.afmeting ? `<p class="meta">${item.afmeting}</p>` : ''}
+          ${kleurDots}
         </div>
       </a>`;
   }
@@ -227,9 +267,18 @@ Mijn naam:
 Mijn postcode + adres:
 Lokaal afhalen of versturen?`;
 
+    const varianten = getVarianten(item);
+    const startFotos = varianten[0].fotos || [];
+    const heeftMeerKleuren = varianten.length > 1;
+
     wrap.innerHTML = `
-      <div class="foto-groot">
-        <img src="${item.foto}" alt="${escapeHtml(item.naam)}">
+      <div class="foto-galerij" id="foto-galerij">
+        <div class="foto-groot">
+          <img src="${startFotos[0] || item.foto || ''}" alt="${escapeHtml(item.naam)}" id="foto-hoofd">
+        </div>
+        <div class="foto-thumbs" id="foto-thumbs">
+          ${startFotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('')}
+        </div>
       </div>
       <div class="product-info">
         <p class="meta"><a href="galerij.html?cat=${item.categorie}">${cat?.emoji || ''} ${escapeHtml(cat?.naam || '')}</a></p>
@@ -245,6 +294,23 @@ Lokaal afhalen of versturen?`;
         ${item.eigenPatroon ? `
           <div class="eigen-spotlight">
             ⭐ <strong>100% Pleun's eigen ontwerp</strong> — geen patroon van internet, helemaal zelf bedacht. Een stuk Pleun in haakvorm 💝
+          </div>
+        ` : ''}
+
+        ${heeftMeerKleuren ? `
+          <div class="varianten-keuze" id="varianten-keuze">
+            <p class="varianten-label">🎨 Kleur: <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong></p>
+            <div class="kleur-knoppen">
+              ${varianten.map((v, i) => `
+                <button class="kleur-knop${i === 0 ? ' actief' : ''}"
+                        data-variant-idx="${i}"
+                        title="${escapeHtml(v.kleur)}${v.voorraad === 0 ? ' (uitverkocht)' : ''}"
+                        ${v.voorraad === 0 ? 'data-soldout="1"' : ''}>
+                  <span class="kleur-dot-groot" style="background:${KLEUR_HEX[String(v.kleur).toLowerCase().trim()] || '#D9C5A8'}"></span>
+                  <span class="kleur-naam">${escapeHtml(v.kleur)}</span>
+                </button>
+              `).join('')}
+            </div>
           </div>
         ` : ''}
 
@@ -302,10 +368,10 @@ Lokaal afhalen of versturen?`;
         <!-- Bestel-acties — altijd zichtbaar -->
         ${koopbaar ? `
           <div class="bestel-acties" style="margin-top:var(--gap-md)">
-            <button class="btn full" onclick='window.openCheckout(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse})})'>
+            <button class="btn full" id="btn-bestel-direct">
               💬 ${escapeHtml(cfg.whatsappLabel)} — ik wil deze!
             </button>
-            <button class="btn secondary full" onclick='Cart.add(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse, voorraad: item.voorraad || 0})}); document.querySelector("#cart-overlay").classList.add("open");'>
+            <button class="btn secondary full" id="btn-cart-add">
               🎁 Voeg toe aan verzameldoos
             </button>
           </div>
@@ -346,6 +412,81 @@ Lokaal afhalen of versturen?`;
       </div>
     `;
     document.title = item.naam + ' · Hooked by Pleun';
+
+    // ===== Variant-keuze + foto-gallery interactie =====
+    let huidigeVariantIdx = 0;
+
+    function huidigeVariant() { return varianten[huidigeVariantIdx]; }
+
+    function toonVariantFotos(idx) {
+      huidigeVariantIdx = idx;
+      const v = huidigeVariant();
+      const fotos = v.fotos || [];
+      const hoofd = document.getElementById('foto-hoofd');
+      const thumbs = document.getElementById('foto-thumbs');
+      if (hoofd && fotos[0]) hoofd.src = fotos[0];
+      if (thumbs) {
+        thumbs.innerHTML = fotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('');
+      }
+      const kleurEl = document.getElementById('huidige-kleur');
+      if (kleurEl) kleurEl.textContent = v.kleur;
+      // Update voorraad-tekst en uitverkocht-status
+      const dd = document.querySelectorAll('.specs dd');
+      // Update bestelknoppen op basis van voorraad
+      const btnDirect = document.getElementById('btn-bestel-direct');
+      const btnCart = document.getElementById('btn-cart-add');
+      const beschikbaar = (v.voorraad === undefined || v.voorraad > 0);
+      [btnDirect, btnCart].forEach(b => {
+        if (!b) return;
+        b.disabled = !beschikbaar;
+        b.style.opacity = beschikbaar ? '' : '0.5';
+      });
+    }
+
+    // Klik op kleur-knop → wissel variant
+    document.querySelectorAll('.kleur-knop').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.variantIdx);
+        document.querySelectorAll('.kleur-knop').forEach(b => b.classList.remove('actief'));
+        btn.classList.add('actief');
+        toonVariantFotos(idx);
+      });
+    });
+
+    // Klik op thumbnail → hoofdfoto wisselen
+    wrap.addEventListener('click', e => {
+      const t = e.target.closest('.foto-thumb');
+      if (!t) return;
+      const foto = t.dataset.foto;
+      const hoofd = document.getElementById('foto-hoofd');
+      if (hoofd && foto) hoofd.src = foto;
+      document.querySelectorAll('.foto-thumb').forEach(b => b.classList.remove('actief'));
+      t.classList.add('actief');
+    });
+
+    // Bestel-knoppen — gebruik huidige variant
+    function huidigeCartItem() {
+      const v = huidigeVariant();
+      const variantSuffix = (varianten.length > 1 && v.kleur) ? `|${v.kleur}` : '';
+      return {
+        id: item.id + variantSuffix,
+        baseId: item.id,
+        naam: item.naam + (variantSuffix ? ` (${v.kleur})` : ''),
+        kleur: v.kleur || '',
+        prijs: item.prijs,
+        foto: v.fotos?.[0] || item.foto,
+        categorie: item.categorie,
+        verzendklasse: item.verzendklasse,
+        voorraad: v.voorraad || 0,
+      };
+    }
+    document.getElementById('btn-bestel-direct')?.addEventListener('click', () => {
+      window.openCheckout(huidigeCartItem());
+    });
+    document.getElementById('btn-cart-add')?.addEventListener('click', () => {
+      Cart.add(huidigeCartItem());
+      document.querySelector("#cart-overlay")?.classList.add("open");
+    });
 
     // Reviews sectie laden
     loadReviewsForProduct(item.id, item.naam);
