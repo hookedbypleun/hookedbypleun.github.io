@@ -1,13 +1,53 @@
 {
   "categories": [
-    { "id": "diertjes",      "naam": "Diertjes",        "emoji": "🐰", "volgorde": 1 },
-    { "id": "scrunchies",    "naam": "Scrunchies",       "emoji": "🎀", "volgorde": 2 },
-    { "id": "blobs",         "naam": "Blobs & Squishies","emoji": "🧶", "volgorde": 3 },
-    { "id": "sleutelhangers","naam": "Sleutelhangers",   "emoji": "🔑", "volgorde": 4 },
-    { "id": "mutsen",        "naam": "Mutsen & Hoeden",  "emoji": "🎩", "volgorde": 5 },
-    { "id": "onderzetters",  "naam": "Onderzetters",     "emoji": "🟣", "volgorde": 6 },
-    { "id": "tassen",        "naam": "Tassen",           "emoji": "👜", "volgorde": 7 },
-    { "id": "haakpakketten", "naam": "Haakpakketten",    "emoji": "📦", "volgorde": 8 }
+    {
+      "id": "diertjes",
+      "naam": "Diertjes",
+      "emoji": "🐰",
+      "volgorde": 1
+    },
+    {
+      "id": "scrunchies",
+      "naam": "Scrunchies",
+      "emoji": "🎀",
+      "volgorde": 2
+    },
+    {
+      "id": "blobs",
+      "naam": "Blobs & Squishies",
+      "emoji": "🧶",
+      "volgorde": 3
+    },
+    {
+      "id": "sleutelhangers",
+      "naam": "Sleutelhangers",
+      "emoji": "🔑",
+      "volgorde": 4
+    },
+    {
+      "id": "mutsen",
+      "naam": "Mutsen & Hoeden",
+      "emoji": "🎩",
+      "volgorde": 5
+    },
+    {
+      "id": "onderzetters",
+      "naam": "Onderzetters",
+      "emoji": "🟣",
+      "volgorde": 6
+    },
+    {
+      "id": "tassen",
+      "naam": "Tassen",
+      "emoji": "👜",
+      "volgorde": 7
+    },
+    {
+      "id": "haakpakketten",
+      "naam": "Haakpakketten",
+      "emoji": "📦",
+      "volgorde": 8
+    }
   ],
   "items": [
     {
@@ -15,10 +55,12 @@
       "naam": "Lila Bucket Muts",
       "naam_en": "Lavender Bucket Hat",
       "categorie": "mutsen",
-      "prijs": 13.00,
+      "prijs": 13,
       "beschrijving": "Een handgehaakte zomerhoed in zachte lila — 20 cm lang, met lieve ruches aan de rand. Past op meeste maten, lekker luchtig voor zomerdagen.",
       "afmeting": "20 cm",
-      "kleuren": ["lila"],
+      "kleuren": [
+        "lila"
+      ],
       "foto": "img/items/Afbeelding1.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -30,10 +72,13 @@
       "naam": "Aardbei Jellyfish",
       "naam_en": "Strawberry Jellyfish",
       "categorie": "diertjes",
-      "prijs": 4.00,
-      "prijsOud": 5.50,
+      "prijs": 4,
+      "prijsOud": 5.5,
       "beschrijving": "Schattige aardbei-kwallenmix met vernieuwde vorm en lieve oogjes. Afgeprijsd!",
-      "kleuren": ["rood", "groen"],
+      "kleuren": [
+        "rood",
+        "groen"
+      ],
       "foto": "img/items/Afbeelding2.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -45,9 +90,11 @@
       "naam": "Leggy Frog",
       "naam_en": "Leggy Frog",
       "categorie": "diertjes",
-      "prijs": 5.00,
+      "prijs": 5,
       "beschrijving": "Een groen kikkertje met lange beentjes — origineel handgemaakt. Helaas uitverkocht!",
-      "kleuren": ["groen"],
+      "kleuren": [
+        "groen"
+      ],
       "foto": "img/items/Afbeelding2.png",
       "status": "uitverkocht",
       "voorraad": 0,
@@ -58,9 +105,11 @@
       "naam": "Granny Square Onderzetter",
       "naam_en": "Granny Square Coaster",
       "categorie": "onderzetters",
-      "prijs": 1.00,
+      "prijs": 1,
       "beschrijving": "Klassieke granny square in vrolijke kleuren — perfect voor je kopje thee. Per stuk, vraag gerust naar een set!",
-      "kleuren": ["mix"],
+      "kleuren": [
+        "mix"
+      ],
       "foto": "img/items/Afbeelding3.png",
       "status": "beschikbaar",
       "voorraad": 5,
@@ -75,7 +124,10 @@
       "prijs": 5.25,
       "beschrijving": "Lekker zachte stress-bal blob met lieve oogjes. 8 cm groot. Fijn om in je hand te knijpen op spannende momenten.",
       "afmeting": "8 cm",
-      "kleuren": ["oranje", "geel"],
+      "kleuren": [
+        "oranje",
+        "geel"
+      ],
       "foto": "img/items/Afbeelding4.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -89,7 +141,11 @@
       "prijs": 5.25,
       "beschrijving": "Stress-bal blob in zachte blauw-groen-witte tinten. 8 cm groot. Een voor op je bureau.",
       "afmeting": "8 cm",
-      "kleuren": ["blauw", "groen", "wit"],
+      "kleuren": [
+        "blauw",
+        "groen",
+        "wit"
+      ],
       "foto": "img/items/Afbeelding4.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -103,7 +159,9 @@
       "prijs": 5.25,
       "beschrijving": "Roze stress-bal blob, 8 cm — voor de zachte aaibare collectie.",
       "afmeting": "8 cm",
-      "kleuren": ["roze"],
+      "kleuren": [
+        "roze"
+      ],
       "foto": "img/items/Afbeelding3.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -117,7 +175,9 @@
       "prijs": 3.25,
       "beschrijving": "Mini versie van de stress-bal blob, 4 cm, met sleutelhangerring. Past aan elke sleutelbos.",
       "afmeting": "4 cm",
-      "kleuren": ["blauw"],
+      "kleuren": [
+        "blauw"
+      ],
       "foto": "img/items/Afbeelding5.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -131,7 +191,9 @@
       "prijs": 3.25,
       "beschrijving": "Mini blob in vrolijk oranje, 4 cm, met sleutelhangerring.",
       "afmeting": "4 cm",
-      "kleuren": ["oranje"],
+      "kleuren": [
+        "oranje"
+      ],
       "foto": "img/items/Afbeelding5.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -142,10 +204,13 @@
       "naam": "Garen Sleutelhanger Set",
       "naam_en": "Yarn Ball Keychain Set",
       "categorie": "sleutelhangers",
-      "prijs": 4.50,
+      "prijs": 4.5,
       "beschrijving": "Mini garenbolletjes als sleutelhanger met handgeschreven 'Crochet yarn' labeltje. Geel en paars per set, of per stuk te bestellen. 4 cm.",
       "afmeting": "4 cm",
-      "kleuren": ["geel", "paars"],
+      "kleuren": [
+        "geel",
+        "paars"
+      ],
       "foto": "img/items/Afbeelding6.png",
       "status": "beschikbaar",
       "voorraad": 2,
@@ -157,9 +222,11 @@
       "naam": "Axolotl Knuffel",
       "naam_en": "Axolotl Plush",
       "categorie": "diertjes",
-      "prijs": 4.50,
+      "prijs": 4.5,
       "beschrijving": "Schattige roze axolotl knuffel — een Pleun-favoriet onder de diertjes. Past in je hand.",
-      "kleuren": ["roze"],
+      "kleuren": [
+        "roze"
+      ],
       "foto": "img/items/Afbeelding6.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -173,7 +240,9 @@
       "categorie": "tassen",
       "prijs": 0,
       "beschrijving": "Dit was een speciaal cadeau voor mama — niet te koop. Maar wil je een tas op maat? Stuur een berichtje, dan haakt Pleun een eigen versie voor je!",
-      "kleuren": ["mix"],
+      "kleuren": [
+        "mix"
+      ],
       "foto": "img/items/Afbeelding9.png",
       "status": "showcase",
       "voorraad": 0,
@@ -188,7 +257,10 @@
       "prijs": 3.25,
       "beschrijving": "Regenboog-pastel mini blob sleutelhanger. Zachte tinten, lieve oogjes, 4 cm.",
       "afmeting": "4 cm",
-      "kleuren": ["pastel", "regenboog"],
+      "kleuren": [
+        "pastel",
+        "regenboog"
+      ],
       "foto": "img/items/Afbeelding8.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -202,7 +274,10 @@
       "categorie": "blobs",
       "prijs": 4.25,
       "beschrijving": "Middelgrote blob-squishy in zachte geel-peach tinten. Lekker stevig om vast te houden.",
-      "kleuren": ["geel", "peach"],
+      "kleuren": [
+        "geel",
+        "peach"
+      ],
       "foto": "img/items/Afbeelding11.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -216,7 +291,10 @@
       "categorie": "blobs",
       "prijs": 4.25,
       "beschrijving": "Middelgrote blob-squishy in licht beige en licht blauw — een rustige tweelingkleur.",
-      "kleuren": ["beige", "lichtblauw"],
+      "kleuren": [
+        "beige",
+        "lichtblauw"
+      ],
       "foto": "img/items/Afbeelding13.png",
       "status": "beschikbaar",
       "voorraad": 1,
@@ -230,13 +308,33 @@
       "categorie": "scrunchies",
       "prijs": 0,
       "beschrijving": "Pleun's eerste scrunchie-collectie wordt live gezet op zondag 10 mei om 12:00. Volg het kanaal om als eerste te bestellen!",
-      "kleuren": ["nog te onthullen"],
+      "kleuren": [
+        "nog te onthullen"
+      ],
       "foto": "img/items/Afbeelding11.png",
       "status": "binnenkort",
       "voorraad": 0,
       "datumToegevoegd": "2026-05-04",
       "uitgelicht": true,
       "preview": true
+    },
+    {
+      "id": "sleutelhangers-aardbei-sleutelhanger",
+      "naam": "Aardbei sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 3,
+      "beschrijving": "Dit mini aardbeitje is ZO lief! 🍓 Gemaakt van heerlijk zacht chenille garen, met een frisgroen blaadje en kleine kraaloogjes. Een supervrolijk accessoire voor je sleutels of tas! 🎀",
+      "kleuren": [
+        "rood",
+        "groen"
+      ],
+      "altText": "Gehaakte rode aardbei sleutelhanger van chenille met groene blaadjes en kraaloogjes.",
+      "extraKaartje": "Dit is echt een ZO leuk cadeautje om te geven of lekker zelf te houden! 💝",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/sleutelhangers-aardbei-sleutelhanger.jpg"
     }
   ]
 }
