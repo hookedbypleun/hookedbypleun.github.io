@@ -3,13 +3,13 @@
 
 window.SHOP_CONFIG = {
   // === Versie ===
-  version: '1.6.0',
+  version: '1.6.1',
   versionDate: '2026-05-09',
 
   // === Cloudflare Worker (admin AI-publicatie) ===
   // Vul deze in nadat je de Worker hebt gedeployed (zie cloudflare-worker/README.md).
   // Leeg = AI-mode uitgeschakeld, admin werkt dan op handmatige modus.
-  workerUrl: '',  // bv. 'https://crochet-by-pleun.jouwnaam.workers.dev'
+  workerUrl: 'https://crochet-by-pleun.thegaveryahoo.workers.dev',
 
   // === Merk ===
   shopName: "Crochet by Pleun",
