@@ -371,8 +371,7 @@ Lokaal afhalen of versturen?`;
               ${varianten.map((v, i) => `
                 <button class="kleur-knop${i === 0 ? ' actief' : ''}"
                         data-variant-idx="${i}"
-                        title="${escapeHtml(v.kleur)}${v.voorraad === 0 ? ' (uitverkocht)' : ''}"
-                        ${v.voorraad === 0 ? 'data-soldout="1"' : ''}>
+                        title="${escapeHtml(v.kleur)}">
                   <span class="kleur-dot-groot" style="background:${KLEUR_HEX[String(v.kleur).toLowerCase().trim()] || '#D9C5A8'}"></span>
                   <span class="kleur-naam">${escapeHtml(v.kleur)}</span>
                 </button>
@@ -390,12 +389,11 @@ Lokaal afhalen of versturen?`;
         <!-- Tab: Info -->
         <div class="product-tab-pane actief" id="prod-tab-info">
           <p class="beschrijving">${escapeHtml(item.beschrijving)}</p>
-          ${item.afmeting || (item.kleuren && item.kleuren.length) || item.voorraad > 0 ? `
+          ${item.afmeting || (item.kleuren && item.kleuren.length) ? `
           <div class="specs">
             <dl>
               ${item.afmeting ? `<dt>Afmeting</dt><dd>${escapeHtml(item.afmeting)}</dd>` : ''}
               ${item.kleuren?.length ? `<dt>Kleuren</dt><dd>${item.kleuren.map(escapeHtml).join(', ')}</dd>` : ''}
-              ${item.voorraad > 0 ? `<dt>Voorraad</dt><dd>${item.voorraad} stuk${item.voorraad > 1 ? 's' : ''}</dd>` : ''}
             </dl>
           </div>` : ''}
           ${koopbaar ? `
@@ -510,17 +508,6 @@ Lokaal afhalen of versturen?`;
       }
       const kleurEl = document.getElementById('huidige-kleur');
       if (kleurEl) kleurEl.textContent = v.kleur;
-      // Update voorraad-tekst en uitverkocht-status
-      const dd = document.querySelectorAll('.specs dd');
-      // Update bestelknoppen op basis van voorraad
-      const btnDirect = document.getElementById('btn-bestel-direct');
-      const btnCart = document.getElementById('btn-cart-add');
-      const beschikbaar = (v.voorraad === undefined || v.voorraad > 0);
-      [btnDirect, btnCart].forEach(b => {
-        if (!b) return;
-        b.disabled = !beschikbaar;
-        b.style.opacity = beschikbaar ? '' : '0.5';
-      });
     }
 
     // Klik op kleur-knop → wissel variant
@@ -557,7 +544,6 @@ Lokaal afhalen of versturen?`;
         foto: v.fotos?.[0] || item.foto,
         categorie: item.categorie,
         verzendklasse: item.verzendklasse,
-        voorraad: v.voorraad || 0,
       };
     }
     document.getElementById('btn-bestel-direct')?.addEventListener('click', () => {

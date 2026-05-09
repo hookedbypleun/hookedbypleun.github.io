@@ -27,11 +27,6 @@ window.orderUrl = function(text) {
       const arr = read();
       const existing = arr.find(i => i.id === item.id);
       if (existing) {
-        const max = item.voorraad || existing.voorraad || 99;
-        if ((existing.aantal || 1) >= max) {
-          showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`);
-          return;
-        }
         existing.aantal = (existing.aantal || 1) + 1;
         write(arr);
         showToast(`✨ ${item.naam} × ${existing.aantal}!`);
@@ -46,7 +41,6 @@ window.orderUrl = function(text) {
         foto: item.foto,
         categorie: item.categorie,
         verzendklasse: item.verzendklasse,
-        voorraad: item.voorraad || 0,
         aantal: 1,
       });
       write(arr);
@@ -59,8 +53,6 @@ window.orderUrl = function(text) {
       const arr = read();
       const item = arr.find(i => i.id === id);
       if (!item) return;
-      const max = item.voorraad || 99;
-      if ((item.aantal || 1) >= max) { showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`); return; }
       item.aantal = (item.aantal || 1) + 1;
       write(arr);
     },
@@ -136,7 +128,6 @@ window.orderUrl = function(text) {
     list.innerHTML = items.map(i => {
       const n = i.aantal || 1;
       const totaalPrijs = (i.prijs * n).toFixed(2).replace('.', ',');
-      const maxBereikt = i.voorraad > 0 && n >= i.voorraad;
       return `
       <li>
         <a class="cart-item-link" href="product.html?id=${encodeURIComponent(i.baseId || i.id)}">
@@ -146,7 +137,7 @@ window.orderUrl = function(text) {
         <div class="cart-qty">
           <button class="qty-btn" onclick="Cart.decrement('${i.id}')" aria-label="Minder">−</button>
           <span class="qty-num">${n}</span>
-          <button class="qty-btn" onclick="Cart.increment('${i.id}')" aria-label="Meer"${maxBereikt ? ' disabled' : ''}>+</button>
+          <button class="qty-btn" onclick="Cart.increment('${i.id}')" aria-label="Meer">+</button>
         </div>
         <span class="price">€${totaalPrijs}</span>
         <button class="remove" onclick="Cart.remove('${i.id}')" aria-label="Verwijderen">×</button>

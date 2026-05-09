@@ -171,7 +171,18 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/ollie-de-olifant-voor-15-euro-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/ollie-de-olifant-voor-15-euro-v1-1.jpg",
+            "img/items/ollie-de-olifant-voor-15-euro-v2-1.jpg",
+            "img/items/ollie-de-olifant-voor-15-euro-v3-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-is-een-aarbei-octopus-sleu",
@@ -593,7 +604,16 @@
       "nieuw": false,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/handig-klein-zacht-handtasje.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/handig-klein-zacht-handtasje.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "superschattige-beren-onderzett",
@@ -609,7 +629,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/superschattige-beren-onderzett.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superschattige-beren-onderzett.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "granny-square-onderzetter",
@@ -625,7 +654,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/granny-square-onderzetter.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/granny-square-onderzetter.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "leuke-grote-krullende-scrunchi",
@@ -641,7 +679,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/leuke-grote-krullende-scrunchi.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-grote-krullende-scrunchi.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "hele-leuke-onderzetter-voor-in",
@@ -725,7 +772,16 @@
       "nieuw": false,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/super-cute-konijntje-hij-is-z.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/super-cute-konijntje-hij-is-z.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "kerstkransje",
@@ -741,7 +797,16 @@
       "nieuw": false,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/kerstkransje.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/kerstkransje.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "glitterscrunchies-leuk-voor-f",
@@ -757,7 +822,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/glitterscrunchies-leuk-voor-f.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/glitterscrunchies-leuk-voor-f.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "roze-octopus",
@@ -807,7 +881,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/superleuke-grote-scrunchie-in-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superleuke-grote-scrunchie-in-1.jpg",
+            "img/items/superleuke-grote-scrunchie-in-2.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-is-een-hele-zachte-teddy-s",
@@ -857,7 +941,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/superleuke-krullende-scrunchie-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superleuke-krullende-scrunchie-v1-1.jpg",
+            "img/items/superleuke-krullende-scrunchie-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "item-28",
@@ -907,7 +1001,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/superleuke-sleutelhanger-leuk-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superleuke-sleutelhanger-leuk-v1-1.jpg",
+            "img/items/superleuke-sleutelhanger-leuk-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "schattige-scrunchies-in-het-li",
@@ -923,7 +1027,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/schattige-scrunchies-in-het-li.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/schattige-scrunchies-in-het-li.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "hele-grote-scrunchie-in-het-li",
@@ -939,7 +1052,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/hele-grote-scrunchie-in-het-li-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hele-grote-scrunchie-in-het-li-v1-1.jpg",
+            "img/items/hele-grote-scrunchie-in-het-li-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "lila-scrunchie-groot-met-rib",
@@ -1023,7 +1146,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/bloemen-granny-square-onderzet-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/bloemen-granny-square-onderzet-v1-1.jpg",
+            "img/items/bloemen-granny-square-onderzet-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "lila-met-paarse-scrunchie",
@@ -1073,7 +1206,18 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/schattige-bijtje-sleutelhanger-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/schattige-bijtje-sleutelhanger-v1-1.jpg",
+            "img/items/schattige-bijtje-sleutelhanger-v2-1.jpg",
+            "img/items/schattige-bijtje-sleutelhanger-v3-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "deze-kleurrijke-scrunchie-is-g",
@@ -1089,7 +1233,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/deze-kleurrijke-scrunchie-is-g-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/deze-kleurrijke-scrunchie-is-g-v1-1.jpg",
+            "img/items/deze-kleurrijke-scrunchie-is-g-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "granny-square-handtas-in-het",
@@ -1105,7 +1259,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/granny-square-handtas-in-het.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/granny-square-handtas-in-het.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "handtas-in-de-kleuren-olijfgro",
@@ -1121,7 +1284,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/handtas-in-de-kleuren-olijfgro.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/handtas-in-de-kleuren-olijfgro.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "hele-schattige-onderzetters-va",
@@ -1171,7 +1343,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/schattige-beertjes-sleutelhang.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/schattige-beertjes-sleutelhang.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-fruzzel-haakpakket-heeft-e",
@@ -1187,7 +1368,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/dit-fruzzel-haakpakket-heeft-e-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-fruzzel-haakpakket-heeft-e-v1-1.jpg",
+            "img/items/dit-fruzzel-haakpakket-heeft-e-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "confetti-schrunchie-met-versch",
@@ -1203,7 +1394,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/confetti-schrunchie-met-versch.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/confetti-schrunchie-met-versch.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "pastel-scrunchies-in-maar-lief",
@@ -1219,7 +1419,18 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/pastel-scrunchies-in-maar-lief-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/pastel-scrunchies-in-maar-lief-v1-1.jpg",
+            "img/items/pastel-scrunchies-in-maar-lief-v2-1.jpg",
+            "img/items/pastel-scrunchies-in-maar-lief-v3-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "grote-granny-square-handtas-i",
@@ -1235,7 +1446,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/grote-granny-square-handtas-i-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/grote-granny-square-handtas-i-v1-1.jpg",
+            "img/items/grote-granny-square-handtas-i-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "blob-squisies-in-5-verschillen",
@@ -1317,7 +1538,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/confetti-mini-blob-sleutelhang.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/confetti-mini-blob-sleutelhang.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-is-een-hoedje-in-de-kleur",
@@ -1333,7 +1563,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/dit-is-een-hoedje-in-de-kleur-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-hoedje-in-de-kleur-v1-1.jpg",
+            "img/items/dit-is-een-hoedje-in-de-kleur-v2-1.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-is-een-superschattige-axol",
@@ -1349,7 +1589,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/dit-is-een-superschattige-axol.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-superschattige-axol.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "aardbei-octopus-sleutelhanger",
@@ -1365,7 +1614,17 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/aardbei-octopus-sleutelhanger-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/aardbei-octopus-sleutelhanger-1.jpg",
+            "img/items/aardbei-octopus-sleutelhanger-2.png"
+          ]
+        }
+      ]
     },
     {
       "id": "megablobs-in-3-verschillenden",
@@ -1481,7 +1740,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/2-bolletjes-met-garen-met-zel.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/2-bolletjes-met-garen-met-zel.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "granny-square-onderzetter-in",
@@ -1497,7 +1765,16 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/granny-square-onderzetter-in.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/granny-square-onderzetter-in.jpg"
+          ]
+        }
+      ]
     },
     {
       "id": "dit-is-een-leggy-frog-die-ik-e",
@@ -1513,7 +1790,16 @@
       "nieuw": false,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": ""
+      "foto": "img/items/dit-is-een-leggy-frog-die-ik-e.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-leggy-frog-die-ik-e.jpg"
+          ]
+        }
+      ]
     }
   ]
 }
