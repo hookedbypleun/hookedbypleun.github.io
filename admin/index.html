@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.3.6">
+  <link rel="stylesheet" href="../css/style.css?v=2.3.8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -68,12 +68,20 @@
     .photo-large-wrap {
       position: relative; border-radius: var(--r-md); overflow: hidden;
       margin-bottom: 0.7rem;
+      background: transparent !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      display: block !important;
     }
     /* Hogere specificiteit dan .ai-smart .ai-drop img om max-height:240px te wissen */
     .photo-large-wrap img,
     .ai-smart .ai-drop .photo-large-wrap img {
-      width: 100%; height: auto; max-height: none; display: block;
-      border-radius: 0;   /* .ai-smart .ai-drop img geeft border-radius — hier eigen wrapper */
+      width: 100% !important; height: auto !important;
+      max-height: none !important; min-height: 0 !important;
+      display: block !important;
+      object-fit: unset !important;
+      background: transparent !important;
+      border-radius: 0;
       transition: filter 0.15s;
     }
     .photo-mode-tabs {
