@@ -112,24 +112,108 @@ window.orderUrl = function(text) {
     }
     if (e.target.matches('.cart-overlay') || e.target.matches('.cart-close')) {
       document.querySelector('#cart-overlay')?.classList.remove('open');
+      window.hideCheckoutDetails?.();
     }
   });
 
-  // Checkout: maak 1 WhatsApp-bericht van alle items.
-  window.checkoutCart = function(target = 'pleun') {
-    const items = read();
-    if (items.length === 0) return;
+  // ================================================================
+  // Checkout details — stap 2: verzendgegevens invullen
+  // ================================================================
+
+  let _checkout = null;
+
+  function showCheckoutDetails(items, target) {
+    const modal = document.querySelector('.cart-modal');
+    if (!modal) return;
+
     const cfg = window.SHOP_CONFIG;
     const total = items.reduce((s, i) => s + i.prijs, 0);
     const gratisVerzending = items.length >= cfg.freeShippingFromBundleSize;
     const verzending = gratisVerzending ? 0 : cfg.shippingNL;
     const eindTotaal = total + verzending;
-
     const lijn = items.map((i, n) => `${n + 1}. ${i.naam} — €${i.prijs.toFixed(2).replace('.', ',')}`).join('\n');
+
+    _checkout = { target, cfg, lijn, total, gratisVerzending, verzending, eindTotaal };
+
+    // Verberg bestaande cart-inhoud
+    ['cart-list', 'cart-summary', 'cart-checkout'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const desc = modal.querySelector(':scope > p');
+    if (desc) desc.style.display = 'none';
+
+    // Maak of hergebruik het details-paneel
+    let panel = document.getElementById('checkout-details');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'checkout-details';
+      modal.appendChild(panel);
+    }
+
+    panel.innerHTML = `
+      <button class="checkout-back-btn" onclick="window.hideCheckoutDetails()">← Terug naar verzameldoos</button>
+      <div class="checkout-fields">
+        <h3>📦 Jouw gegevens <span class="cd-optional">optioneel</span></h3>
+        <p class="cd-hint">Vul in voor een kant-en-klaar bericht — of stuur het leeg en typ je adres zelf in WhatsApp.</p>
+        <div class="cd-field">
+          <input id="cd-naam" type="text" placeholder="Jouw naam" autocomplete="name" oninput="window.updatePreview()">
+        </div>
+        <div class="cd-field">
+          <input id="cd-adres" type="text" placeholder="Straat + huisnummer" autocomplete="street-address" oninput="window.updatePreview()">
+        </div>
+        <div class="cd-field cd-two-col">
+          <input id="cd-postcode" type="text" placeholder="Postcode" maxlength="7" inputmode="numeric" autocomplete="postal-code" oninput="window.updatePreview()">
+          <input id="cd-woonplaats" type="text" placeholder="Woonplaats" autocomplete="address-level2" oninput="window.updatePreview()">
+        </div>
+        <div class="cd-field">
+          <input id="cd-notitie" type="text" placeholder="Wensen? (kleur, naam erop, cadeau...)" oninput="window.updatePreview()">
+        </div>
+      </div>
+      <div class="checkout-preview">
+        <h3>💬 Voorbeeldbericht</h3>
+        <p class="cd-hint">Je kunt het bericht hieronder nog aanpassen voordat je het verstuurt.</p>
+        <textarea id="cd-message" rows="14" spellcheck="false"></textarea>
+      </div>
+      <button class="btn full" id="cd-send">💬 Stuur naar WhatsApp</button>
+    `;
+
+    panel.style.display = 'block';
+
+    document.getElementById('cd-send').addEventListener('click', function() {
+      const msg = document.getElementById('cd-message').value;
+      if (target === 'backup' && cfg.whatsappBackup) {
+        window.open(`https://wa.me/${cfg.whatsappBackup}?text=${encodeURIComponent(msg)}`, '_blank');
+      } else {
+        window.open(window.orderUrl(msg), '_blank');
+      }
+    });
+
+    window.updatePreview();
+  }
+
+  window.updatePreview = function() {
+    if (!_checkout) return;
+    const { lijn, total, gratisVerzending, verzending, eindTotaal } = _checkout;
+
+    const naam      = document.getElementById('cd-naam')?.value.trim() || '';
+    const adres     = document.getElementById('cd-adres')?.value.trim() || '';
+    const postcode  = document.getElementById('cd-postcode')?.value.trim() || '';
+    const woonplaats= document.getElementById('cd-woonplaats')?.value.trim() || '';
+    const notitie   = document.getElementById('cd-notitie')?.value.trim() || '';
+
+    const pcWoonplaats = [postcode, woonplaats].filter(Boolean).join(' ');
+
+    const adresBlok = [
+      naam       ? `Naam: ${naam}`                          : 'Naam:',
+      adres      ? `Adres: ${adres}`                        : 'Adres:',
+      pcWoonplaats ? `Postcode: ${pcWoonplaats}`            : 'Postcode + woonplaats:',
+    ].join('\n') + (notitie ? `\nWensen: ${notitie}` : '');
+
     const bericht =
 `Hoi Pleun! 💝
 
-Ik wil graag deze items uit je Haak-shop bestellen:
+Ik wil graag bestellen:
 
 ${lijn}
 
@@ -137,16 +221,31 @@ Subtotaal: €${total.toFixed(2).replace('.', ',')}
 Verzending: ${gratisVerzending ? 'gratis (2+ items!)' : '€' + verzending.toFixed(2).replace('.', ',')}
 Totaal: €${eindTotaal.toFixed(2).replace('.', ',')}
 
-Mijn naam:
-Mijn postcode + adres:
-Lokaal afhalen of versturen?`;
+---
+${adresBlok}`;
 
-    // Backup-nummer (ouder) gaat altijd direct via wa.me — alleen het hoofdnummer wordt verborgen.
-    if (target === 'backup' && cfg.whatsappBackup) {
-      window.open(`https://wa.me/${cfg.whatsappBackup}?text=${encodeURIComponent(bericht)}`, '_blank');
-    } else {
-      window.open(window.orderUrl(bericht), '_blank');
-    }
+    const ta = document.getElementById('cd-message');
+    if (ta) ta.value = bericht;
+  };
+
+  window.hideCheckoutDetails = function() {
+    const panel = document.getElementById('checkout-details');
+    if (panel) panel.style.display = 'none';
+    _checkout = null;
+
+    const modal = document.querySelector('.cart-modal');
+    if (!modal) return;
+    const desc = modal.querySelector(':scope > p');
+    if (desc) desc.style.display = '';
+
+    renderCartModal();
+  };
+
+  // Checkout: toont verzendgegevens-stap in plaats van direct WhatsApp te openen.
+  window.checkoutCart = function(target = 'pleun') {
+    const items = read();
+    if (items.length === 0) return;
+    showCheckoutDetails(items, target);
   };
 
   // Init

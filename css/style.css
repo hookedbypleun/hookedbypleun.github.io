@@ -663,6 +663,71 @@ section.section {
 }
 
 /* ============================================
+   Checkout details — verzendgegevens stap
+   ============================================ */
+
+#checkout-details { display: none; }
+
+.checkout-back-btn {
+  background: none;
+  border: none;
+  color: var(--c-lavender-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: var(--gap-md);
+}
+.checkout-back-btn:hover { color: var(--c-ink); }
+
+.checkout-fields { margin-bottom: var(--gap-md); }
+.checkout-fields h3 { font-size: 1rem; margin-bottom: 0.4em; display: flex; align-items: center; gap: 0.5em; }
+.cd-optional {
+  background: var(--c-cream-dark);
+  color: var(--c-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2em 0.6em;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cd-hint { font-size: 0.85rem; color: var(--c-muted); margin-bottom: var(--gap-sm); }
+.cd-field { margin-bottom: 0.5em; }
+.cd-field input {
+  width: 100%;
+  border: 1.5px solid var(--c-cream-dark);
+  border-radius: var(--r-md);
+  padding: 0.6em 0.8em;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: white;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.cd-field input:focus { outline: none; border-color: var(--c-lavender); }
+.cd-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 0.5em; }
+.cd-two-col input { width: 100%; }
+
+.checkout-preview h3 { font-size: 1rem; margin-bottom: 0.3em; }
+.checkout-preview textarea {
+  width: 100%;
+  border: 1.5px solid var(--c-cream-dark);
+  border-radius: var(--r-md);
+  padding: 0.8em;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: white;
+  box-sizing: border-box;
+  resize: vertical;
+  line-height: 1.5;
+  color: var(--c-ink);
+  transition: border-color 0.15s;
+  margin-bottom: var(--gap-md);
+}
+.checkout-preview textarea:focus { outline: none; border-color: var(--c-lavender); }
+
+/* ============================================
    Footer
    ============================================ */
 
