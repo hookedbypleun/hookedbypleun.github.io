@@ -82,6 +82,86 @@
       text-align: center; margin: 1rem 0;
     }
     .ai-gate input { margin: 0.5rem 0; min-width: 240px; }
+
+    /* === Wizard === */
+    .wiz-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .wiz-step {
+      text-align: center; font-size: 0.8rem; font-weight: 700;
+      padding: 0.6em 0.4em; border-radius: var(--r-md);
+      background: white; color: var(--c-muted); border: 1px solid var(--c-cream-dark);
+    }
+    .wiz-step.done { background: #E8F5E9; color: #1B5E20; border-color: #C8E6C9; }
+    .wiz-step.active { background: var(--c-lavender); color: white; border-color: var(--c-lavender-dark); }
+
+    .wiz-pane { display: none; }
+    .wiz-pane.active { display: block; }
+    .wiz-pane h3 { margin-top: 0; color: var(--c-lavender-dark); }
+
+    .wiz-grid { display: grid; gap: 0.8rem; margin-bottom: 1rem; }
+    .wiz-grid .veld label { display: block; font-weight: 700; margin-bottom: 0.2em; font-size: 0.9rem; color: var(--c-ink); }
+    .wiz-grid .hint { font-size: 0.8rem; color: var(--c-muted); margin: -0.1em 0 0.3em; }
+    .wiz-grid input, .wiz-grid select, .wiz-grid textarea {
+      width: 100%; padding: 0.6em 0.9em;
+      border: 2px solid var(--c-cream-dark); border-radius: var(--r-md);
+      font-family: inherit; font-size: 0.95rem; background: white; box-sizing: border-box;
+    }
+    .wiz-grid input:focus, .wiz-grid select:focus, .wiz-grid textarea:focus { outline: none; border-color: var(--c-lavender); }
+    .wiz-grid textarea { resize: vertical; min-height: 70px; }
+    @media (min-width: 600px) { .wiz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; } }
+
+    .wiz-panels { display: grid; gap: 1rem; }
+    @media (min-width: 800px) { .wiz-panels { grid-template-columns: 1fr 1fr; } }
+    .wiz-panel {
+      background: white; border-radius: var(--r-md); padding: 1rem;
+      box-shadow: var(--shadow-soft);
+      display: flex; flex-direction: column; gap: 0.6rem;
+      border-top: 4px solid var(--c-lavender);
+    }
+    .wiz-panel.approved { border-top-color: #2E7D32; background: #F1F8E9; }
+    .wiz-panel h4 { margin: 0; color: var(--c-ink); display: flex; justify-content: space-between; align-items: center; }
+    .wiz-panel h4 .badge-status { font-size: 0.75rem; padding: 0.2em 0.6em; border-radius: 99px; background: var(--c-cream-dark); color: var(--c-muted); }
+    .wiz-panel.approved h4 .badge-status { background: #2E7D32; color: white; }
+
+    .wiz-preview {
+      background: var(--c-cream); padding: 0.8rem; border-radius: var(--r-md);
+      font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;
+      max-height: 320px; overflow-y: auto;
+    }
+    .wiz-preview .pv-label { font-weight: 700; color: var(--c-lavender-dark); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-top: 0.6em; }
+    .wiz-preview .pv-label:first-child { margin-top: 0; }
+
+    .wiz-cmt { width: 100%; min-height: 60px; padding: 0.5em 0.8em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box; }
+    .wiz-cmt:focus { outline: none; border-color: var(--c-lavender); }
+
+    .wiz-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .wiz-chip {
+      background: var(--c-cream-dark); border: 1px solid var(--c-cream-dark); color: var(--c-text);
+      padding: 0.25em 0.7em; border-radius: 99px; cursor: pointer; font-size: 0.8rem;
+      font-family: inherit;
+    }
+    .wiz-chip:hover { background: var(--c-lavender); color: white; }
+
+    .wiz-panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .wiz-publish-block {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--c-lavender), var(--c-pink));
+      padding: 1.2rem; border-radius: var(--r-md); text-align: center; color: white;
+      margin-top: 1rem; display: none;
+    }
+    .wiz-publish-block.show { display: block; }
+    .wiz-publish-block h3 { color: white; margin-top: 0; }
+    .wiz-publish-block .btn { background: white; color: var(--c-lavender-dark); }
+    .wiz-publish-block .btn:hover { background: var(--c-cream); }
+
+    .wiz-loader {
+      text-align: center; padding: 2rem;
+      font-size: 1.1rem; color: var(--c-lavender-dark);
+    }
+    .wiz-loader-icon { font-size: 2.5rem; animation: pulse 1.2s ease-in-out infinite; display: inline-block; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
   </style>
 </head>
 <body>
@@ -95,56 +175,172 @@
     <h1>🔧 Admin paneel</h1>
 
     <!-- ================================================ -->
-    <!-- ✨ AI Smart Mode — voor Pleun                     -->
+    <!-- ✨ AI Wizard — voor Pleun                          -->
     <!-- ================================================ -->
     <div class="ai-smart" id="ai-smart">
-      <h2>✨ Snel een nieuw item toevoegen</h2>
-      <p style="color:var(--c-text); margin-top:0">Foto, naam, prijs — AI maakt de rest. Eén tap en het staat live!</p>
+      <h2>✨ Nieuw artikel toevoegen</h2>
+      <p style="color:var(--c-text); margin-top:0">Vul iets in over je nieuwe item. AI schrijft een tekst voor de site én een post voor je WhatsApp-kanaal. Je kan alles aanpassen tot het perfect is.</p>
 
       <!-- Wachtwoord-poort -->
       <div class="ai-gate" id="ai-gate">
-        <p style="margin-top:0">🔒 Wachtwoord nodig om te publiceren</p>
+        <p style="margin-top:0">🔒 Wachtwoord nodig</p>
         <input type="password" id="ai-password" placeholder="Wachtwoord">
         <br>
         <button class="btn" onclick="aiUnlock()">🔓 Inloggen</button>
         <p id="ai-gate-msg" style="color:var(--c-muted); font-size:0.9rem; margin-bottom:0"></p>
       </div>
 
-      <!-- Hoofd-flow (verschijnt na login) -->
+      <!-- Wizard (verschijnt na login) -->
       <div id="ai-main" style="display:none">
-        <!-- Foto -->
-        <div class="ai-drop" id="ai-drop">
-          <div id="ai-drop-content">
-            <p style="font-size:2.5rem; margin:0">📸</p>
-            <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">
-              Tap om foto te kiezen <em>of sleep 'm hierin</em>
-            </p>
-            <p style="color:var(--c-muted); font-size:0.9rem; margin:0">JPG of PNG, vanuit camera-rol of map</p>
+        <div class="wiz-steps">
+          <div class="wiz-step active" data-step="1">1. Invullen</div>
+          <div class="wiz-step" data-step="2">2. AI maakt</div>
+          <div class="wiz-step" data-step="3">3. Review</div>
+          <div class="wiz-step" data-step="4">4. Plaatsen</div>
+        </div>
+
+        <!-- ===== STAP 1: INPUT ===== -->
+        <div class="wiz-pane active" data-pane="1">
+          <h3>📸 Vertel iets over je nieuwe item</h3>
+
+          <div class="ai-drop" id="ai-drop">
+            <div id="ai-drop-content">
+              <p style="font-size:2.5rem; margin:0">📸</p>
+              <p style="font-weight:700; color:var(--c-lavender-dark); margin:0.5em 0">
+                Tap om foto te kiezen <em>of sleep 'm hierin</em>
+              </p>
+              <p style="color:var(--c-muted); font-size:0.9rem; margin:0">JPG of PNG, vanuit camera-rol of map</p>
+            </div>
+            <input id="ai-file" type="file" accept="image/*" style="display:none">
           </div>
-          <input id="ai-file" type="file" accept="image/*" style="display:none">
+
+          <div class="wiz-grid">
+            <div class="wiz-row">
+              <div class="veld">
+                <label>Naam *</label>
+                <input id="w-naam" placeholder="bv. Lichtroze scrunchie">
+              </div>
+              <div class="veld">
+                <label>Prijs (€) *</label>
+                <input id="w-prijs" type="number" step="0.25" min="0" placeholder="8">
+              </div>
+            </div>
+
+            <div class="wiz-row">
+              <div class="veld">
+                <label>Categorie</label>
+                <select id="w-categorie">
+                  <option value="">— laat AI raden —</option>
+                  <option>diertjes</option>
+                  <option>scrunchies</option>
+                  <option>blobs</option>
+                  <option>sleutelhangers</option>
+                  <option>mutsen</option>
+                  <option>onderzetters</option>
+                  <option>tassen</option>
+                  <option>haakpakketten</option>
+                </select>
+              </div>
+              <div class="veld">
+                <label>Hoeveel uur duurde het?</label>
+                <input id="w-uren" placeholder="bv. 2 uur, of een hele middag">
+              </div>
+            </div>
+
+            <div class="veld">
+              <label>Kleuren of welke wol</label>
+              <p class="hint">Als je het zelf invult is AI accurater dan wanneer ie alleen de foto ziet.</p>
+              <input id="w-kleuren" placeholder="bv. lila, peach, beige · katoen Drops Paris">
+            </div>
+
+            <div class="veld">
+              <label>Voor wie zou dit leuk zijn?</label>
+              <input id="w-voorwie" placeholder="bv. iemand die van pastel houdt, of een tienermeisje">
+            </div>
+
+            <div class="veld">
+              <label>Iets bijzonders eraan?</label>
+              <input id="w-bijzonders" placeholder="bv. eerste van een serie, of glow-in-the-dark">
+            </div>
+
+            <div class="veld">
+              <label>Vertel iets over dit ding (in je eigen woorden)</label>
+              <p class="hint">Hoe meer je vertelt, hoe beter AI je stem kan vangen.</p>
+              <textarea id="w-vrij" placeholder="bv. 'ik heb deze gehaakt toen ik in het vliegtuig zat naar oma. de kleuren zijn zo zacht en knuffelig'"></textarea>
+            </div>
+          </div>
+
+          <button class="btn full" id="btn-generate" onclick="wizGenerate()">✨ Maak voorstellen (AI)</button>
         </div>
 
-        <!-- Naam + Prijs -->
-        <div class="ai-row">
-          <input id="ai-naam" placeholder="Naam (bv. Lichtroze scrunchie)">
-          <input id="ai-prijs" type="number" step="0.25" min="0" placeholder="Prijs in € (bv. 8)">
+        <!-- ===== STAP 2: LOADING ===== -->
+        <div class="wiz-pane" data-pane="2">
+          <div class="wiz-loader">
+            <div class="wiz-loader-icon">🌸</div>
+            <p>AI is aan het werk...<br><small style="color:var(--c-muted)">Foto bekijken + tekst schrijven (~5-15 sec)</small></p>
+          </div>
         </div>
 
-        <!-- Knoppen -->
-        <div class="bestel-acties">
-          <button class="btn full" id="ai-btn-generate" onclick="aiGenerate()">✨ Maak mooi (AI)</button>
+        <!-- ===== STAP 3: REVIEW ===== -->
+        <div class="wiz-pane" data-pane="3">
+          <h3>👀 Bekijk en pas aan</h3>
+          <p style="color:var(--c-muted); margin-top:-0.5em">Beide moeten goedgekeurd zijn voordat je kunt publiceren. "Wat moet anders?" mag in je eigen woorden — AI snapt het wel.</p>
+
+          <div class="wiz-panels">
+            <!-- Website panel -->
+            <div class="wiz-panel" id="panel-website">
+              <h4>🌐 Op de website <span class="badge-status">in review</span></h4>
+              <div class="wiz-preview" id="prev-website"></div>
+              <textarea class="wiz-cmt" id="cmt-website" placeholder="Wat moet anders? (laat leeg = ✓ akkoord)"></textarea>
+              <div class="wiz-chips" id="chips-website">
+                <button type="button" class="wiz-chip" data-chip="korter">korter</button>
+                <button type="button" class="wiz-chip" data-chip="vrolijker">vrolijker</button>
+                <button type="button" class="wiz-chip" data-chip="meer emoji">meer emoji</button>
+                <button type="button" class="wiz-chip" data-chip="minder formeel">minder formeel</button>
+                <button type="button" class="wiz-chip" data-chip="korter en speelser">korter en speelser</button>
+              </div>
+              <div class="wiz-panel-actions">
+                <button class="btn secondary" onclick="wizRefine('website')">🔄 Nieuw voorstel</button>
+                <button class="btn mustard" onclick="wizApprove('website')">✓ Akkoord</button>
+              </div>
+            </div>
+
+            <!-- Social panel -->
+            <div class="wiz-panel" id="panel-social">
+              <h4>📱 WhatsApp-kanaal <span class="badge-status">in review</span></h4>
+              <div class="wiz-preview" id="prev-social"></div>
+              <textarea class="wiz-cmt" id="cmt-social" placeholder="Wat moet anders? (laat leeg = ✓ akkoord)"></textarea>
+              <div class="wiz-chips" id="chips-social">
+                <button type="button" class="wiz-chip" data-chip="meer emoji">meer emoji</button>
+                <button type="button" class="wiz-chip" data-chip="spannender">spannender</button>
+                <button type="button" class="wiz-chip" data-chip="korter">korter</button>
+                <button type="button" class="wiz-chip" data-chip="met meer hype">met meer hype</button>
+                <button type="button" class="wiz-chip" data-chip="rustiger">rustiger</button>
+              </div>
+              <div class="wiz-panel-actions">
+                <button class="btn secondary" onclick="wizRefine('social')">🔄 Nieuw voorstel</button>
+                <button class="btn mustard" onclick="wizApprove('social')">✓ Akkoord</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="wiz-publish-block" id="wiz-publish-block">
+            <h3>🎉 Beide goedgekeurd!</h3>
+            <p>Klik om je item op de site te plaatsen en je WhatsApp-post te openen.</p>
+            <button class="btn full" onclick="wizPublish()">🚀 Plaats item + open WhatsApp-post</button>
+          </div>
         </div>
 
-        <!-- AI Preview -->
-        <div class="ai-preview" id="ai-preview">
-          <div class="label">📝 AI-suggestie</div>
-          <div><strong>Naam:</strong> <span id="ai-prev-naam"></span></div>
-          <div><strong>Beschrijving:</strong> <span id="ai-prev-besch"></span></div>
-          <div><strong>Categorie:</strong> <span id="ai-prev-cat"></span></div>
-          <div><strong>Kleuren:</strong> <span id="ai-prev-kleuren"></span></div>
-          <div class="bestel-acties" style="margin-top:1rem">
-            <button class="btn mustard full" id="ai-btn-publish" onclick="aiPublish()">🚀 Publiceer op de site</button>
-            <button class="btn secondary full" onclick="aiGenerate()">↻ Probeer opnieuw</button>
+        <!-- ===== STAP 4: SUCCESS ===== -->
+        <div class="wiz-pane" data-pane="4">
+          <div style="text-align:center; padding:2rem 1rem">
+            <div style="font-size:3rem">✅</div>
+            <h3 id="success-title">Klaar!</h3>
+            <p id="success-msg" style="color:var(--c-text)"></p>
+            <div class="bestel-acties" style="max-width:340px; margin:1rem auto">
+              <button class="btn full" onclick="wizCopySocial()">📋 Kopieer WhatsApp-post</button>
+              <button class="btn secondary full" onclick="wizReset()">➕ Volgend item</button>
+            </div>
           </div>
         </div>
 
@@ -679,6 +875,17 @@
     let AI_GENERATED = null;      // { naam, beschrijving, categorie, kleuren, altText }
     let AI_PASSWORD = sessionStorage.getItem(AI_PW_KEY) || '';
 
+    // ============================================================
+    // Wizard state
+    // ============================================================
+    const wizState = {
+      photo: null,           // { dataURL, base64, mediaType, ext }
+      input: null,           // { naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst }
+      output: null,          // { website: {...}, social: {...} }
+      approved: { website: false, social: false },
+      busy: false,
+    };
+
     function workerUrl() {
       return (window.SHOP_CONFIG?.workerUrl || '').replace(/\/$/, '');
     }
@@ -688,6 +895,19 @@
       if (!msg) { el.classList.remove('show'); return; }
       el.className = 'ai-status show ' + (kind || '');
       el.textContent = msg;
+    }
+
+    function wizGoStep(n) {
+      document.querySelectorAll('.wiz-pane').forEach(p => {
+        p.classList.toggle('active', p.dataset.pane === String(n));
+      });
+      document.querySelectorAll('.wiz-step').forEach(s => {
+        const step = Number(s.dataset.step);
+        s.classList.remove('active', 'done');
+        if (step === n) s.classList.add('active');
+        else if (step < n) s.classList.add('done');
+      });
+      window.scrollTo({ top: document.getElementById('ai-smart').offsetTop - 20, behavior: 'smooth' });
     }
 
     async function aiUnlock() {
@@ -718,7 +938,6 @@
       }
     }
 
-    // Auto-unlock als wachtwoord al in session
     if (AI_PASSWORD && workerUrl()) {
       document.getElementById('ai-gate').style.display = 'none';
       document.getElementById('ai-main').style.display = 'block';
@@ -727,7 +946,9 @@
         'ℹ️ AI-modus nog niet geconfigureerd. Vul workerUrl in js/config.js — zie cloudflare-worker/README.md.';
     }
 
-    // === Foto upload ===
+    // ============================================================
+    // Foto upload
+    // ============================================================
     const aiDrop = document.getElementById('ai-drop');
     const aiFile = document.getElementById('ai-file');
     aiDrop.addEventListener('click', () => aiFile.click());
@@ -744,18 +965,16 @@
 
     function handleAIPhoto(file) {
       if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto 🙃', 'error'); return; }
-      // Quinn: max 4 MB om Claude/Worker timeouts te voorkomen
       if (file.size > 4_000_000) {
-        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB, dat is te groot. Maak 'm kleiner (max 4 MB) 📐`, 'error');
+        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB — maak 'm kleiner (max 4 MB) 📐`, 'error');
         return;
       }
       const reader = new FileReader();
       reader.onload = ev => {
         const dataURL = ev.target.result;
         const base64 = dataURL.split(',')[1];
-        AI_PHOTO = {
-          dataURL,
-          base64,
+        wizState.photo = {
+          dataURL, base64,
           mediaType: file.type,
           ext: (file.name.split('.').pop() || 'jpg').toLowerCase().replace('jpeg', 'jpg'),
         };
@@ -768,7 +987,7 @@
     }
 
     function aiResetPhoto() {
-      AI_PHOTO = null;
+      wizState.photo = null;
       aiDrop.classList.remove('has-photo');
       document.getElementById('ai-drop-content').innerHTML = `
         <p style="font-size:2.5rem; margin:0">📸</p>
@@ -777,42 +996,153 @@
       aiFile.value = '';
     }
 
-    async function aiGenerate() {
-      if (!AI_PHOTO) { aiSetStatus('Upload eerst een foto 📸', 'error'); return; }
-      const naam = document.getElementById('ai-naam').value.trim();
-      const prijs = parseFloat(document.getElementById('ai-prijs').value);
+    // ============================================================
+    // Quick-chips: voeg suggestie toe aan comments-textarea
+    // ============================================================
+    document.querySelectorAll('.wiz-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const chip = btn.dataset.chip;
+        const targetId = btn.closest('.wiz-panel').querySelector('textarea').id;
+        const ta = document.getElementById(targetId);
+        ta.value = (ta.value.trim() ? ta.value.trim() + ', ' : '') + chip;
+        ta.focus();
+      });
+    });
 
-      aiSetStatus('✨ Even kijken naar je foto en iets moois schrijven...', 'busy');
-      document.getElementById('ai-btn-generate').disabled = true;
+    // ============================================================
+    // Render preview blocks
+    // ============================================================
+    function renderWebsitePreview(w) {
+      if (!w) return '';
+      const kleuren = (w.kleuren || []).join(', ');
+      const extra = w.extraKaartje ? `\n\n💌 Kaartje: ${w.extraKaartje}` : '';
+      return `<span class="pv-label">Naam</span>${esc(w.naam)}<span class="pv-label">Beschrijving</span>${esc(w.beschrijving)}<span class="pv-label">Categorie</span>${esc(w.categorie || '–')}<span class="pv-label">Kleuren</span>${esc(kleuren || '–')}<span class="pv-label">Alt-tekst</span>${esc(w.altText || '–')}${extra ? '<span class="pv-label">Kaartje</span>' + esc(w.extraKaartje) : ''}`;
+    }
+
+    function renderSocialPreview(s) {
+      if (!s) return '';
+      const tags = (s.hashtags || []).join(' ');
+      return `<span class="pv-label">Bericht</span>${esc(s.tekst)}${tags ? '<span class="pv-label">Hashtags</span>' + esc(tags) : ''}`;
+    }
+
+    function esc(s) { return String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    function refreshPreviews() {
+      document.getElementById('prev-website').innerHTML = renderWebsitePreview(wizState.output?.website);
+      document.getElementById('prev-social').innerHTML = renderSocialPreview(wizState.output?.social);
+    }
+
+    // ============================================================
+    // STAP 1 → STAP 2: Generate
+    // ============================================================
+    async function wizGenerate() {
+      if (!wizState.photo) { aiSetStatus('Upload eerst een foto 📸', 'error'); return; }
+      const naam = document.getElementById('w-naam').value.trim();
+      const prijs = parseFloat(document.getElementById('w-prijs').value);
+      if (!naam) { aiSetStatus('Vul eerst een naam in 💝', 'error'); return; }
+      if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in 💸', 'error'); return; }
+
+      wizState.input = {
+        naam, prijs,
+        categorieHint: document.getElementById('w-categorie').value,
+        urenWerk: document.getElementById('w-uren').value.trim(),
+        kleurenHint: document.getElementById('w-kleuren').value.trim(),
+        voorWie: document.getElementById('w-voorwie').value.trim(),
+        bijzonders: document.getElementById('w-bijzonders').value.trim(),
+        vrijeTekst: document.getElementById('w-vrij').value.trim(),
+      };
+
+      wizGoStep(2);
+      aiSetStatus('', '');
 
       try {
         const res = await fetch(workerUrl() + '/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
           body: JSON.stringify({
-            photoBase64: AI_PHOTO.base64,
-            mediaType: AI_PHOTO.mediaType,
-            naam,
-            prijs: isNaN(prijs) ? null : prijs,
-            categorieHint: '',
+            photoBase64: wizState.photo.base64,
+            mediaType: wizState.photo.mediaType,
+            ...wizState.input,
           }),
         });
         if (!res.ok) throw new Error(await res.text());
-        AI_GENERATED = await res.json();
-
-        document.getElementById('ai-prev-naam').textContent = AI_GENERATED.naam || '(geen)';
-        document.getElementById('ai-prev-besch').textContent = AI_GENERATED.beschrijving || '(geen)';
-        document.getElementById('ai-prev-cat').textContent = AI_GENERATED.categorie || '(geen)';
-        document.getElementById('ai-prev-kleuren').textContent = (AI_GENERATED.kleuren || []).join(', ') || '(geen)';
-        document.getElementById('ai-preview').classList.add('show');
-        aiSetStatus('Klaar! Bekijk de suggestie hieronder ⬇️', 'success');
+        wizState.output = await res.json();
+        wizState.approved = { website: false, social: false };
+        refreshPreviews();
+        updateApprovalUI();
+        wizGoStep(3);
       } catch (err) {
         aiSetStatus('❌ ' + err.message, 'error');
-      } finally {
-        document.getElementById('ai-btn-generate').disabled = false;
+        wizGoStep(1);
       }
     }
 
+    // ============================================================
+    // STAP 3: Refine + Approve
+    // ============================================================
+    async function wizRefine(type) {
+      const cmtEl = document.getElementById('cmt-' + type);
+      const userComments = cmtEl.value.trim();
+      if (!userComments) { aiSetStatus('Type eerst wat anders moet, of klik direct op ✓ Akkoord', 'error'); return; }
+
+      const panel = document.getElementById('panel-' + type);
+      const btns = panel.querySelectorAll('button');
+      btns.forEach(b => b.disabled = true);
+      aiSetStatus('🔄 Nieuwe versie aan het maken...', 'busy');
+
+      try {
+        const res = await fetch(workerUrl() + '/refine', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({
+            type,
+            currentOutput: wizState.output[type],
+            userComments,
+            originalInput: wizState.input,
+            photoBase64: wizState.photo?.base64,
+            mediaType: wizState.photo?.mediaType,
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const newOutput = await res.json();
+        wizState.output[type] = newOutput;
+        wizState.approved[type] = false;  // herziene versie moet opnieuw approved worden
+        cmtEl.value = '';
+        refreshPreviews();
+        updateApprovalUI();
+        aiSetStatus('Nieuwe versie klaar — bekijk en kies', 'success');
+        setTimeout(() => aiSetStatus('', ''), 3000);
+      } catch (err) {
+        aiSetStatus('❌ ' + err.message, 'error');
+      } finally {
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    function wizApprove(type) {
+      wizState.approved[type] = true;
+      updateApprovalUI();
+    }
+
+    function updateApprovalUI() {
+      ['website', 'social'].forEach(type => {
+        const panel = document.getElementById('panel-' + type);
+        const badge = panel.querySelector('.badge-status');
+        if (wizState.approved[type]) {
+          panel.classList.add('approved');
+          badge.textContent = '✓ akkoord';
+        } else {
+          panel.classList.remove('approved');
+          badge.textContent = 'in review';
+        }
+      });
+      const ready = wizState.approved.website && wizState.approved.social;
+      document.getElementById('wiz-publish-block').classList.toggle('show', ready);
+    }
+
+    // ============================================================
+    // STAP 3 → STAP 4: Publish
+    // ============================================================
     function slugifyAI(s) {
       return String(s).toLowerCase()
         .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -820,29 +1150,26 @@
         .replace(/^-+|-+$/g, '') || 'item';
     }
 
-    async function aiPublish() {
-      if (!AI_GENERATED || !AI_PHOTO) return;
-      const prijs = parseFloat(document.getElementById('ai-prijs').value);
-      if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in 💸', 'error'); return; }
-
-      const id = slugifyAI(AI_GENERATED.categorie + '-' + AI_GENERATED.naam);
+    async function wizPublish() {
+      const w = wizState.output.website;
+      const id = slugifyAI((w.categorie || '') + '-' + (w.naam || ''));
       const item = {
         id,
-        naam: AI_GENERATED.naam,
-        categorie: AI_GENERATED.categorie,
-        prijs,
-        beschrijving: AI_GENERATED.beschrijving,
-        kleuren: AI_GENERATED.kleuren || [],
-        altText: AI_GENERATED.altText || '',
+        naam: w.naam,
+        categorie: w.categorie,
+        prijs: wizState.input.prijs,
+        beschrijving: w.beschrijving,
+        kleuren: w.kleuren || [],
+        altText: w.altText || '',
+        extraKaartje: w.extraKaartje || '',
         status: 'beschikbaar',
         voorraad: 1,
         nieuw: true,
         datumToegevoegd: new Date().toISOString().slice(0, 10),
       };
-      const photoFilename = `${id}.${AI_PHOTO.ext}`;
+      const photoFilename = `${id}.${wizState.photo.ext}`;
 
       aiSetStatus('🚀 Publiceren naar GitHub... (15-30 sec)', 'busy');
-      document.getElementById('ai-btn-publish').disabled = true;
 
       try {
         const res = await fetch(workerUrl() + '/publish', {
@@ -850,33 +1177,57 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
           body: JSON.stringify({
             item,
-            photoBase64: AI_PHOTO.base64,
+            photoBase64: wizState.photo.base64,
             photoFilename,
           }),
         });
         if (!res.ok) throw new Error(await res.text());
         const result = await res.json();
-        aiSetStatus(`✅ Live op de site! Check ${result.siteUrl} (kan 1-2 min duren tot de build klaar is).`, 'success');
-
-        // Reset form (Dana: voorkom dubbele publishes)
-        AI_GENERATED = null;
-        document.getElementById('ai-naam').value = '';
-        document.getElementById('ai-prijs').value = '';
-        aiResetPhoto();
-        document.getElementById('ai-preview').classList.remove('show');
-        // Status na 8 sec automatisch wegfaden
-        setTimeout(() => aiSetStatus('', ''), 8000);
+        aiSetStatus('', '');
+        document.getElementById('success-title').textContent = '✅ Live op de site!';
+        document.getElementById('success-msg').innerHTML =
+          `Het item staat nu op <a href="${result.siteUrl}" target="_blank">${result.siteUrl}</a> (kan 1-2 minuten duren tot de build klaar is).<br><br>Hieronder kun je je WhatsApp-post kopiëren en in je kanaal plakken.`;
+        wizGoStep(4);
       } catch (err) {
         aiSetStatus('❌ ' + err.message, 'error');
-      } finally {
-        document.getElementById('ai-btn-publish').disabled = false;
       }
     }
 
-    // Expose to global scope for onclick handlers
+    function wizCopySocial() {
+      const tekst = wizState.output?.social?.tekst || '';
+      if (!tekst) { aiSetStatus('Geen WhatsApp-tekst gevonden 🤔', 'error'); return; }
+      navigator.clipboard.writeText(tekst).then(() => {
+        aiSetStatus('✓ Gekopieerd! Plak in je WhatsApp-kanaal 📋', 'success');
+        setTimeout(() => aiSetStatus('', ''), 4000);
+      }).catch(() => {
+        prompt('Kopieer onderstaande tekst handmatig:', tekst);
+      });
+    }
+
+    function wizReset() {
+      wizState.photo = null;
+      wizState.input = null;
+      wizState.output = null;
+      wizState.approved = { website: false, social: false };
+      ['w-naam', 'w-prijs', 'w-uren', 'w-kleuren', 'w-voorwie', 'w-bijzonders', 'w-vrij', 'cmt-website', 'cmt-social'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('w-categorie').value = '';
+      aiResetPhoto();
+      aiSetStatus('', '');
+      updateApprovalUI();
+      wizGoStep(1);
+    }
+
+    // Expose to global scope
     window.aiUnlock = aiUnlock;
-    window.aiGenerate = aiGenerate;
-    window.aiPublish = aiPublish;
+    window.wizGenerate = wizGenerate;
+    window.wizRefine = wizRefine;
+    window.wizApprove = wizApprove;
+    window.wizPublish = wizPublish;
+    window.wizCopySocial = wizCopySocial;
+    window.wizReset = wizReset;
   </script>
 </body>
 </html>

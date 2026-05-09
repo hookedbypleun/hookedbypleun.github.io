@@ -1,21 +1,22 @@
 # Crochet by Pleun — Cloudflare Worker
 
-Mini-backend voor de site. Doet 3 dingen:
+Mini-backend voor de site. Doet 4 dingen:
 
-1. **Claude AI** vraagt om een vrolijke beschrijving + categorie + alt-text op basis van de foto.
-2. **GitHub commit**: foto naar `img/items/` + `data/items.json` bijgewerkt.
-3. **WhatsApp redirect**: `/order` endpoint zodat Pleun's nummer nooit in de browser komt — klant klikt → worker stuurt door → WhatsApp opent met haar nummer en het bericht.
+1. **Gemini AI (vision)** maakt op basis van de foto + Pleuns input twee outputs tegelijk: een website-artikel én een WhatsApp-kanaal post.
+2. **AI-refinement loop**: Pleun kan in eigen woorden zeggen wat anders moet (`/refine` endpoint), AI maakt nieuwe versie tot ze tevreden is.
+3. **GitHub commit**: foto naar `img/items/` + `data/items.json` bijgewerkt.
+4. **WhatsApp redirect**: `/order` endpoint zodat Pleun's nummer nooit in de browser komt — klant klikt → worker stuurt door → WhatsApp opent met haar nummer en het bericht.
 
-Alles gratis (Cloudflare Workers free tier + GitHub free) behalve Claude API verbruik (~€0,003 per item).
+Alles gratis: Cloudflare Workers free tier + GitHub free + **Gemini 2.5 Flash gratis** (1.500 calls/dag, ruim genoeg).
 
 ## Setup (eenmalig)
 
-### 0. Anthropic account + tegoed (verplicht!)
-1. Ga naar https://console.anthropic.com/ → maak een account aan
-2. **Plans & Billing** → laad minimaal **$5 tegoed** (eenmalig — Anthropic vereist dit voor API-toegang)
-3. Op **API Keys** → **Create Key** → naam: `crochet-by-pleun` → kopieer (`sk-ant-...`)
+### 0. Google AI Studio API key (gratis!)
+1. Ga naar https://aistudio.google.com/apikey
+2. Klik **Create API key** → maak een nieuw project aan of kies een bestaand → **kopieer** de key (begint met `AIza...`)
+3. Geen creditcard, geen tegoed nodig — gratis tot 1.500 calls per dag
 
-> 💡 €5 is genoeg voor ~1000+ items genereren. Voor een hobbyshop dus jaren ver.
+> 💡 Pleun's shop heeft hooguit een paar items per week. Free tier is letterlijk 100× overcapaciteit.
 
 ### 1. Cloudflare account
 Ga naar https://dash.cloudflare.com/sign-up — gratis, geen creditcard nodig voor de free tier.
@@ -33,7 +34,7 @@ In de Worker → **Settings** → **Variables and Secrets** → **Add**:
 | Naam | Type | Waarde |
 |------|------|--------|
 | `ADMIN_PASSWORD` | Secret | Zelfgekozen wachtwoord voor admin |
-| `CLAUDE_API_KEY` | Secret | `sk-ant-...` uit stap 0 |
+| `GEMINI_API_KEY` | Secret | `AIza...` uit stap 0 |
 | `GITHUB_TOKEN` | Secret | GitHub PAT (zie stap 4) |
 | `WHATSAPP_NUMBER` | Secret | Pleun's nummer, bv. `31635621715` (zonder + of spaties) |
 
@@ -56,7 +57,8 @@ Plaats deze URL in `js/config.js` als `workerUrl`.
 
 - `GET /order?text=...` — **publiek** — 302 redirect naar `wa.me/<WHATSAPP_NUMBER>?text=...`
 - `POST /auth` — `{ password }` → check ww
-- `POST /generate` — `{ photoBase64, naam, prijs, categorieHint }` → AI-content
+- `POST /generate` — `{ photoBase64, mediaType, naam, prijs, categorieHint, urenWerk?, kleurenHint?, voorWie?, bijzonders?, vrijeTekst? }` → `{ website: {...}, social: {...} }`
+- `POST /refine` — `{ type: 'website'|'social', currentOutput, userComments, originalInput?, photoBase64?, mediaType? }` → herziene versie van die ene output
 - `POST /publish` — `{ item, photoBase64, photoFilename }` → commit naar GitHub
 
 `/order` is publiek (geen auth). Alle andere calls vereisen `Authorization: Bearer <ADMIN_PASSWORD>`.

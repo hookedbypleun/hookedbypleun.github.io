@@ -1,18 +1,22 @@
-// Crochet by Pleun — Cloudflare Worker
-// Handelt af: AI-beschrijving genereren + publiceren naar GitHub
-// Plus: WhatsApp-redirect zodat Pleun's nummer nooit in de browser komt
+// Crochet by Pleun — Cloudflare Worker (Gemini-versie)
+// Handelt af:
+//   - AI-content genereren met Gemini 2.5 Flash (vision + dual output)
+//   - AI-refinement loop op basis van Pleun's commentaar
+//   - Publiceren naar GitHub (foto + items.json)
+//   - WhatsApp redirect zodat Pleun's nummer nooit in de browser komt
 //
 // Secrets (instellen in Cloudflare dashboard → Settings → Variables):
-//   ADMIN_PASSWORD    — wachtwoord voor de admin-pagina
-//   CLAUDE_API_KEY    — Anthropic API key (sk-ant-...)
-//   GITHUB_TOKEN      — GitHub PAT met "Contents: write" op crochetbypleun/crochetbypleun.github.io
-//   WHATSAPP_NUMBER   — Pleun's WhatsApp-nummer (bv. 31635621715, zonder + of spaties)
+//   ADMIN_PASSWORD     — wachtwoord voor de admin-pagina
+//   GEMINI_API_KEY     — Google AI Studio API key (begint met "AIza...")
+//   GITHUB_TOKEN       — GitHub PAT met "Contents: write" op crochetbypleun/crochetbypleun.github.io
+//   WHATSAPP_NUMBER    — Pleun's WhatsApp-nummer (bv. 31635621715, zonder + of spaties)
 //
 // Endpoints:
-//   GET  /order      — ?text=...               → 302 naar wa.me/[secret]?text=... (publiek, geen auth)
-//   POST /generate   — { photoBase64, naam, prijs, categorieHint } → AI-content
-//   POST /publish    — { item, photoBase64, photoFilename }        → commit naar GitHub
+//   GET  /order      — ?text=...                                    → 302 naar wa.me/[secret]?text=... (publiek)
 //   POST /auth       — { password }                                 → check ww
+//   POST /generate   — { photoBase64, mediaType, naam, prijs, ... } → { website: {...}, social: {...} }
+//   POST /refine     — { type, currentOutput, userComments, ... }   → herziene versie van die specifieke output
+//   POST /publish    — { item, photoBase64, photoFilename }         → commit naar GitHub
 
 const REPO = 'crochetbypleun/crochetbypleun.github.io';
 const ALLOWED_ORIGINS = [
@@ -20,6 +24,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8080',
   'http://127.0.0.1:8080',
 ];
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 function corsHeaders(origin) {
   const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -51,7 +56,6 @@ export default {
 
     try {
       // === /order — publieke redirect naar WhatsApp (GEEN auth) ===
-      // Houdt Pleun's nummer compleet uit de browser/HTML/JS van de site.
       if (url.pathname === '/order' && request.method === 'GET') {
         if (!env.WHATSAPP_NUMBER) {
           return new Response('WhatsApp number not configured', { status: 500, headers: cors });
@@ -65,7 +69,6 @@ export default {
       const auth = request.headers.get('Authorization') || '';
       const token = auth.replace(/^Bearer\s+/i, '');
       if (!env.ADMIN_PASSWORD || token !== env.ADMIN_PASSWORD) {
-        // /auth endpoint geeft duidelijke feedback
         if (url.pathname === '/auth') {
           const body = await request.json().catch(() => ({}));
           if (body.password === env.ADMIN_PASSWORD) {
@@ -75,21 +78,24 @@ export default {
         return jsonResponse({ error: 'unauthorized' }, 401, cors);
       }
 
-      // === /generate ===
       if (url.pathname === '/generate' && request.method === 'POST') {
         const body = await request.json();
-        const result = await generateWithClaude(body, env);
+        const result = await generateWithGemini(body, env);
         return jsonResponse(result, 200, cors);
       }
 
-      // === /publish ===
+      if (url.pathname === '/refine' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await refineWithGemini(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       if (url.pathname === '/publish' && request.method === 'POST') {
         const body = await request.json();
         const result = await publishToGitHub(body, env);
         return jsonResponse(result, 200, cors);
       }
 
-      // === /auth (al hierboven afgehandeld als wachtwoord klopte) ===
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
       }
@@ -102,65 +108,166 @@ export default {
 };
 
 // ================================================================
-// Claude — beschrijving + categorie + alt-text genereren
+// Pleun's stem — systeem-context voor Gemini
+// Wordt uitgebreid zodra interview-antwoorden binnen zijn (pleun-stem.md)
 // ================================================================
-async function generateWithClaude({ photoBase64, mediaType, naam, prijs, categorieHint }, env) {
-  const cleanBase64 = (photoBase64 || '').replace(/^data:image\/\w+;base64,/, '');
-  const mt = mediaType || 'image/jpeg';
+const PLEUN_VOICE = `Je bent Pleun, een 12-jarig meisje uit Brabant dat handgehaakte knuffels, scrunchies, blobs en accessoires maakt onder de naam "Crochet by Pleun".
 
-  const prompt = `Je bent Pleun, een 12-jarig meisje uit Brabant dat handgehaakte knuffels, scrunchies, blobs en accessoires maakt. Je schrijft in eerste persoon, vrolijk, eerlijk, soms met een grapje of emoji. Geen marketing-taal, geen "uniek-een-van-een", geen "geen filters". Gewoon zoals een tiener praat.
+Je stem en stijl:
+- Schrijft in eerste persoon ("ik haak", "mijn favoriete", "voor jullie")
+- Vrolijk, eerlijk, een beetje verlegen-enthousiast — soms een grapje of "haha"
+- Tiener-taal: zinnen mogen natuurlijk lopen, soms hoofdletters voor nadruk ("ZO blij")
+- Emoji's gebruikt ze rijkelijk maar niet overdreven: 🧶 💝 🌸 🎀 ✨ ✋ 🥹 zijn favoriet
+- Geen marketing-praat. Geen "uniek-een-van-een", "geen filters", "kwalitatief hoogwaardig"
+- Eerlijk over patronen: ze gebruikt patronen van internet als basis maar kiest zelf kleuren/accenten. Geen claim van 100% origineel
+- Items krijgen een handgeschreven labeltje
+- Lokaal in Brabant (Biezenmortel/Udenhout/Helvoirt) bezorgt ze gratis op zaterdag
 
-Kijk naar de foto en schrijf een korte productbeschrijving (max 25 woorden) voor dit item.
+Schrijf NOOIT:
+- Over haar ouders, papa, mama, of "samen met papa gemaakt"
+- Marketingtaal of buzzwords
+- Engelse termen waar een Nederlands woord prima werkt
+- Generieke productbeschrijvingen ("Deze prachtige item is...")`;
 
-${naam ? `Naam (zoals Pleun het noemt): ${naam}` : 'Verzin een leuke, simpele naam.'}
-${prijs ? `Prijs: €${prijs}` : ''}
-${categorieHint ? `Categorie hint: ${categorieHint}` : ''}
+const CATEGORIEEN = ['diertjes', 'scrunchies', 'blobs', 'sleutelhangers', 'mutsen', 'onderzetters', 'tassen', 'haakpakketten'];
 
-Beschikbare categorieën: diertjes, scrunchies, blobs, sleutelhangers, mutsen, onderzetters, tassen, haakpakketten.
+// ================================================================
+// Gemini call helper
+// ================================================================
+async function callGemini({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200 }) {
+  if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY niet ingesteld in Worker secrets');
 
-Geef ALLEEN dit JSON-object terug, geen andere tekst:
-{
-  "naam": "...",
-  "beschrijving": "...",
-  "categorie": "...",
-  "kleuren": ["..."],
-  "altText": "..."
-}`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': env.CLAUDE_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: mt, data: cleanBase64 },
-          },
-          { type: 'text', text: prompt },
-        ],
-      }],
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Claude API: ${response.status} — ${errText}`);
+  const parts = [{ text: prompt }];
+  if (photoBase64) {
+    const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, '');
+    parts.push({
+      inline_data: {
+        mime_type: mediaType || 'image/jpeg',
+        data: cleanBase64,
+      },
+    });
   }
 
-  const data = await response.json();
-  const text = data.content?.[0]?.text || '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Geen JSON in Claude response: ' + text);
+  const body = {
+    contents: [{ role: 'user', parts }],
+    systemInstruction: { parts: [{ text: PLEUN_VOICE }] },
+    generationConfig: {
+      temperature,
+      maxOutputTokens: maxTokens,
+      responseMimeType: 'application/json',
+    },
+  };
 
-  return JSON.parse(match[0]);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini API ${res.status}: ${errText}`);
+  }
+
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Lege Gemini response: ' + JSON.stringify(data).slice(0, 300));
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Geen JSON in Gemini output: ' + text.slice(0, 200));
+    return JSON.parse(match[0]);
+  }
+}
+
+// ================================================================
+// /generate — dual output: website-artikel + WhatsApp-bericht
+// ================================================================
+async function generateWithGemini(input, env) {
+  const { photoBase64, mediaType, naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst } = input;
+
+  const inputBlok = [
+    naam ? `- Naam (zoals Pleun het noemt): ${naam}` : '- Naam: nog niet ingevuld, verzin een lieve simpele',
+    prijs ? `- Prijs: €${prijs}` : null,
+    categorieHint ? `- Categorie hint: ${categorieHint}` : null,
+    urenWerk ? `- Hoe lang Pleun erover deed: ${urenWerk}` : null,
+    kleurenHint ? `- Kleuren/wol die ze gebruikte: ${kleurenHint}` : null,
+    voorWie ? `- Voor wie zou het leuk zijn: ${voorWie}` : null,
+    bijzonders ? `- Iets bijzonders: ${bijzonders}` : null,
+    vrijeTekst ? `- Pleuns eigen woorden over dit item: "${vrijeTekst}"` : null,
+  ].filter(Boolean).join('\n');
+
+  const prompt = `Bekijk de foto en schrijf in Pleuns stem twee dingen voor dit nieuwe haakwerkje.
+
+Input van Pleun:
+${inputBlok}
+
+Beschikbare categorieën: ${CATEGORIEEN.join(', ')}.
+
+Geef ALLEEN een JSON-object terug met deze exacte structuur (geen andere tekst):
+{
+  "website": {
+    "naam": "korte lieve naam",
+    "beschrijving": "max 30 woorden, in eerste persoon, zoals Pleun het zou zeggen, vrolijk en eerlijk",
+    "categorie": "een van de categorieën",
+    "kleuren": ["kleur1", "kleur2"],
+    "altText": "korte beschrijving voor screenreaders, max 12 woorden",
+    "extraKaartje": "optioneel klein zinnetje met een leuke detail of weetje, mag leeg zijn"
+  },
+  "social": {
+    "tekst": "kant-en-klaar bericht voor Pleuns WhatsApp-kanaal — opent met een hook, vertelt over het item, eindigt met een uitnodiging om te bestellen via de site. Gebruik regelafbrekingen en emoji's. 60-100 woorden. Mag aan de prijs refereren als die er is.",
+    "hashtags": ["bv #handgehaakt", "max 4 stuks"]
+  }
+}`;
+
+  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 1500 });
+}
+
+// ================================================================
+// /refine — herziene versie van EEN output op basis van commentaar
+// ================================================================
+async function refineWithGemini(input, env) {
+  const { type, currentOutput, userComments, originalInput, photoBase64, mediaType } = input;
+
+  if (!['website', 'social'].includes(type)) {
+    throw new Error('type moet "website" of "social" zijn');
+  }
+  if (!userComments || !userComments.trim()) {
+    throw new Error('userComments is verplicht');
+  }
+
+  const schemaText = type === 'website'
+    ? `{
+  "naam": "...",
+  "beschrijving": "...",
+  "categorie": "een van: ${CATEGORIEEN.join(', ')}",
+  "kleuren": ["..."],
+  "altText": "...",
+  "extraKaartje": "..."
+}`
+    : `{
+  "tekst": "...",
+  "hashtags": ["..."]
+}`;
+
+  const contextBlok = originalInput ? `\nOorspronkelijke input van Pleun:\n${JSON.stringify(originalInput, null, 2)}\n` : '';
+
+  const prompt = `Pleun wil de ${type === 'website' ? 'productbeschrijving op de site' : 'WhatsApp-kanaal-post'} herzien.
+
+Huidige versie:
+${JSON.stringify(currentOutput, null, 2)}
+${contextBlok}
+Wat Pleun wil veranderen (haar eigen woorden):
+"${userComments.trim()}"
+
+Maak een nieuwe versie die haar feedback verwerkt, in haar stem, met dezelfde structuur. Geef ALLEEN dit JSON-object terug, niets anders:
+
+${schemaText}`;
+
+  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 1000 });
 }
 
 // ================================================================
@@ -176,11 +283,9 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
     'Content-Type': 'application/json',
   };
 
-  // 1. Upload foto naar img/items/
   const photoPath = `img/items/${photoFilename}`;
   const photoUrl = `https://api.github.com/repos/${REPO}/contents/${photoPath}`;
 
-  // Check of foto al bestaat (sha nodig voor overschrijven)
   let photoSha = undefined;
   const photoCheck = await fetch(photoUrl, { headers: ghHeaders });
   if (photoCheck.ok) {
@@ -201,21 +306,18 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
     throw new Error('Foto upload mislukt: ' + (await photoUpload.text()));
   }
 
-  // 2. Haal huidige items.json op
   const itemsUrl = `https://api.github.com/repos/${REPO}/contents/data/items.json`;
   const itemsRes = await fetch(itemsUrl, { headers: ghHeaders });
   if (!itemsRes.ok) throw new Error('items.json ophalen mislukt');
   const itemsData = await itemsRes.json();
   const currentJson = JSON.parse(decodeBase64(itemsData.content));
 
-  // 3. Voeg item toe (of update bestaand)
   item.foto = photoPath;
   item.datumToegevoegd = item.datumToegevoegd || new Date().toISOString().slice(0, 10);
   const existingIdx = currentJson.items.findIndex(i => i.id === item.id);
   if (existingIdx >= 0) currentJson.items[existingIdx] = item;
   else currentJson.items.push(item);
 
-  // 4. Schrijf items.json terug
   const newContent = encodeBase64(JSON.stringify(currentJson, null, 2));
   const updateRes = await fetch(itemsUrl, {
     method: 'PUT',
@@ -239,7 +341,6 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
 }
 
 function encodeBase64(str) {
-  // UTF-8 → bytes → base64
   const bytes = new TextEncoder().encode(str);
   let binary = '';
   bytes.forEach(b => (binary += String.fromCharCode(b)));
