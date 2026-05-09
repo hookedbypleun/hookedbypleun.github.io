@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.40">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.41">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -614,40 +614,6 @@
       ✨ <strong>Volautomatisch:</strong> Pas een item aan → klik "Bewaren" → klaar! De wijziging gaat direct naar de website.
     </div>
 
-    <h2>📥 Bulk import — sleep meerdere foto's tegelijk</h2>
-    <p style="color:var(--c-muted)">Sleep alle foto's in één keer hierin (vanuit Verkenner of WhatsApp). Voor elke foto vul je snel naam/prijs/categorie in. Aan het eind: 1x exporteren + foto's downloaden.</p>
-
-    <div id="drop-zone" style="
-      border: 3px dashed var(--c-lavender);
-      border-radius: var(--r-lg);
-      padding: 2rem;
-      text-align: center;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 1rem;">
-      <p style="font-size: 2rem; margin: 0">📸</p>
-      <p style="font-weight: 700; color: var(--c-lavender-dark); margin: 0.5em 0">
-        Sleep foto's hierin <em>of</em> klik om te bladeren
-      </p>
-      <p style="color: var(--c-muted); font-size: 0.9rem">JPG, PNG of HEIC — meerdere tegelijk OK</p>
-      <input id="file-input" type="file" accept="image/*" multiple style="display:none">
-    </div>
-
-    <div id="bulk-list"></div>
-
-    <div id="bulk-actions" style="display:none; margin-top:1rem; background: white; padding: 1rem; border-radius: var(--r-md); box-shadow: var(--shadow-soft)">
-      <p style="margin-top:0"><strong>📦 Klaar?</strong> Doe deze 2 stappen in volgorde:</p>
-      <div class="bestel-acties">
-        <button class="btn full" onclick="bulkSaveItems()">1️⃣ Voeg alle items toe aan catalogus</button>
-        <button class="btn mustard full" onclick="bulkDownloadPhotos()">2️⃣ Download alle foto's (komen in je Downloads-map)</button>
-        <button class="btn secondary full" onclick="document.getElementById('bulk-list').innerHTML=''; document.getElementById('bulk-actions').style.display='none'; window.BULK_PHOTOS=[];">↺ Wissen</button>
-      </div>
-      <p style="font-size: 0.9rem; color: var(--c-muted); margin: 0.5em 0 0">
-        Na stap 2: verplaats de gedownloade foto's naar <code>img/items/</code> in de projectmap.
-      </p>
-    </div>
-
     <details open style="margin-top:3rem" class="admin-section">
       <summary>📋 Huidige items <span id="huidige-count-badge" class="section-count"></span></summary>
       <div id="item-list" style="margin-top:0.8rem"></div>
@@ -1028,8 +994,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.40"></script>
-  <script src="../js/sw-register.js?v=3.0.40"></script>
+  <script src="../js/config.js?v=3.0.41"></script>
+  <script src="../js/sw-register.js?v=3.0.41"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1249,6 +1215,10 @@
     const bulkList = document.getElementById('bulk-list');
     const bulkActions = document.getElementById('bulk-actions');
 
+    // Oude drag&drop bulk-sectie is verwijderd — skip init als die DOM-elementen niet bestaan
+    if (!dropZone || !fileInput) {
+      // niets te doen — exit deze IIFE-tak
+    } else {
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', e => {
       e.preventDefault();
@@ -1390,6 +1360,7 @@
         alert(`📥 ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar de img/items/-map van het project.`);
       }
     };
+    } // einde of-bulk-DOM-bestaat block
 
     init();
 
