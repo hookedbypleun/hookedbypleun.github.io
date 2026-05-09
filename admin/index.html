@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.15">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.16">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -498,7 +498,7 @@
             <div style="display:flex; gap:0.8rem; align-items:flex-start">
               <img id="step3-thumb" src="" alt="gekozen foto" style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0; transition:filter 0.15s">
               <div style="flex:1; min-width:0">
-                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Foto</div>
+                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Hoofdfoto</div>
                 <div class="photo-bri-row" style="margin:0 0 0.4rem">
                   <label>☀️ Helderheid <span id="bri-val3">0</span></label>
                   <input type="range" id="photo-bri3" min="-50" max="50" step="5" value="0">
@@ -509,6 +509,16 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Extra foto's (multi) -->
+          <div id="step3-extra-photos" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem">
+              <strong style="color:var(--c-lavender-dark); font-size:0.9rem">📷 Extra foto's <span id="extra-count" style="color:var(--c-muted); font-weight:400">(0)</span></strong>
+              <button type="button" id="btn-extra-add" style="background:var(--c-cream); border:1.5px dashed var(--c-lavender); border-radius:var(--r-sm); padding:0.35em 0.7em; font-family:inherit; font-size:0.85rem; cursor:pointer; color:var(--c-lavender-dark)">+ Foto's toevoegen</button>
+              <input type="file" id="extra-files" multiple accept="image/*" hidden>
+            </div>
+            <div id="extra-photos-list"></div>
           </div>
 
           <div id="panel-tabs-wrap" style="display:none">
@@ -924,8 +934,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.15"></script>
-  <script src="../js/sw-register.js?v=3.0.15"></script>
+  <script src="../js/config.js?v=3.0.16"></script>
+  <script src="../js/sw-register.js?v=3.0.16"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1368,6 +1378,7 @@
       approved: { website: false, social: false },
       published: { website: false, social: false },
       busy: false,
+      extraPhotos: [],       // Array van extra foto's: { id, dataURL, ext, bri, con, sat }
     };
 
     function workerUrl() {
@@ -2013,6 +2024,9 @@
       if (tabW) tabW.style.display = wizState.channels.website ? '' : 'none';
       if (tabS) tabS.style.display = wizState.channels.social  ? '' : 'none';
 
+      // Extra foto's sectie zichtbaar maken
+      try { window.renderExtraPhotos?.(); } catch {}
+
       // Foto-overzicht in stap 3 vullen
       const step3Photo = document.getElementById('step3-photo');
       const step3Thumb = document.getElementById('step3-thumb');
@@ -2092,6 +2106,21 @@
 
       aiSetStatus('🚀 Publiceren naar GitHub... (15-30 sec)', 'busy');
 
+      // Bake eventuele extra foto's
+      let extraPhotosPayload = [];
+      try {
+        if (wizState.extraPhotos?.length) {
+          aiSetStatus('📸 Extra foto\'s voorbereiden...', 'busy');
+          const baked = await bakeExtraPhotos();
+          extraPhotosPayload = baked.map(p => ({
+            base64: p.base64,
+            filename: `${id}-${p._idx}.${p.ext}`,
+          }));
+        }
+      } catch (e) {
+        aiSetStatus('❌ Extra foto-bewerking mislukt: ' + e.message, 'error'); return;
+      }
+
       try {
         const res = await fetch(workerUrl() + '/publish', {
           method: 'POST',
@@ -2100,6 +2129,7 @@
             item,
             photoBase64: wizState.photo.base64,
             photoFilename,
+            extraPhotos: extraPhotosPayload,
           }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -2364,6 +2394,127 @@
       const a = document.createElement('a');
       a.href = finalDataURL; a.download = filename; a.click();
     }
+
+    // ============================================================
+    // Extra foto's (single-mode) — selecteren, sliders, bake
+    // ============================================================
+    function epId() { return 'ep' + Math.random().toString(36).slice(2, 8); }
+    function escEP(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    async function readImageDataURL(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error('Lezen mislukt'));
+        r.readAsDataURL(file);
+      });
+    }
+
+    function renderExtraPhotos() {
+      const wrap = document.getElementById('step3-extra-photos');
+      const list = document.getElementById('extra-photos-list');
+      const cnt = document.getElementById('extra-count');
+      if (!list) return;
+      cnt.textContent = `(${wizState.extraPhotos.length})`;
+      // Toon de hele sectie alleen als de hoofdfoto al gekozen is
+      if (wrap) wrap.style.display = wizState.photoBase ? '' : 'none';
+      list.innerHTML = wizState.extraPhotos.map((ep, i) => `
+        <div class="extra-photo-item" data-ep-id="${ep.id}" style="display:flex; gap:0.7rem; align-items:flex-start; padding:0.5rem 0; border-top:1px solid var(--c-cream-dark)">
+          <img src="${ep.dataURL}" alt="extra ${i + 1}" style="width:64px; height:64px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0; transition:filter 0.15s; filter: brightness(${1+ep.bri/100}) contrast(${1+ep.con/100}) saturate(${1+ep.sat/100})">
+          <div style="flex:1; min-width:0">
+            <div style="font-size:0.78rem; color:var(--c-muted); margin-bottom:0.3em">Extra foto ${i + 1}</div>
+            <div class="photo-bri-row" style="margin:0 0 0.3rem">
+              <label style="font-size:0.78rem">☀️ Helderheid <span class="ep-bri-val">${ep.bri > 0 ? '+' + ep.bri : ep.bri}</span></label>
+              <input type="range" class="ep-slider" data-field="bri" min="-50" max="50" step="5" value="${ep.bri}">
+            </div>
+            <div class="photo-bri-row" style="margin:0 0 0.3rem">
+              <label style="font-size:0.78rem">🎚️ Contrast <span class="ep-con-val">${ep.con > 0 ? '+' + ep.con : ep.con}</span></label>
+              <input type="range" class="ep-slider" data-field="con" min="-50" max="50" step="5" value="${ep.con}">
+            </div>
+            <div class="photo-bri-row" style="margin:0">
+              <label style="font-size:0.78rem">🌈 Saturatie <span class="ep-sat-val">${ep.sat > 0 ? '+' + ep.sat : ep.sat}</span></label>
+              <input type="range" class="ep-slider" data-field="sat" min="-50" max="50" step="5" value="${ep.sat}">
+            </div>
+          </div>
+          <button type="button" class="ep-remove" title="Verwijder" style="background:none; border:none; cursor:pointer; color:#C95252; font-size:1.1rem; padding:0.2em 0.4em">×</button>
+        </div>
+      `).join('');
+
+      // Slider handlers
+      list.querySelectorAll('.extra-photo-item').forEach(el => {
+        const id = el.dataset.epId;
+        const ep = wizState.extraPhotos.find(x => x.id === id);
+        if (!ep) return;
+        el.querySelectorAll('.ep-slider').forEach(s => {
+          s.addEventListener('input', () => {
+            const v = parseInt(s.value);
+            const field = s.dataset.field;
+            ep[field] = v;
+            // Update label en filter live
+            const lbl = el.querySelector(`.ep-${field}-val`);
+            if (lbl) lbl.textContent = v > 0 ? '+' + v : String(v);
+            const img = el.querySelector('img');
+            if (img) img.style.filter = `brightness(${1+ep.bri/100}) contrast(${1+ep.con/100}) saturate(${1+ep.sat/100})`;
+          });
+        });
+        el.querySelector('.ep-remove')?.addEventListener('click', () => {
+          wizState.extraPhotos = wizState.extraPhotos.filter(x => x.id !== id);
+          renderExtraPhotos();
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('btn-extra-add');
+      const input = document.getElementById('extra-files');
+      if (!btn || !input) return;
+      btn.addEventListener('click', () => input.click());
+      input.addEventListener('change', async e => {
+        const files = Array.from(e.target.files || []);
+        for (const f of files) {
+          const dataURL = await readImageDataURL(f);
+          const extMatch = (f.name.match(/\.(jpe?g|png|webp)$/i)?.[1] || 'jpg').toLowerCase().replace('jpeg', 'jpg');
+          wizState.extraPhotos.push({
+            id: epId(), dataURL, ext: extMatch,
+            bri: 0, con: 0, sat: 0,
+          });
+        }
+        renderExtraPhotos();
+        e.target.value = '';
+      });
+    });
+
+    // Helper voor publish: bake elke extra foto en geef base64 terug
+    async function bakeExtraPhotos() {
+      const out = [];
+      for (let i = 0; i < wizState.extraPhotos.length; i++) {
+        const ep = wizState.extraPhotos[i];
+        const base64 = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX = 1200;
+            let w = img.naturalWidth, h = img.naturalHeight;
+            if (w > MAX || h > MAX) {
+              if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+              else { w = Math.round(w * MAX / h); h = MAX; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.filter = `brightness(${1+ep.bri/100}) contrast(${1+ep.con/100}) saturate(${1+ep.sat/100})`;
+            ctx.drawImage(img, 0, 0, w, h);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.88);
+            resolve(dataURL.split(',')[1]);
+          };
+          img.onerror = () => reject(new Error('Foto bake mislukt'));
+          img.src = ep.dataURL;
+        });
+        out.push({ base64, ext: 'jpg', _idx: i + 1 });
+      }
+      return out;
+    }
+    window.bakeExtraPhotos = bakeExtraPhotos;
+    window.renderExtraPhotos = renderExtraPhotos;
 
     // Expose to global scope
     window.aiUnlock = aiUnlock;

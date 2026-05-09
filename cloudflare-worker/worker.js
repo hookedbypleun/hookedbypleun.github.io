@@ -372,8 +372,7 @@ ${schemaText}`;
 // ================================================================
 // GitHub — foto + items.json bijwerken
 // ================================================================
-async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
-  const cleanBase64 = (photoBase64 || '').replace(/^data:image\/\w+;base64,/, '');
+async function publishToGitHub({ item, photoBase64, photoFilename, extraPhotos }, env) {
   const ghHeaders = {
     'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
     'Accept': 'application/vnd.github+json',
@@ -382,27 +381,35 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
     'Content-Type': 'application/json',
   };
 
-  const photoPath = `img/items/${photoFilename}`;
-  const photoUrl = `https://api.github.com/repos/${REPO}/contents/${photoPath}`;
-
-  let photoSha = undefined;
-  const photoCheck = await fetch(photoUrl, { headers: ghHeaders });
-  if (photoCheck.ok) {
-    const existing = await photoCheck.json();
-    photoSha = existing.sha;
+  // Helper: één foto uploaden (met SHA-detect voor overschrijven)
+  async function uploadOne(filename, base64, msg) {
+    const cleanB64 = (base64 || '').replace(/^data:image\/\w+;base64,/, '');
+    const path = `img/items/${filename}`;
+    const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+    let sha = undefined;
+    const check = await fetch(url, { headers: ghHeaders });
+    if (check.ok) sha = (await check.json()).sha;
+    const up = await fetch(url, {
+      method: 'PUT',
+      headers: ghHeaders,
+      body: JSON.stringify({ message: msg, content: cleanB64, ...(sha && { sha }) }),
+    });
+    if (!up.ok) throw new Error(`Foto upload mislukt (${filename}): ${await up.text()}`);
+    return path;
   }
 
-  const photoUpload = await fetch(photoUrl, {
-    method: 'PUT',
-    headers: ghHeaders,
-    body: JSON.stringify({
-      message: `📦 Add photo for ${item.naam || item.id}`,
-      content: cleanBase64,
-      ...(photoSha && { sha: photoSha }),
-    }),
-  });
-  if (!photoUpload.ok) {
-    throw new Error('Foto upload mislukt: ' + (await photoUpload.text()));
+  // Hoofdfoto uploaden
+  const photoPath = await uploadOne(photoFilename, photoBase64, `📦 Add photo for ${item.naam || item.id}`);
+
+  // Extra foto's uploaden (optioneel)
+  const extraPaths = [];
+  if (Array.isArray(extraPhotos)) {
+    for (let i = 0; i < extraPhotos.length; i++) {
+      const ep = extraPhotos[i];
+      if (!ep?.base64 || !ep?.filename) continue;
+      const path = await uploadOne(ep.filename, ep.base64, `📸 Add extra photo ${i + 1} for ${item.naam || item.id}`);
+      extraPaths.push(path);
+    }
   }
 
   const itemsUrl = `https://api.github.com/repos/${REPO}/contents/data/items.json`;
@@ -412,6 +419,14 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
   const currentJson = JSON.parse(decodeBase64(itemsData.content));
 
   item.foto = photoPath;
+  // Als er extra foto's zijn, gebruik varianten-schema (1 variant met alle foto's)
+  if (extraPaths.length > 0) {
+    item.varianten = [{
+      kleur: '',
+      fotos: [photoPath, ...extraPaths],
+      voorraad: item.voorraad ?? 1,
+    }];
+  }
   item.datumToegevoegd = item.datumToegevoegd || new Date().toISOString().slice(0, 10);
   const existingIdx = currentJson.items.findIndex(i => i.id === item.id);
   if (existingIdx >= 0) currentJson.items[existingIdx] = item;
