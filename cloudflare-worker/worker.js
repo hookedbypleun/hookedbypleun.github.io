@@ -125,6 +125,13 @@ export default {
         return jsonResponse(result, 200, cors);
       }
 
+      // === /upload-photo POST — losse foto upload, geeft pad terug ===
+      if (url.pathname === '/upload-photo' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await uploadPhotoToGitHub(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
       }
@@ -423,12 +430,19 @@ PLEUN'S WIJZIGINGSVERZOEK (in haar eigen woorden):
 
 REGELS — STRIKT NALEVEN:
 1. Pas ALLEEN toe wat Pleun letterlijk vraagt. Verzin niets bij. Laat alle andere velden ongewijzigd.
-2. Foto-paden: gebruik UITSLUITEND paden uit deze lijst. Verzin NOOIT nieuwe paden:
+
+2. FOTO-PADEN — KRITIEK: ALLE onderstaande foto-paden MOETEN in het resultaat behouden blijven, ergens in een variant. Verlies of verwijder NOOIT een pad. Je mag alleen HERORDENEN of HERGROEPEREN over varianten:
 ${padenLijst}
-3. Als Pleun varianten wil samenvoegen of duplicaten wil verwijderen: combineer hun "fotos"-arrays in de behouden variant.
-4. Behoud altijd minstens 1 variant met minstens 1 foto. Als het artikel geen "varianten" had en die zijn niet relevant, laat het veld weg.
-5. Tekst (naam, beschrijving) aanpassen mag in Pleuns stem, maar alleen als ze daarom vraagt.
-6. Als de wijziging onmogelijk is of risicovol, geef het origineel ongewijzigd terug en zet een korte uitleg in het veld "_notitie".
+
+3. Als Pleun varianten wil samenvoegen of duplicaten wil verwijderen: combineer hun "fotos"-arrays in de behouden variant — alle paden uit de samengevoegde varianten moeten daar terechtkomen.
+
+4. Verzin GEEN nieuwe foto-paden. Alleen paden uit de lijst hierboven zijn toegestaan.
+
+5. Behoud altijd minstens 1 variant met minstens 1 foto. Als het artikel geen "varianten" had en die zijn niet relevant, laat het veld weg.
+
+6. Tekst (naam, beschrijving) aanpassen mag in Pleuns stem, maar alleen als ze daarom vraagt.
+
+7. Als de wijziging onmogelijk is of risicovol, geef het origineel ongewijzigd terug en zet een korte uitleg in het veld "_notitie".
 
 Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
 
@@ -440,23 +454,37 @@ Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
   const result = await callGemini({ prompt, env, maxTokens: 3000, temperature: 0.4 });
   if (!result || typeof result !== 'object') throw new Error('AI gaf onleesbaar antwoord');
 
-  // Validatie: alle foto-paden in resultaat moeten in origineel zitten
-  const valideer = (paden, ctx) => {
-    for (const p of paden) {
-      if (p && !bekendePaden.has(p)) {
-        throw new Error(`AI verzon een onbekend foto-pad ${ctx}: "${p}". Probeer je vraag anders te formuleren.`);
-      }
-    }
-  };
-  if (result.foto) valideer([result.foto], 'in foto-veld');
+  // Verzamel alle foto-paden uit het resultaat
+  const resultPaden = new Set();
+  if (result.foto) resultPaden.add(result.foto);
   for (const v of (result.varianten || [])) {
     if (!v || typeof v !== 'object') throw new Error('AI gaf ongeldige variant terug');
-    valideer(v.fotos || [], `in variant "${v.kleur || '?'}"`);
+    for (const f of (v.fotos || [])) if (f) resultPaden.add(f);
   }
-  // Veiligheid: minstens 1 foto moet behouden zijn
-  const heeftFoto = (result.foto && bekendePaden.has(result.foto)) ||
-    (result.varianten || []).some(v => (v.fotos || []).some(f => bekendePaden.has(f)));
-  if (!heeftFoto) throw new Error('Resultaat heeft geen geldige foto. Wijziging niet doorgevoerd.');
+
+  // Validatie 1: geen verzonnen paden
+  for (const p of resultPaden) {
+    if (!bekendePaden.has(p)) {
+      throw new Error(`AI verzon een onbekend foto-pad: "${p}". Probeer je vraag anders te formuleren.`);
+    }
+  }
+
+  // Validatie 2: alle originele paden moeten behouden zijn
+  const verloren = [...bekendePaden].filter(p => !resultPaden.has(p));
+  if (verloren.length > 0) {
+    // Auto-recover: voeg verloren foto's toe aan eerste variant zodat niets verloren gaat
+    if (!Array.isArray(result.varianten) || !result.varianten.length) {
+      result.varianten = [{ kleur: '', fotos: [] }];
+    }
+    if (!Array.isArray(result.varianten[0].fotos)) result.varianten[0].fotos = [];
+    for (const p of verloren) {
+      if (!result.varianten[0].fotos.includes(p)) {
+        result.varianten[0].fotos.push(p);
+      }
+    }
+    result._notitie = (result._notitie ? result._notitie + ' ' : '') +
+      `⚠️ ${verloren.length} foto('s) zou(den) verloren gaan — automatisch teruggezet in eerste variant.`;
+  }
 
   // Plak onveranderlijke velden terug
   result.id = item.id;
@@ -467,6 +495,52 @@ Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
   delete result._notitie;
 
   return { item: result, notitie };
+}
+
+// ================================================================
+// /upload-photo — losse foto upload naar img/items/, geeft pad terug
+// Gebruikt door admin variant-editor om losse foto's toe te voegen.
+// ================================================================
+async function uploadPhotoToGitHub({ photoBase64, photoFilename, mediaType }, env) {
+  if (!photoBase64) throw new Error('photoBase64 ontbreekt');
+  if (!photoFilename) throw new Error('photoFilename ontbreekt');
+  if (!env.GITHUB_TOKEN) throw new Error('GITHUB_TOKEN niet ingesteld');
+
+  // Sanitize filename: alleen [a-z0-9.-] toegestaan
+  const safe = String(photoFilename).toLowerCase()
+    .replace(/[^a-z0-9.-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 100);
+  if (!safe) throw new Error('ongeldige filename');
+
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'crochet-by-pleun-worker',
+    'Content-Type': 'application/json',
+  };
+
+  const cleanB64 = (photoBase64 || '').replace(/^data:image\/\w+;base64,/, '');
+  const path = `img/items/${safe}`;
+  const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+
+  let sha = undefined;
+  const check = await fetch(url, { headers: ghHeaders });
+  if (check.ok) sha = (await check.json()).sha;
+
+  const up = await fetch(url, {
+    method: 'PUT',
+    headers: ghHeaders,
+    body: JSON.stringify({
+      message: `📸 Upload foto: ${safe}`,
+      content: cleanB64,
+      ...(sha && { sha }),
+    }),
+  });
+  if (!up.ok) throw new Error(`Foto upload mislukt: ${await up.text()}`);
+
+  return { path };
 }
 
 // ================================================================

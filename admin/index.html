@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.28">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.29">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -764,8 +764,15 @@
         </div>
       </div>
       <div class="veld">
-        <label for="f-foto">Foto (pad t.o.v. site-root)</label>
-        <input id="f-foto" placeholder="img/items/Afbeelding5.png" required>
+        <label>📸 Foto's per kleur-variant</label>
+        <p style="font-size:0.83rem; color:var(--c-muted); margin:0 0 0.5rem">
+          Sleep elke foto onder de juiste kleur. Hoofdfoto = eerste foto van eerste variant. Verwijderen koppelt los — bestand blijft bewaard op GitHub.
+        </p>
+        <div id="variant-editor"></div>
+        <button type="button" class="btn secondary" onclick="addVariant()" style="margin-top:0.4rem">➕ Variant toevoegen</button>
+        <input type="hidden" id="f-foto">
+        <input type="file" id="upload-photo-input" hidden accept="image/*">
+        <p id="variant-status" style="display:none; margin:0.4rem 0 0; font-size:0.85rem"></p>
       </div>
       <div class="veld">
         <label for="f-beschrijving">Beschrijving</label>
@@ -972,8 +979,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.28"></script>
-  <script src="../js/sw-register.js?v=3.0.28"></script>
+  <script src="../js/config.js?v=3.0.29"></script>
+  <script src="../js/sw-register.js?v=3.0.29"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -990,6 +997,7 @@
       renderCategories();
       renderItems();
       renderAutoChangelog();
+      loadVariantsIntoEditor(null);
     }
     async function loadFromFile() {
       const res = await fetch('../data/items.json?v=' + Date.now());
@@ -1041,6 +1049,11 @@
       document.getElementById('f-uitgelicht').checked = !!it.uitgelicht;
       document.getElementById('f-nieuw').checked = !!it.nieuw;
 
+      // Laad varianten + foto's in de editor
+      loadVariantsIntoEditor(it);
+      const vs = document.getElementById('variant-status');
+      if (vs) vs.style.display = 'none';
+
       // Toon AI-balk
       const bar = document.getElementById('edit-ai-bar');
       if (bar) {
@@ -1083,11 +1096,30 @@
       document.getElementById('form-item').reset();
       const bar = document.getElementById('edit-ai-bar');
       if (bar) bar.style.display = 'none';
+      _variantState = [{ kleur: '', fotos: [] }];
+      renderVariantEditor();
+      const vs = document.getElementById('variant-status');
+      if (vs) vs.style.display = 'none';
     }
     document.getElementById('form-item').addEventListener('submit', async e => {
       e.preventDefault();
       const orig = document.getElementById('f-id-original').value;
       const id = document.getElementById('f-id').value.trim().toLowerCase().replace(/\s+/g,'-');
+
+      // Lees varianten + foto's uit de editor (bron van waarheid)
+      const cleanVarianten = (_variantState || [])
+        .map(v => ({ kleur: String(v.kleur || '').trim(), fotos: Array.isArray(v.fotos) ? v.fotos.filter(Boolean) : [] }))
+        .filter(v => v.fotos.length > 0);
+
+      if (cleanVarianten.length === 0) {
+        alert('Voeg minstens 1 foto toe via de variant-editor voordat je opslaat.');
+        return;
+      }
+
+      const hoofdfoto = cleanVarianten[0].fotos[0];
+      // Als er maar 1 variant is zonder kleur-naam: oud-formaat (geen varianten array)
+      const useVarianten = cleanVarianten.length > 1 || cleanVarianten[0].kleur !== '';
+
       const item = {
         id,
         naam: document.getElementById('f-naam').value.trim(),
@@ -1097,7 +1129,8 @@
         beschrijving: document.getElementById('f-beschrijving').value.trim(),
         afmeting: document.getElementById('f-afmeting').value.trim() || undefined,
         kleuren: document.getElementById('f-kleuren').value.split(',').map(s=>s.trim()).filter(Boolean),
-        foto: document.getElementById('f-foto').value.trim(),
+        foto: hoofdfoto,
+        varianten: useVarianten ? cleanVarianten : undefined,
         status: document.getElementById('f-status').value,
         datumToegevoegd: new Date().toISOString().slice(0,10),
         uitgelicht: document.getElementById('f-uitgelicht').checked || undefined,
@@ -2339,6 +2372,165 @@
         }
       }
     }
+
+    // ============================================================
+    // Variant + foto editor (in admin form)
+    // ============================================================
+    let _variantState = [];
+    let _uploadTargetIdx = -1;
+
+    function escapeHtmlAdmin(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function loadVariantsIntoEditor(item) {
+      if (item && Array.isArray(item.varianten) && item.varianten.length) {
+        _variantState = JSON.parse(JSON.stringify(item.varianten));
+      } else {
+        _variantState = [{ kleur: '', fotos: item && item.foto ? [item.foto] : [] }];
+      }
+      // Ontbrekende fotos arrays
+      _variantState.forEach(v => { if (!Array.isArray(v.fotos)) v.fotos = []; });
+      renderVariantEditor();
+    }
+
+    function renderVariantEditor() {
+      const wrap = document.getElementById('variant-editor');
+      if (!wrap) return;
+      if (!_variantState.length) {
+        _variantState = [{ kleur: '', fotos: [] }];
+      }
+      wrap.innerHTML = _variantState.map((v, idx) => `
+        <div class="variant-block" data-vi="${idx}" style="background:white; border:2px solid var(--c-cream-dark); border-radius:var(--r-md); padding:0.7rem; margin-bottom:0.5rem">
+          <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.5rem">
+            <span style="font-size:0.8rem; color:var(--c-muted); white-space:nowrap">🎨</span>
+            <input class="var-kleur" value="${escapeHtmlAdmin(v.kleur || '')}" placeholder="Kleur (bv. lichtgroen, of leeg laten als geen kleur-variant)"
+                   style="flex:1; padding:0.4em 0.6em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:0.9rem"
+                   oninput="updateVariantKleur(${idx}, this.value)">
+            <button type="button" onclick="removeVariant(${idx})" style="background:none; border:1.5px solid var(--c-cream-dark); cursor:pointer; font-size:1rem; color:var(--c-sold); width:28px; height:28px; border-radius:50%; padding:0; line-height:1" title="Variant verwijderen">×</button>
+          </div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:flex-start">
+            ${(v.fotos || []).map((f, fi) => `
+              <div class="var-foto" style="position:relative; width:64px; height:64px;">
+                <img src="../${escapeHtmlAdmin(f)}" alt="" style="width:100%; height:100%; object-fit:cover; border-radius:var(--r-sm); border:1.5px solid var(--c-cream-dark)" onerror="this.style.opacity='0.3'">
+                <button type="button" onclick="removeFoto(${idx}, ${fi})"
+                        style="position:absolute; top:-6px; right:-6px; background:var(--c-sold); color:white; border:1.5px solid white; border-radius:50%; width:20px; height:20px; cursor:pointer; font-size:0.75rem; line-height:1; padding:0; font-weight:700" title="Loskoppelen (foto blijft op GitHub)">×</button>
+              </div>
+            `).join('')}
+            <button type="button" onclick="uploadFotoToVariant(${idx})"
+                    style="width:64px; height:64px; border:2px dashed var(--c-lavender); border-radius:var(--r-sm); background:#f4ebf7; cursor:pointer; font-size:1.5rem; color:var(--c-lavender-dark); display:flex; align-items:center; justify-content:center"
+                    title="Foto uploaden naar deze variant">+</button>
+          </div>
+        </div>
+      `).join('');
+      // Sync hidden f-foto met eerste foto van eerste variant
+      const f = _variantState[0]?.fotos?.[0] || '';
+      const fotoInput = document.getElementById('f-foto');
+      if (fotoInput) fotoInput.value = f;
+    }
+
+    function updateVariantKleur(idx, kleur) {
+      if (_variantState[idx]) _variantState[idx].kleur = String(kleur).trim();
+    }
+
+    function addVariant() {
+      _variantState.push({ kleur: '', fotos: [] });
+      renderVariantEditor();
+    }
+    window.addVariant = addVariant;
+
+    function removeVariant(idx) {
+      if (_variantState.length === 1) {
+        alert('Er moet minstens 1 variant blijven. Wil je de hele set foto\'s vervangen, gebruik dan de × bij elke foto.');
+        return;
+      }
+      const aantalFotos = (_variantState[idx].fotos || []).length;
+      const bevestiging = aantalFotos > 0
+        ? `Variant verwijderen? De ${aantalFotos} foto('s) worden verplaatst naar de eerste variant.`
+        : 'Variant verwijderen?';
+      if (!confirm(bevestiging)) return;
+      const fotos = _variantState[idx].fotos || [];
+      _variantState.splice(idx, 1);
+      if (fotos.length) {
+        if (!Array.isArray(_variantState[0].fotos)) _variantState[0].fotos = [];
+        for (const f of fotos) {
+          if (!_variantState[0].fotos.includes(f)) _variantState[0].fotos.push(f);
+        }
+      }
+      renderVariantEditor();
+    }
+    window.removeVariant = removeVariant;
+
+    function removeFoto(variantIdx, fotoIdx) {
+      const variant = _variantState[variantIdx];
+      if (!variant || !variant.fotos) return;
+      const path = variant.fotos[fotoIdx];
+      if (!confirm(`Foto loskoppelen van dit artikel?\n${path}\n\n(Bestand blijft op GitHub bewaard, alleen de koppeling wordt verbroken.)`)) return;
+      variant.fotos.splice(fotoIdx, 1);
+      renderVariantEditor();
+    }
+    window.removeFoto = removeFoto;
+
+    function uploadFotoToVariant(idx) {
+      _uploadTargetIdx = idx;
+      const inp = document.getElementById('upload-photo-input');
+      inp.value = '';
+      inp.click();
+    }
+    window.uploadFotoToVariant = uploadFotoToVariant;
+    window.updateVariantKleur = updateVariantKleur;
+
+    function setVariantStatus(msg, color) {
+      const s = document.getElementById('variant-status');
+      if (!s) return;
+      s.style.display = 'block';
+      s.textContent = msg;
+      s.style.color = color || 'var(--c-muted)';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inp = document.getElementById('upload-photo-input');
+      if (!inp) return;
+      inp.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || _uploadTargetIdx < 0) return;
+        if (!AI_PASSWORD || !workerUrl()) {
+          alert('Eerst inloggen met AI-wachtwoord (boven aan de pagina).');
+          _uploadTargetIdx = -1; return;
+        }
+        try {
+          setVariantStatus('⏳ Foto uploaden naar GitHub...', 'var(--c-muted)');
+          const dataUrl = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = () => rej(new Error('Bestand kon niet gelezen worden'));
+            r.readAsDataURL(file);
+          });
+          const itemId = (document.getElementById('f-id').value || 'item').trim().toLowerCase().replace(/\s+/g, '-');
+          const ts = Date.now().toString(36);
+          const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const filename = `${itemId}-${ts}.${ext || 'jpg'}`;
+          const res = await fetch(workerUrl() + '/upload-photo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+            body: JSON.stringify({ photoBase64: dataUrl, photoFilename: filename, mediaType: file.type || 'image/jpeg' }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const { path } = await res.json();
+          if (_variantState[_uploadTargetIdx]) {
+            if (!Array.isArray(_variantState[_uploadTargetIdx].fotos)) _variantState[_uploadTargetIdx].fotos = [];
+            _variantState[_uploadTargetIdx].fotos.push(path);
+            renderVariantEditor();
+            setVariantStatus('✅ Foto toegevoegd. Klik "Bewaren" onderaan om door te zetten naar de site.', 'var(--c-success-text)');
+          }
+        } catch (err) {
+          setVariantStatus('⚠️ Upload mislukt: ' + (err.message || err), '#B71C1C');
+        } finally {
+          e.target.value = '';
+          _uploadTargetIdx = -1;
+        }
+      });
+    });
 
     // ============================================================
     // Smart edit — gerichte wijziging in eigen woorden, foto's intact
