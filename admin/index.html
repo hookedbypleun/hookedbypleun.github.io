@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.3.0">
+  <link rel="stylesheet" href="../css/style.css?v=2.3.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -84,6 +84,13 @@
     .photo-choice .pc-sub { font-size: 0.72rem; color: var(--c-muted); }
     .photo-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
     .photo-actions .btn { flex: 1; }
+    .photo-bri-row {
+      margin-top: 0.7rem; padding: 0.6rem 0.8rem;
+      background: white; border-radius: var(--r-md);
+      border: 2px solid var(--c-cream-dark);
+    }
+    .photo-bri-row label { font-size: 0.85rem; font-weight: 700; color: var(--c-ink); display: flex; justify-content: space-between; margin-bottom: 0.3em; }
+    .photo-bri-row input[type=range] { width: 100%; accent-color: var(--c-lavender); cursor: pointer; }
     .ai-smart .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .ai-smart input { padding: 0.7em 1em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-size: 1rem; font-family: inherit; }
     .ai-smart input:focus { outline: none; border-color: var(--c-lavender); }
@@ -137,6 +144,32 @@
 
     .wiz-panels { display: grid; gap: 1rem; }
     @media (min-width: 800px) { .wiz-panels { grid-template-columns: 1fr 1fr; } }
+
+    /* === Panel-tabs (mobiel) === */
+    .wiz-panel-tabs {
+      display: flex; border-radius: var(--r-md); overflow: hidden;
+      border: 2px solid var(--c-cream-dark); margin-bottom: 0.8rem;
+    }
+    .wiz-panel-tab {
+      flex: 1; padding: 0.65em 0.4em; border: none;
+      background: white; font-family: inherit; font-weight: 700;
+      font-size: 0.88rem; cursor: pointer; color: var(--c-muted);
+      transition: background 0.15s, color 0.15s;
+      border-right: 2px solid var(--c-cream-dark);
+    }
+    .wiz-panel-tab:last-child { border-right: none; }
+    .wiz-panel-tab.active { background: var(--c-lavender); color: white; }
+    .wiz-panel-tab.tab-done { color: #2E7D32; }
+    .wiz-panel-tab.active.tab-done { background: #2E7D32; color: white; }
+    .wiz-panel.ch-off { display: none !important; }
+    @media (max-width: 799px) {
+      .wiz-panel { display: none; }
+      .wiz-panel.tab-active:not(.ch-off) { display: flex; }
+    }
+    @media (min-width: 800px) {
+      .wiz-panel-tabs { display: none; }
+      .wiz-panel:not(.ch-off) { display: flex; }
+    }
     .wiz-panel {
       background: white; border-radius: var(--r-md); padding: 1rem;
       box-shadow: var(--shadow-soft);
@@ -357,6 +390,11 @@
           <h3>👀 Bekijk en pas aan</h3>
           <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "✓ Akkoord" → krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiëren, of allebei.</p>
 
+          <div class="wiz-panel-tabs" id="panel-tabs" style="display:none">
+            <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">🌐 Website</button>
+            <button class="wiz-panel-tab" id="tab-social" onclick="selectPanelTab('social')">📱 WhatsApp</button>
+          </div>
+
           <div class="wiz-panels">
             <!-- Website panel -->
             <div class="wiz-panel" id="panel-website">
@@ -397,7 +435,7 @@
                 <button class="btn mustard" onclick="wizApprove('social')">✓ Akkoord</button>
               </div>
               <div class="wiz-panel-publish">
-                <button class="btn full mustard" onclick="wizCopySocial()">📋 Kopieer WhatsApp-post</button>
+                <button class="btn full mustard" onclick="wizCopySocial()">📤 Deel via WhatsApp (+ foto)</button>
                 <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0; text-align:center">Plak in je WhatsApp-kanaal</p>
               </div>
             </div>
@@ -413,7 +451,7 @@
             <h3 id="success-title">Klaar!</h3>
             <p id="success-msg" style="color:var(--c-text)"></p>
             <div class="bestel-acties" style="max-width:340px; margin:1rem auto">
-              <button class="btn full" onclick="wizCopySocial()">📋 Kopieer WhatsApp-post</button>
+              <button class="btn full" onclick="wizCopySocial()">📤 Deel via WhatsApp (+ foto)</button>
               <button class="btn secondary full" onclick="wizReset()">➕ Volgend item</button>
             </div>
           </div>
@@ -919,7 +957,9 @@
     // Wizard state
     // ============================================================
     const wizState = {
-      photo: null,           // { dataURL, base64, mediaType, ext }
+      photo: null,           // { dataURL, base64, mediaType, ext } — final (met helderheid)
+      photoBase: null,       // idem, maar zonder helderheids-aanpassing
+      photoBrightness: 0,    // slider waarde -40..+40
       input: null,           // { naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst }
       output: null,          // { website: {...}, social: {...} }
       channels: { website: true, social: true },  // Welke kanalen wil ze posten?
@@ -1073,6 +1113,10 @@
             <div class="pc-sub">${subEnh}</div>
           </div>
         </div>
+        <div class="photo-bri-row">
+          <label>💡 Helderheid <span id="bri-val">0</span></label>
+          <input type="range" id="photo-bri" min="-40" max="40" step="5" value="0">
+        </div>
         <div class="photo-actions">
           <button class="btn secondary" type="button" onclick="aiResetPhoto(); event.stopPropagation();">↺ Andere foto</button>
         </div>
@@ -1084,14 +1128,44 @@
           pickPhoto(card.dataset.pick);
         });
       });
+      document.getElementById('photo-bri').addEventListener('input', e => {
+        applyBrightness(parseInt(e.target.value, 10));
+      });
     }
 
     function pickPhoto(which) {
       const src = which === 'enhanced' ? wizState.photoEnhanced : wizState.photoOriginal;
-      wizState.photo = { dataURL: src.dataURL, base64: src.dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
+      wizState.photoBase = { dataURL: src.dataURL, mediaType: 'image/jpeg', ext: 'jpg' };
+      wizState.photoBrightness = 0;
+      const briSlider = document.getElementById('photo-bri');
+      if (briSlider) briSlider.value = 0;
+      applyBrightness(0);
       document.querySelectorAll('#photo-choice .pc-card').forEach(c => {
         c.classList.toggle('selected', c.dataset.pick === which);
       });
+    }
+
+    function applyBrightness(val) {
+      wizState.photoBrightness = val;
+      const briVal = document.getElementById('bri-val');
+      if (briVal) briVal.textContent = val > 0 ? '+' + val : val;
+      if (!wizState.photoBase) return;
+      if (val === 0) {
+        const b = wizState.photoBase;
+        wizState.photo = { dataURL: b.dataURL, base64: b.dataURL.split(',')[1], mediaType: b.mediaType, ext: b.ext };
+        return;
+      }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.filter = `brightness(${1 + val / 100})`;
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+        wizState.photo = { dataURL, base64: dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
+      };
+      img.src = wizState.photoBase.dataURL;
     }
 
     // Slimme foto-enhancer: per foto histogram-analyse, alleen aanpassen wat nodig is
@@ -1132,11 +1206,11 @@
 
             // Beslis: foto al goed → alleen resizen + comprimeren
             let info;
-            if (range >= 215 && p2 <= 18 && p98 >= 235) {
+            if (range >= 180) {
               info = `al goed belicht (range ${range})`;
             } else {
-              // Auto-levels: stretch P2..P98 → 5..250 op alle 3 kanalen
-              const targetLo = 5, targetHi = 250;
+              // Auto-levels: stretch P2..P98 → 15..240 (zachter, geen over-contrast)
+              const targetLo = 15, targetHi = 240;
               const scale = (targetHi - targetLo) / Math.max(1, range);
               for (let i = 0; i < data.length; i += 4) {
                 for (let c = 0; c < 3; c++) {
@@ -1145,11 +1219,11 @@
                 }
               }
               ctx.putImageData(imgData, 0, 0);
-              // Lichte saturatie-boost (alleen als auto-levels was toegepast)
+              // Subtiele saturatie-boost
               const final = document.createElement('canvas');
               final.width = w; final.height = h;
               const fctx = final.getContext('2d');
-              fctx.filter = 'saturate(1.10)';
+              fctx.filter = 'saturate(1.05)';
               fctx.drawImage(canvas, 0, 0);
               const out = final.toDataURL('image/jpeg', 0.9);
               resolve({ dataURL: out, info: `opgefrist (P2=${p2}, P98=${p98})` });
@@ -1300,8 +1374,8 @@
       };
 
       // Verberg panels die niet gekozen zijn
-      document.getElementById('panel-website').style.display = wizState.channels.website ? '' : 'none';
-      document.getElementById('panel-social').style.display = wizState.channels.social ? '' : 'none';
+      document.getElementById('panel-website').classList.toggle('ch-off', !wizState.channels.website);
+      document.getElementById('panel-social').classList.toggle('ch-off', !wizState.channels.social);
 
       wizGoStep(2);
       aiSetStatus('', '');
@@ -1322,6 +1396,7 @@
         refreshPreviews();
         updateApprovalUI();
         wizGoStep(3);
+        initPanelTabs();
       } catch (err) {
         aiSetStatus('❌ ' + err.message, 'error');
         wizGoStep(1);
@@ -1390,22 +1465,58 @@
     function wizApprove(type) {
       wizState.approved[type] = true;
       updateApprovalUI();
+      // Op mobiel: spring automatisch naar het andere panel als dat nog open staat
+      if (window.innerWidth < 800) {
+        const other = type === 'website' ? 'social' : 'website';
+        if (wizState.channels[other] && !wizState.approved[other]) {
+          selectPanelTab(other);
+        }
+      }
     }
 
     function updateApprovalUI() {
       ['website', 'social'].forEach(type => {
         const panel = document.getElementById('panel-' + type);
         const badge = panel.querySelector('.badge-status');
+        const tab = document.getElementById('tab-' + type);
         if (wizState.approved[type]) {
           panel.classList.add('approved');
           badge.textContent = '✓ akkoord';
+          if (tab) tab.classList.add('tab-done');
         } else {
           panel.classList.remove('approved');
           badge.textContent = 'in review';
+          if (tab) tab.classList.remove('tab-done');
         }
       });
-      const ready = wizState.approved.website && wizState.approved.social;
+      const ready = (!wizState.channels.website || wizState.approved.website) &&
+                    (!wizState.channels.social  || wizState.approved.social);
       document.getElementById('wiz-publish-block').classList.toggle('show', ready);
+    }
+
+    function selectPanelTab(type) {
+      ['website', 'social'].forEach(t => {
+        const isActive = t === type;
+        const tab = document.getElementById('tab-' + t);
+        const panel = document.getElementById('panel-' + t);
+        if (tab) tab.classList.toggle('active', isActive);
+        if (panel && !panel.classList.contains('ch-off')) {
+          panel.classList.toggle('tab-active', isActive);
+        }
+      });
+    }
+
+    function initPanelTabs() {
+      const both = wizState.channels.website && wizState.channels.social;
+      document.getElementById('panel-tabs').style.display = both ? '' : 'none';
+      // Activeer het eerste beschikbare kanaal
+      const first = wizState.channels.website ? 'website' : 'social';
+      selectPanelTab(first);
+      // Zet tab-label correct voor enkel-kanaal situatie
+      const tabW = document.getElementById('tab-website');
+      const tabS = document.getElementById('tab-social');
+      if (tabW) tabW.style.display = wizState.channels.website ? '' : 'none';
+      if (tabS) tabS.style.display = wizState.channels.social  ? '' : 'none';
     }
 
     // ============================================================
@@ -1474,10 +1585,10 @@
       }
     }
 
-    function wizCopySocial() {
+    async function wizCopySocial() {
       // Confirm-flow als nog niet alles gecheckt is
       if (!wizState.approved.social) {
-        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de WhatsApp-tekst. Toch kopiëren?')) return;
+        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de WhatsApp-tekst. Toch delen?')) return;
       }
       // Alleen waarschuwen voor website als ze die WEL had aangevinkt
       if (wizState.channels?.website && !wizState.published?.website && !wizState.approved.website) {
@@ -1485,11 +1596,38 @@
       }
       const tekst = wizState.output?.social?.tekst || '';
       if (!tekst) { aiSetStatus('Geen WhatsApp-tekst gevonden 🤔', 'error'); return; }
+
+      wizState.published = wizState.published || {};
+      wizState.published.social = true;
+
+      // Probeer native share (foto + tekst in één keer) — werkt op Android/iOS
+      const photoDataURL = wizState.photo?.dataURL;
+      if (photoDataURL && navigator.share) {
+        try {
+          const blob = await (await fetch(photoDataURL)).blob();
+          const file = new File([blob], 'hooked-by-pleun.jpg', { type: 'image/jpeg' });
+          const shareData = navigator.canShare?.({ files: [file] })
+            ? { files: [file], text: tekst }
+            : { text: tekst };
+          await navigator.share(shareData);
+          aiSetStatus('✓ Gedeeld! 📤', 'success');
+          setTimeout(() => aiSetStatus('', ''), 3000);
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return; // gebruiker annuleerde
+        }
+      }
+
+      // Fallback: download foto + kopieer tekst apart
+      if (photoDataURL) {
+        const a = document.createElement('a');
+        a.href = photoDataURL;
+        a.download = 'hooked-by-pleun.jpg';
+        a.click();
+      }
       navigator.clipboard.writeText(tekst).then(() => {
-        wizState.published = wizState.published || {};
-        wizState.published.social = true;
-        aiSetStatus('✓ Gekopieerd! Plak in je WhatsApp-kanaal 📋', 'success');
-        setTimeout(() => aiSetStatus('', ''), 4000);
+        aiSetStatus('📥 Foto gedownload + tekst gekopieerd — stuur ze samen in WhatsApp!', 'success');
+        setTimeout(() => aiSetStatus('', ''), 5000);
       }).catch(() => {
         prompt('Kopieer onderstaande tekst handmatig:', tekst);
       });
@@ -1497,6 +1635,8 @@
 
     function wizReset() {
       wizState.photo = null;
+      wizState.photoBase = null;
+      wizState.photoBrightness = 0;
       wizState.input = null;
       wizState.output = null;
       wizState.approved = { website: false, social: false };
@@ -1518,6 +1658,7 @@
     window.wizGenerate = wizGenerate;
     window.wizRefine = wizRefine;
     window.wizApprove = wizApprove;
+    window.selectPanelTab = selectPanelTab;
     window.wizPublish = wizPublish;
     window.wizCopySocial = wizCopySocial;
     window.wizReset = wizReset;
