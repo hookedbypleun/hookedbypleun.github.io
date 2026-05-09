@@ -86,12 +86,17 @@
     const cats = data.categories.sort((a, b) => a.volgorde - b.volgorde);
 
     let huidig = (new URL(location.href)).searchParams.get('cat') || 'alle';
+    let huidigSort = 'datum';
 
     function render() {
       const filtered = huidig === 'alle' ? data.items : data.items.filter(i => i.categorie === huidig);
+      const statusOrder = { beschikbaar: 0, binnenkort: 1, showcase: 2, uitverkocht: 3 };
       const sorted = [...filtered].sort((a, b) => {
-        const order = { beschikbaar: 0, binnenkort: 1, showcase: 2, uitverkocht: 3 };
-        return (order[a.status] || 99) - (order[b.status] || 99);
+        const sd = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+        if (sd !== 0) return sd;
+        if (huidigSort === 'prijs-asc')  return (a.prijs || 0) - (b.prijs || 0);
+        if (huidigSort === 'prijs-desc') return (b.prijs || 0) - (a.prijs || 0);
+        return (b.datumToegevoegd || '').localeCompare(a.datumToegevoegd || '');
       });
       grid.innerHTML = sorted.length
         ? sorted.map(kaartHTML).join('')
@@ -116,6 +121,19 @@
         render();
       });
     }
+
+    const sortBalk = document.getElementById('sort-balk');
+    if (sortBalk) {
+      sortBalk.style.display = '';
+      sortBalk.addEventListener('click', e => {
+        const b = e.target.closest('button[data-sort]');
+        if (!b) return;
+        huidigSort = b.dataset.sort;
+        sortBalk.querySelectorAll('button').forEach(x => x.classList.toggle('actief', x.dataset.sort === huidigSort));
+        render();
+      });
+    }
+
     render();
   }
 

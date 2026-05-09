@@ -519,10 +519,17 @@ section.section {
 .filter-balk {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: var(--gap-md);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.15rem;
+  margin-bottom: 0.5rem;
 }
+.filter-balk::-webkit-scrollbar { display: none; }
 .filter-balk button {
+  flex-shrink: 0;
+  white-space: nowrap;
   background: white;
   border: 1px solid var(--c-cream-dark);
   color: var(--c-text);
@@ -536,6 +543,41 @@ section.section {
 }
 .filter-balk button:hover { border-color: var(--c-lavender); color: var(--c-lavender-dark); }
 .filter-balk button.actief { background: var(--c-lavender); color: white; border-color: var(--c-lavender-dark); }
+
+.sort-balk {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: var(--gap-md);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sort-balk::-webkit-scrollbar { display: none; }
+.sort-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--c-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-right: 0.2rem;
+}
+.sort-balk button {
+  flex-shrink: 0;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid var(--c-cream-dark);
+  color: var(--c-text);
+  padding: 0.3em 0.8em;
+  border-radius: var(--r-pill);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.sort-balk button:hover { border-color: var(--c-mustard); color: var(--c-mustard-dark, #b07d10); }
+.sort-balk button.actief { background: var(--c-mustard); color: white; border-color: var(--c-mustard); }
 
 /* ============================================
    Productpagina
