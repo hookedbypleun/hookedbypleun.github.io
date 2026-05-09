@@ -678,6 +678,29 @@ section.section {
 @media (min-width: 720px) {
   .product-detail { grid-template-columns: 1fr 1fr; }
 }
+.product-detail .terug-knop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  background: white;
+  color: var(--c-lavender-dark);
+  padding: 0.5em 0.9em;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-cream-dark);
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  margin-bottom: var(--gap-md);
+  transition: all 0.15s;
+  grid-column: 1 / -1;
+  width: fit-content;
+}
+.product-detail .terug-knop:hover {
+  background: var(--c-lavender);
+  color: white;
+  border-color: var(--c-lavender);
+  text-decoration: none;
+}
 .product-detail .foto-groot {
   border-radius: var(--r-lg);
   overflow: hidden;

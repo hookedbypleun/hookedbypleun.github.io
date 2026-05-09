@@ -342,7 +342,13 @@ Lokaal afhalen of versturen?`;
     )];
     const heeftMeerKleuren = uniekeKleuren.length > 1;
 
+    const terugLabel = cat ? `${cat.emoji || ''} ${cat.naam || 'galerij'}` : 'galerij';
+    const terugHref = cat ? `galerij.html?cat=${item.categorie}` : 'galerij.html';
     wrap.innerHTML = `
+      <a class="terug-knop" href="${terugHref}"
+         onclick="if (document.referrer && document.referrer.indexOf(location.origin) === 0) { history.back(); return false; }">
+        ← Terug naar ${escapeHtml(terugLabel)}
+      </a>
       <div class="foto-galerij" id="foto-galerij">
         <div class="foto-groot">
           <img src="${alleFotos[0] || item.foto || ''}" alt="${escapeHtml(item.naam)}" id="foto-hoofd">
