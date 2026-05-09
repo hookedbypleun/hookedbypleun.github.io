@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.27">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.28">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -656,8 +656,22 @@
     <!-- AI-balk — verschijnt alleen bij bestaand item bewerken -->
     <div id="edit-ai-bar" style="display:none; background:linear-gradient(135deg,#f4ebf7,#FFF8E1); border:2px solid var(--c-lavender); border-radius:var(--r-md); padding:1rem; margin-bottom:1rem">
       <div style="font-weight:700; margin:0 0 0.7rem; color:var(--c-lavender-dark); font-size:0.95rem">✏️ Bezig met: <span id="edit-item-naam"></span></div>
+
+      <!-- Smart edit: AI past gerichte wijziging toe in eigen woorden -->
+      <div style="background:white; border-radius:var(--r-sm); padding:0.7rem 0.8rem; margin-bottom:0.7rem">
+        <label for="smart-edit-text" style="font-weight:700; font-size:0.9rem; color:var(--c-ink); display:block; margin-bottom:0.2em">
+          💬 Snelle wijziging in eigen woorden
+        </label>
+        <p style="font-size:0.8rem; color:var(--c-muted); margin:0 0 0.4rem">
+          Bijv: <em>"haal duplicaat kleuren weg, hou alleen lichtgroen en donkergroen"</em>, of <em>"verander de naam in Sammie Junior"</em>. Foto's blijven gegarandeerd intact.
+        </p>
+        <textarea id="smart-edit-text" placeholder="Wat wil je veranderen?" style="width:100%; min-height:55px; padding:0.5em 0.7em; border:2px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:0.92rem; resize:vertical"></textarea>
+        <button type="button" class="btn full mustard" id="btn-smart-edit" onclick="smartEdit()" style="margin-top:0.4rem">✨ AI past het aan</button>
+        <p id="smart-edit-status" style="display:none; margin:0.4rem 0 0; font-size:0.85rem"></p>
+      </div>
+
       <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
-        <button type="button" class="btn secondary" onclick="editWithAI()">✨ AI herzien</button>
+        <button type="button" class="btn secondary" onclick="editWithAI()">✨ AI herzien (alles opnieuw)</button>
         <button type="button" class="btn secondary" id="edit-photo-toggle-btn" onclick="toggleEditPhotoTweak()">📸 Foto tweaken</button>
       </div>
 
@@ -958,8 +972,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.27"></script>
-  <script src="../js/sw-register.js?v=3.0.27"></script>
+  <script src="../js/config.js?v=3.0.28"></script>
+  <script src="../js/sw-register.js?v=3.0.28"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2326,6 +2340,68 @@
       }
     }
 
+    // ============================================================
+    // Smart edit — gerichte wijziging in eigen woorden, foto's intact
+    // ============================================================
+    async function smartEdit() {
+      const txt = document.getElementById('smart-edit-text').value.trim();
+      const status = document.getElementById('smart-edit-status');
+      const btn = document.getElementById('btn-smart-edit');
+
+      function setStatus(msg, color) {
+        status.style.display = 'block';
+        status.textContent = msg;
+        status.style.color = color || 'var(--c-muted)';
+      }
+
+      if (!txt) { alert('Vul eerst je wijziging in.'); return; }
+      if (!AI_PASSWORD || !workerUrl()) {
+        alert('Eerst inloggen met AI-wachtwoord (boven aan de pagina).'); return;
+      }
+      const orig = document.getElementById('f-id-original').value;
+      const item = DATA.items.find(i => i.id === orig);
+      if (!item) { alert('Geen item geselecteerd om te bewerken.'); return; }
+
+      const oldLabel = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ AI denkt na...';
+      setStatus('⏳ AI past je wijziging toe...', 'var(--c-muted)');
+      try {
+        const res = await fetch(workerUrl() + '/smart-edit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({ item, instructie: txt }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const { item: updated, notitie } = await res.json();
+
+        // Vervang lokaal
+        const idx = DATA.items.findIndex(i => i.id === item.id);
+        if (idx >= 0) DATA.items[idx] = updated;
+        save();
+
+        // Auto-publish
+        btn.textContent = '⏳ Live zetten...';
+        setStatus('⏳ Wijziging publiceren...', 'var(--c-muted)');
+        const pub = await fetch(workerUrl() + '/update-item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({ item: updated }),
+        });
+        if (!pub.ok) throw new Error(await pub.text());
+
+        // Refresh form met de nieuwe waardes
+        editItem(updated.id);
+        document.getElementById('smart-edit-text').value = '';
+        setStatus('✅ Toegepast en live op de site! ' + (notitie ? '— ' + notitie : '') + ' Geef het 1-2 min om door te komen.', 'var(--c-success-text)');
+      } catch (err) {
+        setStatus('⚠️ ' + (err.message || err), '#B71C1C');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldLabel;
+      }
+    }
+
     async function toggleEditPhotoTweak() {
       _editPhotoOpen = !_editPhotoOpen;
       const panel = document.getElementById('edit-photo-tweak');
@@ -2757,6 +2833,7 @@
     window.refreshPreviews = refreshPreviews;
     window.wizGoStep = wizGoStep;
     window.editWithAI = editWithAI;
+    window.smartEdit = smartEdit;
     window.toggleEditPhotoTweak = toggleEditPhotoTweak;
     window.editPhotoSetMode = editPhotoSetMode;
     window.editPhotoApplyFilters = editPhotoApplyFilters;

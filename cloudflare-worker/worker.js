@@ -118,6 +118,13 @@ export default {
         return jsonResponse(result, 200, cors);
       }
 
+      // === /smart-edit POST — AI past gerichte wijziging toe op item, foto's gegarandeerd intact ===
+      if (url.pathname === '/smart-edit' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await smartEditWithGemini(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
       }
@@ -382,6 +389,84 @@ Geef ALLEEN dit JSON-object terug, niets anders:
 ${schemaText}`;
 
   return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 2000 });
+}
+
+// ================================================================
+// /smart-edit — gerichte wijziging op bestaand item via NL-instructie
+// Foto-paden zijn gegarandeerd intact: validatie tegen origineel.
+// ================================================================
+async function smartEditWithGemini({ item, instructie }, env) {
+  if (!item || typeof item !== 'object') throw new Error('item ontbreekt');
+  if (!instructie || !instructie.trim()) throw new Error('instructie ontbreekt');
+
+  // Verzamel alle bestaande foto-paden — Gemini mag UITSLUITEND deze gebruiken
+  const bekendePaden = new Set();
+  if (item.foto) bekendePaden.add(item.foto);
+  for (const v of (item.varianten || [])) {
+    for (const f of (v.fotos || [])) if (f) bekendePaden.add(f);
+  }
+
+  // Onveranderlijk: id en datumToegevoegd worden later weer opgeplakt
+  const wijzigbaar = { ...item };
+  delete wijzigbaar.id;
+  delete wijzigbaar.datumToegevoegd;
+
+  const padenLijst = [...bekendePaden].map(p => `  - "${p}"`).join('\n') || '  (geen)';
+
+  const prompt = `Pleun heeft een artikel in haar shop dat ze wil bijstellen — een KLEINE gerichte wijziging, niets meer.
+
+HUIDIG ARTIKEL (JSON):
+${JSON.stringify(wijzigbaar, null, 2)}
+
+PLEUN'S WIJZIGINGSVERZOEK (in haar eigen woorden):
+"${instructie.trim()}"
+
+REGELS — STRIKT NALEVEN:
+1. Pas ALLEEN toe wat Pleun letterlijk vraagt. Verzin niets bij. Laat alle andere velden ongewijzigd.
+2. Foto-paden: gebruik UITSLUITEND paden uit deze lijst. Verzin NOOIT nieuwe paden:
+${padenLijst}
+3. Als Pleun varianten wil samenvoegen of duplicaten wil verwijderen: combineer hun "fotos"-arrays in de behouden variant.
+4. Behoud altijd minstens 1 variant met minstens 1 foto. Als het artikel geen "varianten" had en die zijn niet relevant, laat het veld weg.
+5. Tekst (naam, beschrijving) aanpassen mag in Pleuns stem, maar alleen als ze daarom vraagt.
+6. Als de wijziging onmogelijk is of risicovol, geef het origineel ongewijzigd terug en zet een korte uitleg in het veld "_notitie".
+
+Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
+
+{
+  ...alle velden van het bijgewerkte artikel...,
+  "_notitie": "1 zin in NL: wat is er aangepast (of waarom niet)"
+}`;
+
+  const result = await callGemini({ prompt, env, maxTokens: 3000, temperature: 0.4 });
+  if (!result || typeof result !== 'object') throw new Error('AI gaf onleesbaar antwoord');
+
+  // Validatie: alle foto-paden in resultaat moeten in origineel zitten
+  const valideer = (paden, ctx) => {
+    for (const p of paden) {
+      if (p && !bekendePaden.has(p)) {
+        throw new Error(`AI verzon een onbekend foto-pad ${ctx}: "${p}". Probeer je vraag anders te formuleren.`);
+      }
+    }
+  };
+  if (result.foto) valideer([result.foto], 'in foto-veld');
+  for (const v of (result.varianten || [])) {
+    if (!v || typeof v !== 'object') throw new Error('AI gaf ongeldige variant terug');
+    valideer(v.fotos || [], `in variant "${v.kleur || '?'}"`);
+  }
+  // Veiligheid: minstens 1 foto moet behouden zijn
+  const heeftFoto = (result.foto && bekendePaden.has(result.foto)) ||
+    (result.varianten || []).some(v => (v.fotos || []).some(f => bekendePaden.has(f)));
+  if (!heeftFoto) throw new Error('Resultaat heeft geen geldige foto. Wijziging niet doorgevoerd.');
+
+  // Plak onveranderlijke velden terug
+  result.id = item.id;
+  if (item.datumToegevoegd) result.datumToegevoegd = item.datumToegevoegd;
+
+  // Splits notitie eruit voor de UI
+  const notitie = result._notitie || '';
+  delete result._notitie;
+
+  return { item: result, notitie };
 }
 
 // ================================================================
