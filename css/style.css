@@ -115,11 +115,13 @@ nav .logo {
 }
 nav .logo span.icon { font-size: 1.4rem; }
 nav .logo img.brand-icon {
-  width: 36px;
-  height: 36px;
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
   border-radius: 50%;
-  display: block;
+  display: inline-block !important;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 nav .links {
   display: flex;
@@ -185,7 +187,7 @@ nav .cart-count.empty { display: none; }
 }
 .hero-banner {
   display: block;
-  max-width: min(600px, 90%);
+  max-width: min(820px, 92%);
   width: 100%;
   height: auto;
   margin: 0 auto var(--gap-xs);
