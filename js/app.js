@@ -117,8 +117,7 @@
 
     // Reviews-blok op homepage — alle goedgekeurde reviews (shop-breed)
     const reviewsGrid = document.getElementById('home-reviews');
-    const reviewsSectie = document.getElementById('home-reviews-section');
-    if (reviewsGrid && reviewsSectie) {
+    if (reviewsGrid) {
       try {
         const rvRes = await fetch('data/reviews.json?v=' + Date.now());
         const rvData = await rvRes.json();
@@ -135,47 +134,68 @@
           reviewsGrid.innerHTML = '<p class="cd-hint" style="text-align:center;grid-column:1/-1">Nog geen reviews — wees de eerste! 🌸</p>';
         }
       } catch {}
-
-      // Shop-review formulier
-      const shopVerstuur = document.getElementById('shop-rv-verstuur');
-      if (shopVerstuur) {
-        let shopRating = 5;
-        document.getElementById('shop-rv-sterren')?.addEventListener('click', e => {
-          const btn = e.target.closest('[data-star]');
-          if (!btn) return;
-          shopRating = parseInt(btn.dataset.star);
-          btn.parentElement.querySelectorAll('button').forEach((b, i) => {
-            b.textContent = i < shopRating ? '★' : '☆';
-          });
-        });
-        shopVerstuur.addEventListener('click', async () => {
-          const tekst = document.getElementById('shop-rv-tekst')?.value.trim();
-          const naam = document.getElementById('shop-rv-naam')?.value.trim();
-          const status = document.getElementById('shop-rv-status');
-          if (!tekst || tekst.length < 5) {
-            if (status) { status.textContent = 'Schrijf eerst iets 💝'; status.style.display = ''; }
-            return;
-          }
-          shopVerstuur.disabled = true;
-          shopVerstuur.textContent = '⏳ Versturen...';
-          try {
-            const cfg = window.SHOP_CONFIG || {};
-            const res = await fetch((cfg.workerUrl || '').replace(/\/$/, '') + '/review', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ productId: '', productNaam: '', naam, tekst, rating: shopRating }),
-            });
-            if (!res.ok) throw new Error();
-            if (status) { status.textContent = 'Bedankt! Pleun keurt je review zo snel mogelijk goed 🎀'; status.style.display = ''; }
-            shopVerstuur.textContent = '✅ Verstuurd!';
-          } catch {
-            if (status) { status.textContent = '😕 Niet gelukt. Probeer opnieuw.'; status.style.display = ''; }
-            shopVerstuur.disabled = false;
-            shopVerstuur.textContent = '💝 Review versturen';
-          }
-        });
-      }
     }
+  }
+
+  // ===== Shop review formulier (homepage) =====
+  // Onafhankelijk van renderHome — werkt ook als items.json/reviews.json faalt.
+  function initShopReviewForm() {
+    const shopVerstuur = document.getElementById('shop-rv-verstuur');
+    const sterrenWrap = document.getElementById('shop-rv-sterren');
+    if (!shopVerstuur || !sterrenWrap) return;
+    if (shopVerstuur.dataset.bound === '1') return; // dubbele binding voorkomen
+    shopVerstuur.dataset.bound = '1';
+
+    let shopRating = 5;
+    sterrenWrap.addEventListener('click', e => {
+      const btn = e.target.closest('[data-star]');
+      if (!btn) return;
+      e.preventDefault();
+      shopRating = parseInt(btn.dataset.star);
+      sterrenWrap.querySelectorAll('button').forEach((b, i) => {
+        b.textContent = i < shopRating ? '★' : '☆';
+      });
+    });
+
+    shopVerstuur.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const tekstEl = document.getElementById('shop-rv-tekst');
+      const naamEl = document.getElementById('shop-rv-naam');
+      const status = document.getElementById('shop-rv-status');
+      const tekst = tekstEl?.value.trim() || '';
+      const naam = naamEl?.value.trim() || '';
+      const showStatus = (msg) => {
+        if (status) {
+          status.textContent = msg;
+          status.style.display = 'block';
+        }
+      };
+      if (!tekst || tekst.length < 5) {
+        showStatus('Schrijf eerst iets (minstens 5 letters) 💝');
+        return;
+      }
+      shopVerstuur.disabled = true;
+      shopVerstuur.textContent = '⏳ Versturen...';
+      try {
+        const cfg = window.SHOP_CONFIG || {};
+        const url = (cfg.workerUrl || '').replace(/\/$/, '') + '/review';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: '', productNaam: '', naam, tekst, rating: shopRating }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        showStatus('Bedankt! Pleun keurt je review zo snel mogelijk goed 🎀');
+        shopVerstuur.textContent = '✅ Verstuurd!';
+        if (tekstEl) tekstEl.value = '';
+        if (naamEl) naamEl.value = '';
+      } catch (err) {
+        showStatus('😕 Niet gelukt: ' + (err.message || 'onbekende fout') + '. Probeer opnieuw.');
+        shopVerstuur.disabled = false;
+        shopVerstuur.textContent = '💝 Review versturen';
+      }
+    });
   }
 
   // ===== Galerij =====
@@ -630,5 +650,6 @@ Lokaal afhalen of versturen?`;
     renderProduct();
     renderKanaalLink();
     startCountdown();
+    initShopReviewForm();
   });
 })();
