@@ -335,7 +335,12 @@ Lokaal afhalen of versturen?`;
     // Alle unieke foto's van ALLE varianten — direct zichtbaar, kleur-knop = bestel-keuze
     const alleFotos = [...new Set(varianten.flatMap(v => v.fotos || []))];
     if (!alleFotos.length && item.foto) alleFotos.push(item.foto);
-    const heeftMeerKleuren = varianten.length > 1;
+    // Tel UNIEKE non-empty kleuren — niet alle varianten. Voorkomt "kies kleur"-popup
+    // bij artikelen met 1 echte kleur die per ongeluk over meerdere varianten gespreid staat.
+    const uniekeKleuren = [...new Set(
+      varianten.map(v => String(v.kleur || '').trim().toLowerCase()).filter(Boolean)
+    )];
+    const heeftMeerKleuren = uniekeKleuren.length > 1;
 
     wrap.innerHTML = `
       <div class="foto-galerij" id="foto-galerij">
