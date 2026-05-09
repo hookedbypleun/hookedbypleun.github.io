@@ -733,7 +733,7 @@ section.section {
   width: 8em;
   margin-right: 0.5em;
 }
-.postcode-box input:focus { outline: none; border-color: var(--c-lavender); }
+.postcode-box input:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
 .postcode-result {
   display: block;
   margin-top: var(--gap-sm);
@@ -931,7 +931,7 @@ section.section {
   box-sizing: border-box;
   transition: border-color 0.15s;
 }
-.cd-field input:focus { outline: none; border-color: var(--c-lavender); }
+.cd-field input:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
 .cd-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 0.5em; }
 .cd-two-col input { width: 100%; }
 .cd-field-hint { display: block; font-size: 0.78rem; color: var(--c-muted); margin-top: 0.2em; font-style: italic; }
@@ -952,7 +952,7 @@ section.section {
   transition: border-color 0.15s;
   margin-bottom: var(--gap-md);
 }
-.checkout-preview textarea:focus { outline: none; border-color: var(--c-lavender); }
+.checkout-preview textarea:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
 
 /* ============================================
    Footer

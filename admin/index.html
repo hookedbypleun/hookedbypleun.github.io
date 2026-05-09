@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.35">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.36">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1009,8 +1009,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.35"></script>
-  <script src="../js/sw-register.js?v=3.0.35"></script>
+  <script src="../js/config.js?v=3.0.36"></script>
+  <script src="../js/sw-register.js?v=3.0.36"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2454,7 +2454,7 @@
         _variantState = [{ kleur: '', fotos: [] }];
       }
       const miniBtnStyle = `flex:1; min-width:0; min-height:30px; padding:0.4rem 0; background:white; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); cursor:pointer; font-size:1rem; color:var(--c-text); line-height:1; font-family:inherit; font-weight:700`;
-      const moveBtnStyle = `background:white; border:1.5px solid var(--c-cream-dark); cursor:pointer; font-size:0.85rem; color:var(--c-text); width:28px; height:28px; border-radius:var(--r-sm); padding:0; line-height:1`;
+      const moveBtnStyle = `background:white; border:1.5px solid var(--c-cream-dark); cursor:pointer; font-size:0.9rem; color:var(--c-text); width:30px; height:30px; border-radius:var(--r-sm); padding:0; line-height:1`;
       wrap.innerHTML = _variantState.map((v, idx) => {
         const fotos = v.fotos || [];
         const isFirst = idx === 0;
