@@ -49,5 +49,24 @@
       "volgorde": 8
     }
   ],
-  "items": []
+  "items": [
+    {
+      "id": "tassen-trekzakje",
+      "naam": "Trekzakje",
+      "categorie": "tassen",
+      "prijs": 3,
+      "beschrijving": "Dit trekzakje is ZO heerlijk zacht, gehaakt met mijn favoriete chenille garen in een mooie lichtroze kleur! ✨ Het is super handig voor al je kleine schatten, zoals je sleutels of een lipglossje. Je wilt 'm de hele dag vasthouden, beloofd! 🎀",
+      "kleuren": [
+        "lichtroze"
+      ],
+      "altText": "Gehaakt lichtroze buideltje van zacht chenille garen met een trekkoordje.",
+      "extraKaartje": "Stop er een klein presentje in voor die ene speciale persoon! 💝",
+      "afmeting": "8 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/tassen-trekzakje.jpg"
+    }
+  ]
 }
