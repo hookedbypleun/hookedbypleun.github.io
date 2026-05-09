@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.36">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.37">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -308,7 +308,7 @@
     <!-- Modus-switcher -->
     <div class="modus-switcher">
       <button class="ms-btn actief" data-modus="single">✨ Eén item</button>
-      <button class="ms-btn" data-modus="bulk">📦 Bulk import</button>
+      <button class="ms-btn ms-btn-small" data-modus="bulk" title="Alleen samen met papa!">📦 Bulk</button>
     </div>
 
     <!-- ================================================ -->
@@ -648,8 +648,10 @@
       </p>
     </div>
 
-    <h2 style="margin-top:3rem">📋 Huidige items</h2>
-    <div id="item-list"></div>
+    <details open style="margin-top:3rem" class="admin-section">
+      <summary>📋 Huidige items <span id="huidige-count-badge" class="section-count"></span></summary>
+      <div id="item-list" style="margin-top:0.8rem"></div>
+    </details>
 
     <h2>➕ Nieuw item / bewerken</h2>
 
@@ -815,16 +817,20 @@
     <!-- =============================== -->
     <!-- AUTO-CHANGELOG                  -->
     <!-- =============================== -->
-    <h2 style="margin-top:3rem">📝 Recent toegevoegd</h2>
-    <p style="color:var(--c-muted)">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
-    <div id="auto-changelog" style="margin-bottom:1rem"></div>
+    <details style="margin-top:3rem" class="admin-section">
+      <summary>📝 Recent toegevoegd</summary>
+      <p style="color:var(--c-muted); margin-top:0.6rem">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
+      <div id="auto-changelog" style="margin-bottom:1rem"></div>
+    </details>
 
     <!-- =============================== -->
     <!-- REVIEWS MODERATIE               -->
     <!-- =============================== -->
-    <h2 style="margin-top:3rem">💬 Reviews modereren</h2>
-    <p style="color:var(--c-muted)">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
-    <div id="reviews-admin-list"><p style="color:var(--c-muted)">🔒 Log eerst in (boven aan de pagina) om reviews te zien.</p></div>
+    <details style="margin-top:3rem" class="admin-section">
+      <summary>💬 Reviews modereren</summary>
+      <p style="color:var(--c-muted); margin-top:0.6rem">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
+      <div id="reviews-admin-list"><p style="color:var(--c-muted)">🔒 Log eerst in (boven aan de pagina) om reviews te zien.</p></div>
+    </details>
 
     <style>
       .rv-admin-kaart {
@@ -909,6 +915,19 @@
       transition: all 0.15s;
     }
     .ms-btn.actief { background: var(--c-lavender); color: white; }
+    .ms-btn-small { flex: 0 0 auto; font-size: 0.78rem; padding: 0.4em 0.8em; opacity: 0.7; }
+    .ms-btn-small:hover { opacity: 1; }
+
+    /* Inklapbare admin-secties */
+    .admin-section { background: white; border: 1.5px solid var(--c-cream-dark); border-radius: var(--r-md); padding: 0.7rem 1rem; }
+    .admin-section > summary {
+      cursor: pointer; font-size: 1.25rem; font-weight: 800; color: var(--c-ink);
+      list-style: none; padding: 0.3rem 0; user-select: none;
+    }
+    .admin-section > summary::before { content: '▶ '; display: inline-block; transition: transform 0.2s; font-size: 0.7em; color: var(--c-muted); margin-right: 0.3em; }
+    .admin-section[open] > summary::before { transform: rotate(90deg); }
+    .admin-section > summary::-webkit-details-marker { display: none; }
+    .section-count { font-size: 0.78rem; color: var(--c-muted); font-weight: 400; margin-left: 0.4em; }
 
     /* ===== Bulk import ===== */
     .bulk-section { background: linear-gradient(135deg, #FFF8E1 0%, #f4ebf7 100%); border: 2px solid var(--c-mustard); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-soft); }
@@ -1009,8 +1028,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.36"></script>
-  <script src="../js/sw-register.js?v=3.0.36"></script>
+  <script src="../js/config.js?v=3.0.37"></script>
+  <script src="../js/sw-register.js?v=3.0.37"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1046,6 +1065,8 @@
     }
     function renderItems() {
       const list = document.getElementById('item-list');
+      const badge = document.getElementById('huidige-count-badge');
+      if (badge) badge.textContent = `(${DATA.items.length})`;
       list.innerHTML = DATA.items.map(i => `
         <div class="item-row">
           <img src="../${i.foto || (i.varianten && i.varianten[0] && i.varianten[0].fotos && i.varianten[0].fotos[0]) || ''}" alt="" onerror="this.style.opacity='0.3'">
@@ -3314,6 +3335,12 @@
     document.querySelectorAll('.ms-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const modus = btn.dataset.modus;
+        // Waarschuwing: bulk-import is voor papa
+        if (modus === 'bulk') {
+          if (!confirm('⚠️ Stop! Bulk-import is alleen voor papa.\n\nWeet je zeker dat je dit samen met papa doet?')) {
+            return;
+          }
+        }
         document.querySelectorAll('.ms-btn').forEach(b => b.classList.toggle('actief', b === btn));
         document.getElementById('bulk-section').hidden = (modus !== 'bulk');
         document.getElementById('ai-smart').style.display = (modus === 'bulk') ? 'none' : '';
