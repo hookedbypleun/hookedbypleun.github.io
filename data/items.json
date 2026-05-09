@@ -51,22 +51,1469 @@
   ],
   "items": [
     {
-      "id": "tassen-trekzakje",
-      "naam": "Trekzakje",
-      "categorie": "tassen",
-      "prijs": 3,
-      "beschrijving": "Dit trekzakje is ZO heerlijk zacht, gehaakt met mijn favoriete chenille garen in een mooie lichtroze kleur! ✨ Het is super handig voor al je kleine schatten, zoals je sleutels of een lipglossje. Je wilt 'm de hele dag vasthouden, beloofd! 🎀",
+      "id": "dit-is-de-summer-party-collect",
+      "naam": "Summer Party scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 5.0,
+      "beschrijving": "Mijn Summer Party Collectie 🌸 Dikke, volle scrunchies in vrolijke zomerkleuren — ZO zacht in je haar, en je kunt 'm ook gewoon om je pols dragen 🎀",
       "kleuren": [
-        "lichtroze"
+        "peach",
+        "lichtblauw",
+        "oranje"
       ],
-      "altText": "Gehaakt lichtroze buideltje van zacht chenille garen met een trekkoordje.",
-      "extraKaartje": "Stop er een klein presentje in voor die ene speciale persoon! 💝",
-      "afmeting": "8 cm",
+      "altText": "Handgehaakt: summer party scrunchie",
+      "afmeting": "",
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
+      "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": "img/items/tassen-trekzakje.jpg"
+      "foto": "img/items/dit-is-de-summer-party-collect-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-de-summer-party-collect-v1-1.jpg",
+            "img/items/dit-is-de-summer-party-collect-v2-1.jpg",
+            "img/items/dit-is-de-summer-party-collect-v6-1.jpg"
+          ]
+        },
+        {
+          "kleur": "peach",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-de-summer-party-collect-peach-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-de-summer-party-collect-lichtblauw-1.jpg"
+          ]
+        },
+        {
+          "kleur": "oranje",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-de-summer-party-collect-oranje-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hallo-ik-ben-sammie-de-kikker",
+      "naam": "Sammie de kikker",
+      "categorie": "diertjes",
+      "prijs": 10.0,
+      "beschrijving": "Sammie de kikker 🐸 Hij is ZO lief en wacht op iemand die hem wil adopteren! Te krijgen in lichtgroen met donkergroen, alleen lichtgroen, of helemaal donkergroen 💝",
+      "kleuren": [
+        "lichtgroen en donkergroen",
+        "lichtgroen",
+        "donkergroen"
+      ],
+      "altText": "Handgehaakt: sammie de kikker",
+      "afmeting": "Hoogte 11 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/hallo-ik-ben-sammie-de-kikker-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-v2-1.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-v3-1.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-v4-1.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-v6-1.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-v7-1.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-v9-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtgroen en donkergroen",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-en-donkergroen-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtgroen",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg"
+          ]
+        },
+        {
+          "kleur": "donkergroen",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-donkergroen-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ollie-de-olifant-voor-15-euro",
+      "naam": "Ollie de olifant",
+      "categorie": "diertjes",
+      "prijs": 15.0,
+      "beschrijving": "Ollie de olifant 🐘 Daar ben ik echt trots op — een van mijn lievelingsdiertjes om te haken, ZO knuffelig in je hand 💝",
+      "kleuren": [],
+      "altText": "Handgehaakt: ollie de olifant",
+      "afmeting": "15x13cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-is-een-aarbei-octopus-sleu",
+      "naam": "Aardbei-octopus sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 3.75,
+      "beschrijving": "Aardbei-octopus sleutelhanger in donkerroze 🍓 Superschattig aan je tas — kleine octopus-armpjes, helemaal handgemaakt ✨",
+      "kleuren": [
+        "Donkerroze"
+      ],
+      "altText": "Handgehaakt: aardbei-octopus sleutelhanger",
+      "afmeting": "5cm hoog",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Donkerroze",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-aarbei-octopus-sleu-donkerroze-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa",
+      "naam": "Scrunchie grijs (11 cm)",
+      "categorie": "scrunchies",
+      "prijs": 2.25,
+      "beschrijving": "Zachte scrunchie in grijs (11 cm) 🎀 Past lekker in je haar of om je pols — gewoon altijd handig.",
+      "kleuren": [
+        "Grijs"
+      ],
+      "altText": "Handgehaakt: scrunchie grijs (11 cm)",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Grijs",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-grijs-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-2",
+      "naam": "Scrunchie grijs (9 cm)",
+      "categorie": "scrunchies",
+      "prijs": 2.0,
+      "beschrijving": "Zachte scrunchie in grijs (9 cm) 🎀 Iets kleiner formaat, perfect voor dunner haar of om je pols.",
+      "kleuren": [
+        "Grijs"
+      ],
+      "altText": "Handgehaakt: scrunchie grijs (9 cm)",
+      "afmeting": "9cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-2-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-2-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Grijs",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-2-grijs-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-3",
+      "naam": "Mini scrunchie grijs (7 cm)",
+      "categorie": "scrunchies",
+      "prijs": 1.5,
+      "beschrijving": "Mini scrunchie in grijs (7 cm) 🎀 Klein en lief — past op een kinderpols of om dunner haar.",
+      "kleuren": [
+        "grijs"
+      ],
+      "altText": "Handgehaakt: mini scrunchie grijs (7 cm)",
+      "afmeting": "7cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-3-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-3-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "grijs",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-3-grijs-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-4",
+      "naam": "Scrunchie lila (11 cm)",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Zachte scrunchie in lila (11 cm) 🎀 ZO mooi pastel — voelt fijn in je haar.",
+      "kleuren": [
+        "lila"
+      ],
+      "altText": "Handgehaakt: scrunchie lila (11 cm)",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-4-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-4-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-4-lila-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-5",
+      "naam": "Mini scrunchie lila (7 cm)",
+      "categorie": "scrunchies",
+      "prijs": 1.5,
+      "beschrijving": "Mini scrunchie in lila (7 cm) 🎀 Zacht pasteltintje, klein formaat.",
+      "kleuren": [
+        "lila"
+      ],
+      "altText": "Handgehaakt: mini scrunchie lila (7 cm)",
+      "afmeting": "7cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-5-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-5-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-5-lila-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-6",
+      "naam": "Scrunchie donkerblauw (11 cm)",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Zachte scrunchie in donkerblauw (11 cm) 🎀 Diepe kleur, fijn voor in je haar of om je pols.",
+      "kleuren": [
+        "donkerblauw"
+      ],
+      "altText": "Handgehaakt: scrunchie donkerblauw (11 cm)",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-6-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-6-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "donkerblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-6-donkerblauw-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-7",
+      "naam": "Mini scrunchie donkerblauw (7 cm)",
+      "categorie": "scrunchies",
+      "prijs": 1.5,
+      "beschrijving": "Mini scrunchie in donkerblauw (7 cm) 🎀 Klein en stijlvol — past overal bij.",
+      "kleuren": [
+        "donkerblauw"
+      ],
+      "altText": "Handgehaakt: mini scrunchie donkerblauw (7 cm)",
+      "afmeting": "7cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-7-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-7-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "donkerblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-7-donkerblauw-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-8",
+      "naam": "Tweekleur scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Scrunchie met tweekleur-effect (11 cm) 🎀 Te kiezen in zwart-creme, lichtgroen-creme of paars-creme — telkens met een lieve creme rand.",
+      "kleuren": [
+        "zwart met creme",
+        "Lichtgroen met creme",
+        "paarsgewijs met creme"
+      ],
+      "altText": "Handgehaakt: tweekleur scrunchie",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-8-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-8-v1-1.jpg"
+          ]
+        },
+        {
+          "kleur": "zwart met creme",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-8-zwart-met-creme-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Lichtgroen met creme",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-8-lichtgroen-met-creme-1.jpg"
+          ]
+        },
+        {
+          "kleur": "paarsgewijs met creme",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-8-paarsgewijs-met-creme-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leuke-scrunchie-voor-in-je-haa-9",
+      "naam": "Mini scrunchie lila",
+      "categorie": "diertjes",
+      "prijs": 1.5,
+      "beschrijving": "Mini scrunchie in lila (8,5 cm) 🎀 Klein en zacht, fijn voor om je pols of voor dunner haar.",
+      "kleuren": [
+        "lila",
+        "lila"
+      ],
+      "altText": "Handgehaakt: mini scrunchie lila",
+      "afmeting": "8,5cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/leuke-scrunchie-voor-in-je-haa-9-lila-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-9-lila-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-9-lila-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/leuke-scrunchie-voor-in-je-haa-9-lila-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "een-trekzakje-in-de-kleuren-li",
+      "naam": "Trekzakje lila of turquoise",
+      "categorie": "tassen",
+      "prijs": 3.5,
+      "beschrijving": "Klein trekzakje in lila of turquoise 💝 Superhandig voor je sleutels, lipgloss of kleine schatjes — past in elke tas ✨",
+      "kleuren": [
+        "turquise",
+        "lila"
+      ],
+      "altText": "Handgehaakt: trekzakje lila of turquoise",
+      "afmeting": "10x7,5cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/een-trekzakje-in-de-kleuren-li-turquise-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/een-trekzakje-in-de-kleuren-li-turquise-1.jpg"
+          ]
+        },
+        {
+          "kleur": "turquise",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/een-trekzakje-in-de-kleuren-li-turquise-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/een-trekzakje-in-de-kleuren-li-lila-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "handig-klein-zacht-handtasje",
+      "naam": "Olijfgroen handtasje",
+      "categorie": "tassen",
+      "prijs": 0.0,
+      "beschrijving": "Klein olijfgroen handtasje 🌿 Heb ik ooit gemaakt voor mijn WhatsApp-kanaal — zacht garen, fijn formaat. Niet meer te koop, wel als inspiratie!",
+      "kleuren": [],
+      "altText": "Handgehaakt: olijfgroen handtasje",
+      "afmeting": "22x13cm",
+      "status": "archief",
+      "voorraad": 1,
+      "nieuw": false,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "superschattige-beren-onderzett",
+      "naam": "Berenkop onderzetter",
+      "categorie": "onderzetters",
+      "prijs": 1.5,
+      "beschrijving": "Berenkop-onderzetters 🐻 ZO schattig op tafel! Per stuk te koop, met lieve kleine oortjes en snuitje 💝",
+      "kleuren": [],
+      "altText": "Handgehaakt: berenkop onderzetter",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "granny-square-onderzetter",
+      "naam": "Granny square onderzetter",
+      "categorie": "onderzetters",
+      "prijs": 1.0,
+      "beschrijving": "Granny square onderzetter 🌸 Klassiek bloemmotief, leuk los of met meerdere op tafel.",
+      "kleuren": [],
+      "altText": "Handgehaakt: granny square onderzetter",
+      "afmeting": "10x10cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "leuke-grote-krullende-scrunchi",
+      "naam": "Grote krullende scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Grote krullende scrunchie in roze 🎀 Volle, golvende vorm — staat ZO leuk in je haar!",
+      "kleuren": [],
+      "altText": "Handgehaakt: grote krullende scrunchie",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "hele-leuke-onderzetter-voor-in",
+      "naam": "Lente-onderzetter",
+      "categorie": "onderzetters",
+      "prijs": 1.5,
+      "beschrijving": "Lente-onderzetter in geel met roze 🌼 Fris en vrolijk — perfect voor zomerse koffietjes.",
+      "kleuren": [
+        "geel met roze"
+      ],
+      "altText": "Handgehaakt: lente-onderzetter",
+      "afmeting": "10",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/hele-leuke-onderzetter-voor-in.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hele-leuke-onderzetter-voor-in.jpg"
+          ]
+        },
+        {
+          "kleur": "geel met roze",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hele-leuke-onderzetter-voor-in.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "superleuk-sinaasappel-trekzakj",
+      "naam": "Sinaasappel trekzakje",
+      "categorie": "tassen",
+      "prijs": 7.5,
+      "beschrijving": "Sinaasappel-trekzakje 🍊 Oranje met groen — superhandig om je sleutels of lipgloss in te doen, en ZO vrolijk!",
+      "kleuren": [
+        "oranje met groen"
+      ],
+      "altText": "Handgehaakt: sinaasappel trekzakje",
+      "afmeting": "9",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/superleuk-sinaasappel-trekzakj.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superleuk-sinaasappel-trekzakj.jpg"
+          ]
+        },
+        {
+          "kleur": "oranje met groen",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/superleuk-sinaasappel-trekzakj.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "super-cute-konijntje-hij-is-z",
+      "naam": "Schattig konijntje",
+      "categorie": "diertjes",
+      "prijs": 0,
+      "beschrijving": "Een super schattig konijntje 🐰 Heb ik ooit gemaakt — ZO lief en knuffelig. Niet meer te koop, wel om te bewonderen!",
+      "kleuren": [],
+      "altText": "Handgehaakt: schattig konijntje",
+      "afmeting": "19",
+      "status": "archief",
+      "voorraad": 1,
+      "nieuw": false,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "kerstkransje",
+      "naam": "Kerstkransje",
+      "categorie": "onderzetters",
+      "prijs": 0,
+      "beschrijving": "Kerstkransje 🎄 Heb ik ooit gehaakt voor de feestdagen — leuk om aan een deur of wand te hangen.",
+      "kleuren": [],
+      "altText": "Handgehaakt: kerstkransje",
+      "afmeting": "",
+      "status": "archief",
+      "voorraad": 1,
+      "nieuw": false,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "glitterscrunchies-leuk-voor-f",
+      "naam": "Glitter scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.25,
+      "beschrijving": "Glitter-scrunchie ✨ Met lichte glittertjes erin — leuk voor feestjes, oud-en-nieuw of een speciale dag 🎀",
+      "kleuren": [],
+      "altText": "Handgehaakt: glitter scrunchie",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "roze-octopus",
+      "naam": "Roze knuffel-octopus",
+      "categorie": "diertjes",
+      "prijs": 0,
+      "beschrijving": "Roze octopus 🐙 Een grote knuffel-octopus die ik ooit heb gemaakt — ZO zacht, met lange armpjes om mee te knuffelen!",
+      "kleuren": [
+        "roze"
+      ],
+      "altText": "Handgehaakt: roze knuffel-octopus",
+      "afmeting": "30cm x 8cm",
+      "status": "archief",
+      "voorraad": 1,
+      "nieuw": false,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/roze-octopus.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/roze-octopus.jpg"
+          ]
+        },
+        {
+          "kleur": "roze",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/roze-octopus.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "superleuke-grote-scrunchie-in",
+      "naam": "Grote scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Grote scrunchie met meerdere kleuren 🎀 Volle vorm, vrolijk en zacht in je haar.",
+      "kleuren": [],
+      "altText": "Handgehaakt: grote scrunchie",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-is-een-hele-zachte-teddy-s",
+      "naam": "Teddy scrunchie creme",
+      "categorie": "scrunchies",
+      "prijs": 2.25,
+      "beschrijving": "Teddy-scrunchie in creme 🤎 Heel zacht teddy-materiaal — voelt ZO fijn, leuk als accessoire.",
+      "kleuren": [
+        "creme"
+      ],
+      "altText": "Handgehaakt: teddy scrunchie creme",
+      "afmeting": "9cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/dit-is-een-hele-zachte-teddy-s.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-hele-zachte-teddy-s.jpg"
+          ]
+        },
+        {
+          "kleur": "creme",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/dit-is-een-hele-zachte-teddy-s.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "superleuke-krullende-scrunchie",
+      "naam": "Krullende scrunchie",
+      "categorie": "diertjes",
+      "prijs": 2.25,
+      "beschrijving": "Krullende scrunchie 🎀 Speelse, golvende vorm — verkrijgbaar in 3 kleuren, telkens net iets anders.",
+      "kleuren": [],
+      "altText": "Handgehaakt: krullende scrunchie",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "item-28",
+      "naam": "Scrunchie donkerblauw (11 cm)",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Zachte scrunchie in donkerblauw (11 cm) 🎀 Fijn formaat voor in je haar — diepe blauwe kleur die overal bij past.",
+      "kleuren": [
+        "donkerblauw"
+      ],
+      "altText": "Handgehaakt: scrunchie donkerblauw (11 cm)",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/item-28-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/item-28-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "donkerblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/item-28-donkerblauw-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "superleuke-sleutelhanger-leuk",
+      "naam": "Populaire sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 4.0,
+      "beschrijving": "Mijn populairste sleutelhanger 💝 Deze is al meerdere keren verkocht in korte tijd — ZO leuk aan je tas, en ik snap waarom mensen 'm willen!",
+      "kleuren": [],
+      "altText": "Handgehaakt: populaire sleutelhanger",
+      "afmeting": "4-5 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "schattige-scrunchies-in-het-li",
+      "naam": "Pastel mini scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Pastel-scrunchie in lichtroze of lichtblauw 🎀 Klein en zacht, ZO schattig voor in je haar.",
+      "kleuren": [],
+      "altText": "Handgehaakt: pastel mini scrunchie",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "hele-grote-scrunchie-in-het-li",
+      "naam": "Megascrunchie lichtblauw",
+      "categorie": "scrunchies",
+      "prijs": 5.0,
+      "beschrijving": "Megagrote scrunchie in lichtblauw 🎀 Volle, dikke vorm — staat super als haarbandvervanger of om je pols.",
+      "kleuren": [],
+      "altText": "Handgehaakt: megascrunchie lichtblauw",
+      "afmeting": "10cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "lila-scrunchie-groot-met-rib",
+      "naam": "Lila scrunchie met ribbels",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Grote scrunchie in lila met ribbeltjes 🎀 Net iets anders door de geribbelde structuur — voelt ZO fijn.",
+      "kleuren": [
+        "lila"
+      ],
+      "altText": "Handgehaakt: lila scrunchie met ribbels",
+      "afmeting": "",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/lila-scrunchie-groot-met-rib-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/lila-scrunchie-groot-met-rib-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lila",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/lila-scrunchie-groot-met-rib-lila-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "megascrunchie-in-de-kleuren-tu",
+      "naam": "Megascrunchie turquoise-wit",
+      "categorie": "scrunchies",
+      "prijs": 7.5,
+      "beschrijving": "Megascrunchie in turquoise met wit 🎀 Extra groot — leuk om om je knot te draaien voor een vrolijke knot-look ✨",
+      "kleuren": [
+        "turquise en wit"
+      ],
+      "altText": "Handgehaakt: megascrunchie turquoise-wit",
+      "afmeting": "11cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/megascrunchie-in-de-kleuren-tu-v2-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megascrunchie-in-de-kleuren-tu-v2-1.jpg"
+          ]
+        },
+        {
+          "kleur": "turquise en wit",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megascrunchie-in-de-kleuren-tu-turquise-en-wit-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bloemen-granny-square-onderzet",
+      "naam": "Bloemen granny square",
+      "categorie": "onderzetters",
+      "prijs": 2.0,
+      "beschrijving": "Bloemen granny square onderzetter 🌼 Klein bloemmotief in het hart — past op elke tafel.",
+      "kleuren": [],
+      "altText": "Handgehaakt: bloemen granny square",
+      "afmeting": "8x8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "lila-met-paarse-scrunchie",
+      "naam": "Lila-paarse scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 2.5,
+      "beschrijving": "Scrunchie in lila met paars 🎀 Twee kleuren in één — pastel en pittig tegelijk.",
+      "kleuren": [
+        "lila met paars"
+      ],
+      "altText": "Handgehaakt: lila-paarse scrunchie",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/lila-met-paarse-scrunchie.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/lila-met-paarse-scrunchie.jpg"
+          ]
+        },
+        {
+          "kleur": "lila met paars",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/lila-met-paarse-scrunchie.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "schattige-bijtje-sleutelhanger",
+      "naam": "Bijtje sleutelhanger",
+      "categorie": "diertjes",
+      "prijs": 4.0,
+      "beschrijving": "Bijtje sleutelhanger 🐝 Veel mensen vinden 'm leuk — gewild aan tassen, en ik haak hem het allerliefst!",
+      "kleuren": [],
+      "altText": "Handgehaakt: bijtje sleutelhanger",
+      "afmeting": "ong 5cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "deze-kleurrijke-scrunchie-is-g",
+      "naam": "Confetti-scrunchie dun garen",
+      "categorie": "scrunchies",
+      "prijs": 3.0,
+      "beschrijving": "Kleurrijke scrunchie in dun garen 🎀 Door het dunne garen lijkt 'ie net confetti — ZO vrolijk!",
+      "kleuren": [],
+      "altText": "Handgehaakt: confetti-scrunchie dun garen",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "granny-square-handtas-in-het",
+      "naam": "Granny square handtas",
+      "categorie": "tassen",
+      "prijs": 15.0,
+      "beschrijving": "Granny square handtas in lichtblauw met wit 💝 Klein klassiek tasje — past je telefoon, sleutels en wat lipgloss erin.",
+      "kleuren": [],
+      "altText": "Handgehaakt: granny square handtas",
+      "afmeting": "16x16cm (zonder handvat)",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "handtas-in-de-kleuren-olijfgro",
+      "naam": "Olijfgroen-zwarte handtas",
+      "categorie": "tassen",
+      "prijs": 20.0,
+      "beschrijving": "Grotere handtas in olijfgroen met zwart 🌿 Gemaakt van zacht garen — ruim genoeg voor school of een dagje uit.",
+      "kleuren": [],
+      "altText": "Handgehaakt: olijfgroen-zwarte handtas",
+      "afmeting": "27cm breed, 17cm hoog (excl handvat)",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "hele-schattige-onderzetters-va",
+      "naam": "Katjes onderzetter",
+      "categorie": "onderzetters",
+      "prijs": 2.0,
+      "beschrijving": "Katjes-onderzetter 🐱 Beige met lichtroze, met klein katjeskopje — ZO schattig op tafel!",
+      "kleuren": [
+        "beige met lichtroze"
+      ],
+      "altText": "Handgehaakt: katjes onderzetter",
+      "afmeting": "9 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/hele-schattige-onderzetters-va.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hele-schattige-onderzetters-va.jpg"
+          ]
+        },
+        {
+          "kleur": "beige met lichtroze",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/hele-schattige-onderzetters-va.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "schattige-beertjes-sleutelhang",
+      "naam": "Beertjes sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 4.0,
+      "beschrijving": "Beertjes sleutelhanger 🐻 Klein en lief aan je tas — vinden mensen leuk om cadeau te geven.",
+      "kleuren": [],
+      "altText": "Handgehaakt: beertjes sleutelhanger",
+      "afmeting": "5cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-fruzzel-haakpakket-heeft-e",
+      "naam": "Fruzzel haakpakket",
+      "categorie": "haakpakketten",
+      "prijs": 6.0,
+      "beschrijving": "Mijn eerste zelfgeschreven Fruzzel haakpakket 📦 Met patroon (NL of EN — geef even aan welke je wilt) en alle materialen voor een donkerroze scrunchie. Leuk om zelf eens te haken!",
+      "kleuren": [],
+      "altText": "Handgehaakt: fruzzel haakpakket",
+      "afmeting": "8cm (van de schrunchie)",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "confetti-schrunchie-met-versch",
+      "naam": "Confetti scrunchie",
+      "categorie": "diertjes",
+      "prijs": 2.5,
+      "beschrijving": "Confetti scrunchie 🎀 Pastelkleurtjes door elkaar — net of er confetti in je haar zit ✨",
+      "kleuren": [],
+      "altText": "Handgehaakt: confetti scrunchie",
+      "afmeting": "9cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "pastel-scrunchies-in-maar-lief",
+      "naam": "Pastel scrunchies (7 kleuren)",
+      "categorie": "diertjes",
+      "prijs": 2.5,
+      "beschrijving": "Pastel scrunchies — 7 verschillende kleuren! 🎀 Roze, lila, blauw, mint... voor iedere outfit een matchend kleurtje.",
+      "kleuren": [],
+      "altText": "Handgehaakt: pastel scrunchies (7 kleuren)",
+      "afmeting": "8cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "grote-granny-square-handtas-i",
+      "naam": "Mega granny square tas",
+      "categorie": "tassen",
+      "prijs": 50.0,
+      "beschrijving": "Mega granny square handtas (op aanvraag) 💝 Groot model in monza of andere herfstkleuren — een groot project waar ik speciaal materialen voor haal. Stuur me een berichtje voor de details!",
+      "kleuren": [],
+      "altText": "Handgehaakt: mega granny square tas",
+      "afmeting": "40cm breed, 35cm hoog (excl handvatten)",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "blob-squisies-in-5-verschillen",
+      "naam": "Blob squishies (5 kleuren)",
+      "categorie": "blobs",
+      "prijs": 4.25,
+      "beschrijving": "Blob-squishies in 5 kleurcombi's 🧶 Lekker zacht in je tas of hand — peach met paars, oranje met geel, lichtblauw met lichtgroen, creme met lichtblauw, of peach met geel ✨",
+      "kleuren": [
+        "Peach met paars",
+        "Oranje met geel",
+        "Lichtblauw met lichtgroen",
+        "creme met lichtblauw",
+        "Peach met geel"
+      ],
+      "altText": "Handgehaakt: blob squishies (5 kleuren)",
+      "afmeting": "6cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/blob-squisies-in-5-verschillen-peach-met-paars-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-peach-met-paars-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Peach met paars",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-peach-met-paars-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Oranje met geel",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-oranje-met-geel-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Lichtblauw met lichtgroen",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-lichtblauw-met-lichtgroen-1.jpg"
+          ]
+        },
+        {
+          "kleur": "creme met lichtblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-creme-met-lichtblauw-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Peach met geel",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/blob-squisies-in-5-verschillen-peach-met-geel-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "confetti-mini-blob-sleutelhang",
+      "naam": "Confetti mini blob sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 3.25,
+      "beschrijving": "Mini blob-sleutelhanger met confetti-kleuren ✨ Klein, zacht en vrolijk aan je tas.",
+      "kleuren": [],
+      "altText": "Handgehaakt: confetti mini blob sleutelhanger",
+      "afmeting": "4cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-is-een-hoedje-in-de-kleur",
+      "naam": "Katoenen hoedje paars-wit",
+      "categorie": "mutsen",
+      "prijs": 13.0,
+      "beschrijving": "Katoenen hoedje in paars met wit 💝 Past op een kinderhoofd of een kleiner volwassen hoofd — niet voor megagroot 😅",
+      "kleuren": [],
+      "altText": "Handgehaakt: katoenen hoedje paars-wit",
+      "afmeting": "",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-is-een-superschattige-axol",
+      "naam": "Axolotl sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 8.0,
+      "beschrijving": "Axolotl-sleutelhanger in beige met lichtroze 🥹 Een kleine zee-salamander — ZO uniek aan je tas!",
+      "kleuren": [],
+      "altText": "Handgehaakt: axolotl sleutelhanger",
+      "afmeting": "10x6cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "aardbei-octopus-sleutelhanger",
+      "naam": "Aardbei-octopus sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 4.0,
+      "beschrijving": "Aardbei-octopus sleutelhanger 🍓 Klein en superschattig aan je schooltas — een octopus met aardbei-petjes!",
+      "kleuren": [],
+      "altText": "Handgehaakt: aardbei-octopus sleutelhanger",
+      "afmeting": "4,5cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "megablobs-in-3-verschillenden",
+      "naam": "Megablobs (3 kleurthema's)",
+      "categorie": "blobs",
+      "prijs": 5.25,
+      "beschrijving": "Megablobs in 3 kleurthema's 🧶 Superzacht en relaxing — lichtgroen-lichtblauw-wit, oranje-geel-donkergeel, of peach-roze-paars. Lekker om mee te zeulen.",
+      "kleuren": [
+        "lichtgroen, lichtblauw, wit",
+        "Oranje, geel en donkergeel",
+        "peach, roze en paars"
+      ],
+      "altText": "Handgehaakt: megablobs (3 kleurthema's)",
+      "afmeting": "9cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/megablobs-in-3-verschillenden-v1-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megablobs-in-3-verschillenden-v1-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtgroen, lichtblauw, wit",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megablobs-in-3-verschillenden-lichtgroen,-lichtblauw,-wit-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Oranje, geel en donkergeel",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megablobs-in-3-verschillenden-oranje,-geel-en-donkergeel-1.jpg"
+          ]
+        },
+        {
+          "kleur": "peach, roze en paars",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/megablobs-in-3-verschillenden-peach,-roze-en-paars-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mini-blob-sleutelhanger-in-3",
+      "naam": "Mini blob sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 3.25,
+      "beschrijving": "Mini blob-sleutelhanger 🧶 In peach, donkergeel of lichtblauw — klein, zacht, en ZO fijn aan je tas.",
+      "kleuren": [
+        "Peach",
+        "Donkergeel",
+        "lichtblauw"
+      ],
+      "altText": "Handgehaakt: mini blob sleutelhanger",
+      "afmeting": "4cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": "img/items/mini-blob-sleutelhanger-in-3-peach-1.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/mini-blob-sleutelhanger-in-3-peach-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Peach",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/mini-blob-sleutelhanger-in-3-peach-1.jpg"
+          ]
+        },
+        {
+          "kleur": "Donkergeel",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/mini-blob-sleutelhanger-in-3-donkergeel-1.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtblauw",
+          "voorraad": 1,
+          "fotos": [
+            "img/items/mini-blob-sleutelhanger-in-3-lichtblauw-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2-bolletjes-met-garen-met-zel",
+      "naam": "Garenbolletjes sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 4.0,
+      "beschrijving": "Twee garen-bolletjes als sleutelhanger 🧶 Met handgeschreven labeltje erop — een mini ode aan haken zelf 💝",
+      "kleuren": [],
+      "altText": "Handgehaakt: garenbolletjes sleutelhanger",
+      "afmeting": "5x4cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "granny-square-onderzetter-in",
+      "naam": "Granny square onderzetter blauw",
+      "categorie": "onderzetters",
+      "prijs": 1.5,
+      "beschrijving": "Granny square onderzetter in lichtblauw met cyaan 🌊 Klein vierkantje, fris en zomer-vibe.",
+      "kleuren": [],
+      "altText": "Handgehaakt: granny square onderzetter blauw",
+      "afmeting": "10cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
+    },
+    {
+      "id": "dit-is-een-leggy-frog-die-ik-e",
+      "naam": "Leggy frog kikker",
+      "categorie": "diertjes",
+      "prijs": 0,
+      "beschrijving": "Leggy-frog kikker 🐸 Heb ik ooit gemaakt — een grote kikker met lange beentjes om mee te zwaaien. Niet meer te koop!",
+      "kleuren": [],
+      "altText": "Handgehaakt: leggy frog kikker",
+      "afmeting": "22cm",
+      "status": "archief",
+      "voorraad": 1,
+      "nieuw": false,
+      "uitgelicht": false,
+      "datumToegevoegd": "2026-05-09",
+      "foto": ""
     }
   ]
 }
