@@ -163,7 +163,7 @@ window.orderUrl = function(text) {
           <input id="cd-adres" type="text" placeholder="Straat + huisnummer" autocomplete="street-address" oninput="window.updatePreview()">
         </div>
         <div class="cd-field cd-two-col">
-          <input id="cd-postcode" type="text" placeholder="Postcode" maxlength="7" inputmode="numeric" autocomplete="postal-code" oninput="window.updatePreview()">
+          <input id="cd-postcode" type="text" placeholder="Postcode" maxlength="7" autocomplete="postal-code" oninput="window.updatePreview()">
           <input id="cd-woonplaats" type="text" placeholder="Woonplaats" autocomplete="address-level2" oninput="window.updatePreview()">
         </div>
         <div class="cd-field">
