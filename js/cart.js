@@ -14,10 +14,27 @@ window.orderUrl = function(text) {
 };
 
 (function() {
-  const STORAGE_KEY = 'pleun_cart_v1';
+  // v2 = na multi-variant migratie (oude entries zonder baseId/kleur worden gepurged)
+  const STORAGE_KEY = 'pleun_cart_v2';
+  const LEGACY_KEY = 'pleun_cart_v1';
 
   function read()  { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
   function write(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); updateCartUI(); }
+
+  // Migreer oude cart-entries: behoud alleen items met geldige id+naam.
+  // Items zonder baseId krijgen baseId = id voor backward compat.
+  (function migrateLegacy() {
+    if (localStorage.getItem(STORAGE_KEY)) return; // al gemigreerd
+    try {
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || '[]');
+      if (!Array.isArray(legacy) || !legacy.length) return;
+      const migrated = legacy
+        .filter(i => i && i.id && i.naam && typeof i.prijs === 'number')
+        .map(i => ({ ...i, baseId: i.baseId || i.id }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      localStorage.removeItem(LEGACY_KEY);
+    } catch { /* ignore */ }
+  })();
 
   window.Cart = {
     items: () => read(),

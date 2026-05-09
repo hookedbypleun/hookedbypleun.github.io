@@ -117,7 +117,7 @@
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
-      "uitgelicht": false,
+      "uitgelicht": true,
       "datumToegevoegd": "2026-05-09",
       "foto": "img/items/hallo-ik-ben-sammie-de-kikker-tweak-moywql9e.jpg",
       "varianten": [
@@ -128,7 +128,7 @@
           ]
         },
         {
-          "kleur": "Lichtgroen",
+          "kleur": "lichtgroen",
           "fotos": [
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw45ui.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg",
@@ -137,7 +137,7 @@
           ]
         },
         {
-          "kleur": "Donkergroen",
+          "kleur": "donkergroen",
           "fotos": [
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw6z2t.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-donkergroen-1.jpg",
@@ -159,7 +159,7 @@
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
-      "uitgelicht": false,
+      "uitgelicht": true,
       "datumToegevoegd": "2026-05-09",
       "foto": "img/items/ollie-de-olifant-voor-15-euro-v3-1.jpg",
       "varianten": [
@@ -180,14 +180,14 @@
       "prijs": 3.75,
       "beschrijving": "Aardbei-octopus sleutelhanger in donkerroze 🍓 Superschattig aan je tas — kleine octopus-armpjes, helemaal handgemaakt ✨",
       "kleuren": [
-        "Donkerroze"
+        "donkerroze"
       ],
       "altText": "Handgehaakt: aardbei-octopus sleutelhanger",
       "afmeting": "5cm hoog",
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
-      "uitgelicht": false,
+      "uitgelicht": true,
       "datumToegevoegd": "2026-05-09",
       "foto": "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg",
       "varianten": [
@@ -199,7 +199,7 @@
           ]
         },
         {
-          "kleur": "Donkerroze",
+          "kleur": "donkerroze",
           "voorraad": 1,
           "fotos": [
             "img/items/dit-is-een-aarbei-octopus-sleu-donkerroze-1.jpg"
@@ -214,7 +214,7 @@
       "prijs": 2.25,
       "beschrijving": "Zachte scrunchie in grijs (11 cm) 🎀 Past lekker in je haar of om je pols — gewoon altijd handig.",
       "kleuren": [
-        "Grijs"
+        "grijs"
       ],
       "altText": "Handgehaakt: scrunchie grijs (11 cm)",
       "afmeting": "11cm",
@@ -233,7 +233,7 @@
           ]
         },
         {
-          "kleur": "Grijs",
+          "kleur": "grijs",
           "voorraad": 1,
           "fotos": [
             "img/items/leuke-scrunchie-voor-in-je-haa-grijs-1.jpg"
@@ -248,7 +248,7 @@
       "prijs": 2,
       "beschrijving": "Zachte scrunchie in grijs (9 cm) 🎀 Iets kleiner formaat, perfect voor dunner haar of om je pols.",
       "kleuren": [
-        "Grijs"
+        "grijs"
       ],
       "altText": "Handgehaakt: scrunchie grijs (9 cm)",
       "afmeting": "9cm",
@@ -267,7 +267,7 @@
           ]
         },
         {
-          "kleur": "Grijs",
+          "kleur": "grijs",
           "voorraad": 1,
           "fotos": [
             "img/items/leuke-scrunchie-voor-in-je-haa-2-grijs-1.jpg"
@@ -453,7 +453,7 @@
       "beschrijving": "Scrunchie met tweekleur-effect (11 cm) 🎀 Te kiezen in zwart-creme, lichtgroen-creme of paars-creme — telkens met een lieve creme rand.",
       "kleuren": [
         "zwart met creme",
-        "Lichtgroen met creme",
+        "lichtgroen met creme",
         "paarsgewijs met creme"
       ],
       "altText": "Handgehaakt: tweekleur scrunchie",
@@ -480,7 +480,7 @@
           ]
         },
         {
-          "kleur": "Lichtgroen met creme",
+          "kleur": "lichtgroen met creme",
           "voorraad": 1,
           "fotos": [
             "img/items/leuke-scrunchie-voor-in-je-haa-8-lichtgroen-met-creme-1.jpg"
@@ -1454,11 +1454,11 @@
       "prijs": 4.25,
       "beschrijving": "Blob-squishies in 5 kleurcombi's 🧶 Lekker zacht in je tas of hand — peach met paars, oranje met geel, lichtblauw met lichtgroen, creme met lichtblauw, of peach met geel ✨",
       "kleuren": [
-        "Peach met paars",
-        "Oranje met geel",
-        "Lichtblauw met lichtgroen",
+        "peach met paars",
+        "oranje met geel",
+        "lichtblauw met lichtgroen",
         "creme met lichtblauw",
-        "Peach met geel"
+        "peach met geel"
       ],
       "altText": "Handgehaakt: blob squishies (5 kleuren)",
       "afmeting": "6cm",
@@ -1477,21 +1477,21 @@
           ]
         },
         {
-          "kleur": "Peach met paars",
+          "kleur": "peach met paars",
           "voorraad": 1,
           "fotos": [
             "img/items/blob-squisies-in-5-verschillen-peach-met-paars-1.jpg"
           ]
         },
         {
-          "kleur": "Oranje met geel",
+          "kleur": "oranje met geel",
           "voorraad": 1,
           "fotos": [
             "img/items/blob-squisies-in-5-verschillen-oranje-met-geel-1.jpg"
           ]
         },
         {
-          "kleur": "Lichtblauw met lichtgroen",
+          "kleur": "lichtblauw met lichtgroen",
           "voorraad": 1,
           "fotos": [
             "img/items/blob-squisies-in-5-verschillen-lichtblauw-met-lichtgroen-1.jpg"
@@ -1505,7 +1505,7 @@
           ]
         },
         {
-          "kleur": "Peach met geel",
+          "kleur": "peach met geel",
           "voorraad": 1,
           "fotos": [
             "img/items/blob-squisies-in-5-verschillen-peach-met-geel-1.jpg"
@@ -1623,7 +1623,7 @@
       "beschrijving": "Megablobs in 3 kleurthema's 🧶 Superzacht en relaxing — lichtgroen-lichtblauw-wit, oranje-geel-donkergeel, of peach-roze-paars. Lekker om mee te zeulen.",
       "kleuren": [
         "lichtgroen, lichtblauw, wit",
-        "Oranje, geel en donkergeel",
+        "oranje, geel en donkergeel",
         "peach, roze en paars"
       ],
       "altText": "Handgehaakt: megablobs (3 kleurthema's)",
@@ -1650,7 +1650,7 @@
           ]
         },
         {
-          "kleur": "Oranje, geel en donkergeel",
+          "kleur": "oranje, geel en donkergeel",
           "voorraad": 1,
           "fotos": [
             "img/items/megablobs-in-3-verschillenden-oranje,-geel-en-donkergeel-1.jpg"
@@ -1672,8 +1672,8 @@
       "prijs": 3.25,
       "beschrijving": "Mini blob-sleutelhanger 🧶 In peach, donkergeel of lichtblauw — klein, zacht, en ZO fijn aan je tas.",
       "kleuren": [
-        "Peach",
-        "Donkergeel",
+        "peach",
+        "donkergeel",
         "lichtblauw"
       ],
       "altText": "Handgehaakt: mini blob sleutelhanger",
@@ -1693,14 +1693,14 @@
           ]
         },
         {
-          "kleur": "Peach",
+          "kleur": "peach",
           "voorraad": 1,
           "fotos": [
             "img/items/mini-blob-sleutelhanger-in-3-peach-1.jpg"
           ]
         },
         {
-          "kleur": "Donkergeel",
+          "kleur": "donkergeel",
           "voorraad": 1,
           "fotos": [
             "img/items/mini-blob-sleutelhanger-in-3-donkergeel-1.jpg"

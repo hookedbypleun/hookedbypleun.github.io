@@ -343,7 +343,7 @@ Lokaal afhalen of versturen?`;
           <img src="${alleFotos[0] || item.foto || ''}" alt="${escapeHtml(item.naam)}" id="foto-hoofd">
         </div>
         <div class="foto-thumbs" id="foto-thumbs">
-          ${alleFotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}"><img src="${f}" alt=""></button>`).join('')}
+          ${alleFotos.map((f, i) => `<button class="foto-thumb${i === 0 ? ' actief' : ''}" data-foto="${escapeHtml(f)}" aria-label="Foto ${i + 1} van ${escapeHtml(item.naam)}"><img src="${f}" alt="" onerror="this.parentElement.style.opacity='0.3'"></button>`).join('')}
         </div>
       </div>
       <div class="product-info">
@@ -367,7 +367,7 @@ Lokaal afhalen of versturen?`;
         ${heeftMeerKleuren ? `
           <div class="varianten-keuze" id="varianten-keuze">
             <div class="kleur-keuze-hint" id="kleur-hint">🎨 Kies hieronder eerst een kleur!</div>
-            <p class="varianten-label">🎨 Kies je kleur: <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong></p>
+            <p class="varianten-label">🎨 Kies je kleur:${varianten[0].kleur ? ` <strong id="huidige-kleur">${escapeHtml(varianten[0].kleur)}</strong>` : ' <strong id="huidige-kleur" style="color:var(--c-muted); font-style:italic">— nog niet gekozen —</strong>'}</p>
             <div class="kleur-knoppen">
               ${varianten.map((v, i) => `
                 <button class="kleur-knop${i === 0 ? ' actief' : ''}"

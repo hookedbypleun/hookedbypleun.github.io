@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.33">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.34">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
       border: 2px solid var(--c-cream-dark); border-radius: var(--r-md);
       font-family: inherit; font-size: 1rem; background: white;
     }
-    .admin-form input:focus, .admin-form textarea:focus { outline:none; border-color: var(--c-lavender); }
+    .admin-form input:focus, .admin-form textarea:focus { outline:2px solid var(--c-lavender); outline-offset:2px; border-color: var(--c-lavender); }
     .admin-form textarea { min-height: 80px; resize: vertical; }
     .admin-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .item-row {
@@ -133,7 +133,7 @@
     .photo-bri-row input[type=range] { width: 100%; accent-color: var(--c-lavender); cursor: pointer; }
     .ai-smart .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .ai-smart input { padding: 0.7em 1em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-size: 1rem; font-family: inherit; }
-    .ai-smart input:focus { outline: none; border-color: var(--c-lavender); }
+    .ai-smart input:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
     .ai-preview {
       background: white; border-radius: var(--r-md); padding: 1rem;
       margin-top: 1rem; border-left: 4px solid var(--c-mustard);
@@ -178,7 +178,7 @@
       border: 2px solid var(--c-cream-dark); border-radius: var(--r-md);
       font-family: inherit; font-size: 0.95rem; background: white; box-sizing: border-box;
     }
-    .wiz-grid input:focus, .wiz-grid select:focus, .wiz-grid textarea:focus { outline: none; border-color: var(--c-lavender); }
+    .wiz-grid input:focus, .wiz-grid select:focus, .wiz-grid textarea:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
     .wiz-grid textarea { resize: vertical; min-height: 70px; }
     @media (min-width: 600px) { .wiz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; } }
 
@@ -247,12 +247,12 @@
       font-size: 16px;  /* iOS zoom-fix bij focus */
     }
     .wiz-preview .pv-edit:hover { border-color: var(--c-lavender); }
-    .wiz-preview .pv-edit:focus { outline: none; border-color: var(--c-lavender); background: #fffdf6; }
+    .wiz-preview .pv-edit:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); background: #fffdf6; }
     .wiz-preview textarea.pv-edit { min-height: 90px; resize: vertical; line-height: 1.45; }
     .wiz-edit-hint { font-size:0.78rem; color:var(--c-muted); margin:-0.2em 0 0.4em; font-style:italic; }
 
     .wiz-cmt { width: 100%; min-height: 60px; padding: 0.5em 0.8em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box; transition: border-color 0.2s; }
-    .wiz-cmt:focus { outline: none; border-color: var(--c-lavender); }
+    .wiz-cmt:focus { outline: 2px solid var(--c-lavender); outline-offset: 2px; border-color: var(--c-lavender); }
     .wiz-cmt.shake { animation: shake 0.4s; border-color: #c62828; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
     .refine-btn.btn-empty { opacity: 0.55; }
@@ -853,6 +853,9 @@
     <!-- Versie footer -->
     <div id="admin-footer" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--c-cream-dark); text-align:center; color:var(--c-muted); font-size:0.85rem">
       <div>🧶 <span class="version-tag" style="cursor:pointer; text-decoration:underline dotted" onclick="openChangelog()" title="Bekijk changelog">v…</span> · <span id="admin-version-date">…</span></div>
+      <div style="margin-top:0.6em">
+        <button type="button" onclick="aiLogout()" style="background:none; border:1.5px solid var(--c-cream-dark); color:var(--c-muted); padding:0.3rem 0.8rem; border-radius:var(--r-pill); cursor:pointer; font-family:inherit; font-size:0.8rem">🔒 Uitloggen</button>
+      </div>
       <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh ↓</div>
     </div>
   </div>
@@ -1006,8 +1009,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.33"></script>
-  <script src="../js/sw-register.js?v=3.0.33"></script>
+  <script src="../js/config.js?v=3.0.34"></script>
+  <script src="../js/sw-register.js?v=3.0.34"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1133,14 +1136,20 @@
       const orig = document.getElementById('f-id-original').value;
       const id = document.getElementById('f-id').value.trim().toLowerCase().replace(/\s+/g,'-');
 
-      // Lees varianten + foto's uit de editor (bron van waarheid)
-      const cleanVarianten = (_variantState || [])
-        .map(v => ({ kleur: String(v.kleur || '').trim(), fotos: Array.isArray(v.fotos) ? v.fotos.filter(Boolean) : [] }))
-        .filter(v => v.fotos.length > 0);
+      // Lees varianten + foto's uit de editor (bron van waarheid). Kleuren naar lowercase.
+      const allVarianten = (_variantState || [])
+        .map(v => ({ kleur: String(v.kleur || '').trim().toLowerCase(), fotos: Array.isArray(v.fotos) ? v.fotos.filter(Boolean) : [] }));
+      const cleanVarianten = allVarianten.filter(v => v.fotos.length > 0);
 
       if (cleanVarianten.length === 0) {
         alert('Voeg minstens 1 foto toe via de variant-editor voordat je opslaat.');
         return;
+      }
+      // Waarschuw als kleur-varianten zonder foto's worden weggefilterd
+      const lege = allVarianten.filter(v => v.kleur && v.fotos.length === 0);
+      if (lege.length) {
+        const namen = lege.map(v => `"${v.kleur}"`).join(', ');
+        if (!confirm(`Let op: variant ${namen} heeft geen foto's en verdwijnt bij opslaan. Doorgaan?`)) return;
       }
 
       const hoofdfoto = cleanVarianten[0].fotos[0];
@@ -1158,7 +1167,10 @@
         // ALTIJD varianten meesturen — anders behoudt de Worker-merge de oude variant-array
         varianten: cleanVarianten,
         status: document.getElementById('f-status').value,
-        datumToegevoegd: new Date().toISOString().slice(0,10),
+        // Behoud bestaande datum bij update; alleen voor nieuwe items vandaag.
+        datumToegevoegd: orig
+          ? (DATA.items.find(i => i.id === orig)?.datumToegevoegd || new Date().toISOString().slice(0,10))
+          : new Date().toISOString().slice(0,10),
         uitgelicht: document.getElementById('f-uitgelicht').checked || undefined,
         nieuw: document.getElementById('f-nieuw').checked || undefined,
       };
@@ -1354,7 +1366,7 @@
       if (downloaded === 0) {
         alert('Geen foto\'s om te downloaden — voeg eerst items toe (stap 1).');
       } else {
-        alert(`📥 ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar:\nC:\\Users\\Dave\\projects\\crochet-by-pleun\\img\\items\\`);
+        alert(`📥 ${downloaded} foto's gedownload naar je Downloads-map.\n\nVerplaats ze nu naar de img/items/-map van het project.`);
       }
     };
 
@@ -1477,7 +1489,14 @@
     // ✨ AI SMART MODE — voor Pleun
     // ================================================
     const AI_PW_KEY = 'pleun_ai_pw_v2';
-    const AI_PW_TTL_MS = 12 * 60 * 60 * 1000;  // 12 uur
+    const AI_PW_TTL_MS = 2 * 60 * 60 * 1000;  // 2 uur — korter = veiliger
+    function aiLogout() {
+      localStorage.removeItem(AI_PW_KEY);
+      AI_PASSWORD = '';
+      alert('🔒 Uitgelogd. Herlaad de pagina om opnieuw in te loggen.');
+      location.reload();
+    }
+    window.aiLogout = aiLogout;
     let AI_PHOTO = null;          // { dataURL, base64, mediaType, ext }
     let AI_GENERATED = null;      // { naam, beschrijving, categorie, kleuren, altText }
     function readStoredPw() {
@@ -2444,8 +2463,8 @@
         <div class="variant-block" data-vi="${idx}" style="background:white; border:2px solid var(--c-cream-dark); border-radius:var(--r-md); padding:0.7rem; margin-bottom:0.5rem">
           <div style="display:flex; gap:0.4rem; align-items:center; margin-bottom:0.5rem">
             <div style="display:flex; flex-direction:column; gap:2px">
-              <button type="button" onclick="moveVariant(${idx},-1)" ${isFirst ? 'disabled' : ''} style="${moveBtnStyle}; height:18px; ${isFirst ? 'opacity:0.3; cursor:default' : ''}" title="Variant omhoog">↑</button>
-              <button type="button" onclick="moveVariant(${idx},1)" ${isLast ? 'disabled' : ''} style="${moveBtnStyle}; height:18px; ${isLast ? 'opacity:0.3; cursor:default' : ''}" title="Variant omlaag">↓</button>
+              <button type="button" onclick="moveVariant(${idx},-1)" ${isFirst ? 'disabled' : ''} style="${moveBtnStyle}; height:30px; ${isFirst ? 'opacity:0.3; cursor:default' : ''}" title="Variant omhoog">↑</button>
+              <button type="button" onclick="moveVariant(${idx},1)" ${isLast ? 'disabled' : ''} style="${moveBtnStyle}; height:30px; ${isLast ? 'opacity:0.3; cursor:default' : ''}" title="Variant omlaag">↓</button>
             </div>
             <span style="font-size:0.8rem; color:var(--c-muted); white-space:nowrap">🎨</span>
             <input class="var-kleur" value="${escapeHtmlAdmin(v.kleur || '')}" placeholder="Kleur (bv. lichtgroen, of leeg laten als geen kleur-variant)"
