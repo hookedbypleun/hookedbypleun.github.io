@@ -247,14 +247,12 @@
       });
     }
 
-    const sortBalk = document.getElementById('sort-balk');
-    if (sortBalk) {
-      sortBalk.style.display = '';
-      sortBalk.addEventListener('click', e => {
-        const b = e.target.closest('button[data-sort]');
-        if (!b) return;
-        huidigSort = b.dataset.sort;
-        sortBalk.querySelectorAll('button').forEach(x => x.classList.toggle('actief', x.dataset.sort === huidigSort));
+    const sortRij = document.getElementById('sort-rij');
+    const sortSelect = document.getElementById('sort-select');
+    if (sortRij && sortSelect) {
+      sortRij.style.display = '';
+      sortSelect.addEventListener('change', () => {
+        huidigSort = sortSelect.value;
         render();
       });
     }
@@ -700,3 +698,27 @@ Lokaal afhalen of versturen?`;
     initShopReviewForm();
   });
 })();
+
+// Nav-meer dropdown — werkt op alle pagina's
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('nav-meer-toggle');
+  const drop = document.getElementById('nav-meer-drop');
+  if (!toggle || !drop) return;
+
+  toggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const rect = toggle.getBoundingClientRect();
+    drop.style.top = (rect.bottom + 8) + 'px';
+    drop.style.right = (window.innerWidth - rect.right) + 'px';
+    drop.style.left = 'auto';
+    const open = drop.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  document.addEventListener('click', () => {
+    drop.classList.remove('open');
+    toggle.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+});

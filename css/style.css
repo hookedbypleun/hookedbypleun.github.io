@@ -589,40 +589,79 @@ section.section {
 .filter-balk button:hover { border-color: var(--c-lavender); color: var(--c-lavender-dark); }
 .filter-balk button.actief { background: var(--c-lavender); color: white; border-color: var(--c-lavender-dark); }
 
-.sort-balk {
+.sort-rij {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   margin-bottom: var(--gap-md);
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.sort-balk::-webkit-scrollbar { display: none; }
 .sort-label {
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--c-muted);
   white-space: nowrap;
   flex-shrink: 0;
-  padding-right: 0.2rem;
 }
-.sort-balk button {
-  flex-shrink: 0;
-  white-space: nowrap;
-  background: white;
-  border: 1px solid var(--c-cream-dark);
-  color: var(--c-text);
-  padding: 0.3em 0.8em;
+.sort-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 7 5-7z' fill='%239A8FA0'/%3E%3C/svg%3E") no-repeat right 0.7rem center;
+  background-size: 9px;
+  border: 1.5px solid var(--c-cream-dark);
   border-radius: var(--r-pill);
-  font-weight: 700;
-  cursor: pointer;
+  padding: 0.35rem 2.2rem 0.35rem 0.85rem;
   font-family: inherit;
-  font-size: 0.8rem;
-  transition: all 0.2s;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.sort-balk button:hover { border-color: var(--c-mustard); color: var(--c-mustard-dark, #b07d10); }
-.sort-balk button.actief { background: var(--c-mustard); color: white; border-color: var(--c-mustard); }
+.sort-select:focus { outline: none; border-color: var(--c-mustard); box-shadow: 0 0 0 2px rgba(229,184,92,0.2); }
+.sort-select:hover { border-color: var(--c-mustard); }
+
+/* Nav-meer dropdown */
+.nav-meer { position: relative; flex-shrink: 0; }
+.nav-meer-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  color: var(--c-text);
+  font-family: inherit;
+  transition: all 0.2s;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+.nav-meer-btn:hover, .nav-meer-btn.open { background: var(--c-lavender); color: white; }
+.nav-meer-btn.actief { background: var(--c-lavender); color: white; }
+.nav-meer-drop {
+  display: none;
+  position: fixed;
+  background: white;
+  border: 1.5px solid var(--c-cream-dark);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-medium);
+  min-width: 170px;
+  z-index: 500;
+  padding: 0.3rem;
+}
+.nav-meer-drop.open { display: block; }
+.nav-meer-drop a {
+  display: block;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--r-sm);
+  color: var(--c-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.nav-meer-drop a:hover { background: var(--c-cream); text-decoration: none; }
+.nav-meer-drop a.actief { color: var(--c-lavender-dark); }
 
 /* ============================================
    Productpagina
