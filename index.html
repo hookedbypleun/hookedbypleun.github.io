@@ -110,6 +110,14 @@
     <div class="galerij-grid" id="home-nieuw"></div>
   </section>
 
+  <!-- Reviews van klanten -->
+  <section class="section" id="home-reviews-section" style="display:none">
+    <div class="section-header">
+      <h2>💝 Wat anderen zeggen</h2>
+    </div>
+    <div class="reviews-grid" id="home-reviews"></div>
+  </section>
+
   <!-- Sociaal bewijs uit poll -->
   <section class="section">
     <div class="social-proof">
@@ -158,13 +166,18 @@
       <a href="bestellen.html">Bestellen</a>
       <a href="over.html">Over</a>
     </div>
-    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> · Privacy: alle bestellingen verlopen via WhatsApp, geen accounts, geen tracking. <span class="version-tag">v1.0.0</span></small>
+    <div class="extra-links">
+      <a onclick="openIdeeenbus(); return false;" href="#">💡 Idee of foutje?</a>
+      <a onclick="openDisclaimer(); return false;" href="#">📜 Goed om te weten</a>
+    </div>
+    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> · Privacy: alle bestellingen verlopen via WhatsApp, geen accounts, geen tracking. <span class="version-tag">v2.4.0</span></small>
   </footer>
 
   <script src="js/config.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/postcode.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/modals.js"></script>
   <script src="js/sw-register.js"></script>
 </body>
 </html>

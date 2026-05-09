@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.3.9">
+  <link rel="stylesheet" href="../css/style.css?v=2.4.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -706,6 +706,37 @@
     <h2 style="margin-top:3rem">📝 Recent toegevoegd</h2>
     <p style="color:var(--c-muted)">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
     <div id="auto-changelog" style="margin-bottom:1rem"></div>
+
+    <!-- =============================== -->
+    <!-- REVIEWS MODERATIE               -->
+    <!-- =============================== -->
+    <h2 style="margin-top:3rem">💬 Reviews modereren</h2>
+    <p style="color:var(--c-muted)">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
+    <div id="reviews-admin-list"><p style="color:var(--c-muted)">Reviews laden...</p></div>
+
+    <style>
+      .rv-admin-kaart {
+        background: white; border-radius: var(--r-md); padding: 0.8rem 1rem;
+        margin-bottom: 0.6rem; box-shadow: var(--shadow-soft);
+        border-left: 4px solid var(--c-cream-dark);
+      }
+      .rv-admin-kaart.pending { border-left-color: var(--c-mustard); }
+      .rv-admin-kaart.approved { border-left-color: #4CAF50; }
+      .rv-admin-kaart.rejected { border-left-color: var(--c-sold); opacity: 0.6; }
+      .rv-admin-meta { font-size:0.82rem; color:var(--c-muted); margin-bottom:0.4em; }
+      .rv-admin-tekst { font-style:italic; color:var(--c-ink); margin:0.3em 0; }
+      .rv-admin-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
+      .rv-admin-actions button {
+        font-family:inherit; font-size:0.82rem; padding:0.35em 0.7em;
+        border-radius:var(--r-pill); border:1.5px solid var(--c-cream-dark);
+        cursor:pointer; font-weight:700; background:white; transition:all 0.15s;
+      }
+      .rv-admin-actions .btn-approve { border-color:#4CAF50; color:#2E7D32; }
+      .rv-admin-actions .btn-approve:hover { background:#4CAF50; color:white; }
+      .rv-admin-actions .btn-reject  { border-color:var(--c-sold); color:#a00; }
+      .rv-admin-actions .btn-reject:hover { background:var(--c-sold); color:white; }
+      .rv-admin-actions .btn-toggle.on { background:var(--c-mustard); color:white; border-color:var(--c-mustard-dark); }
+    </style>
 
     <!-- Versie footer -->
     <div id="admin-footer" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--c-cream-dark); text-align:center; color:var(--c-muted); font-size:0.85rem">
@@ -2116,6 +2147,75 @@
     window.editPhotoApplyFilters = editPhotoApplyFilters;
     window.editPhotoPickBase = editPhotoPickBase;
     window.editPhotoDownload = editPhotoDownload;
+
+    // ============================================================
+    // Reviews moderatie
+    // ============================================================
+    async function loadAdminReviews() {
+      const container = document.getElementById('reviews-admin-list');
+      if (!container) return;
+      try {
+        const res = await fetch('../data/reviews.json?v=' + Date.now());
+        const data = await res.json();
+        const reviews = (data.reviews || []).sort((a, b) => {
+          const order = { pending: 0, approved: 1, rejected: 2 };
+          return (order[a.status] ?? 9) - (order[b.status] ?? 9) || (b.datum || '').localeCompare(a.datum || '');
+        });
+        if (reviews.length === 0) {
+          container.innerHTML = '<p style="color:var(--c-muted)">Nog geen reviews 🌸</p>';
+          return;
+        }
+        container.innerHTML = reviews.map(r => {
+          const sterren = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+          return `
+          <div class="rv-admin-kaart ${r.status}" id="rv-${r.id}">
+            <div class="rv-admin-meta">
+              <strong>${r.naam || 'Anoniem'}</strong> · ${sterren} · ${r.datum || ''}
+              · <a href="../product.html?id=${encodeURIComponent(r.productId)}" target="_blank">${r.productNaam || r.productId}</a>
+              · <em style="text-transform:uppercase;font-size:0.78rem">${r.status}</em>
+            </div>
+            <p class="rv-admin-tekst">"${r.tekst}"</p>
+            <div class="rv-admin-actions">
+              ${r.status !== 'approved' ? `<button class="btn-approve" onclick="modereerReview('${r.id}','approve')">✅ Goedkeuren</button>` : ''}
+              ${r.status !== 'rejected' ? `<button class="btn-reject"  onclick="modereerReview('${r.id}','reject')">🗑 Afwijzen</button>` : ''}
+              <button class="btn-toggle${r.cadeau ? ' on' : ''}"     onclick="modereerReview('${r.id}','cadeau')">🎁 Cadeautje${r.cadeau ? ' ✓' : ''}</button>
+              <button class="btn-toggle${r.uitgelicht ? ' on' : ''}" onclick="modereerReview('${r.id}','uitgelicht')">⭐ Homepage${r.uitgelicht ? ' ✓' : ''}</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        container.innerHTML = `<p style="color:var(--c-muted)">Reviews laden mislukt: ${e.message}</p>`;
+      }
+    }
+
+    async function modereerReview(id, actie) {
+      const token = sessionStorage.getItem('pleun_admin_token');
+      if (!token) { alert('Eerst inloggen 🔒'); return; }
+      const cfg = window.SHOP_CONFIG || {};
+      try {
+        const res = await fetch(cfg.workerUrl.replace(/\/$/, '') + '/review', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ id, actie }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'onbekende fout');
+        await loadAdminReviews();
+      } catch (e) {
+        alert('Moderatie mislukt: ' + e.message);
+      }
+    }
+
+    window.modereerReview = modereerReview;
+
+    // Reviews laden zodra admin ingelogd is
+    const _origAiUnlock = window.aiUnlock;
+    window.aiUnlock = async function() {
+      await _origAiUnlock?.();
+      loadAdminReviews();
+    };
+    // Ook direct laden als al ingelogd (page refresh)
+    if (sessionStorage.getItem('pleun_admin_token')) loadAdminReviews();
   </script>
 </body>
 </html>

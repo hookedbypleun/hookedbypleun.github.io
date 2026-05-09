@@ -74,6 +74,27 @@
         .slice(0, 6);
       nieuwGrid.innerHTML = sorted.map(kaartHTML).join('');
     }
+
+    // Reviews-blok op homepage
+    const reviewsGrid = document.getElementById('home-reviews');
+    const reviewsSectie = document.getElementById('home-reviews-section');
+    if (reviewsGrid && reviewsSectie) {
+      try {
+        const rvRes = await fetch('data/reviews.json?v=' + Date.now());
+        const rvData = await rvRes.json();
+        const uitgelicht = (rvData.reviews || []).filter(r => r.status === 'approved' && r.uitgelicht).slice(0, 3);
+        if (uitgelicht.length > 0) {
+          reviewsGrid.innerHTML = uitgelicht.map(r => `
+            <div class="review-kaart">
+              <div class="rv-sterren">${'★'.repeat(r.rating || 5)}</div>
+              <p class="rv-tekst">"${escapeHtml(r.tekst)}"</p>
+              <p class="rv-naam">— ${escapeHtml(r.naam || 'Anoniem')}</p>
+              ${r.productNaam ? `<p class="rv-product"><a href="product.html?id=${encodeURIComponent(r.productId)}">${escapeHtml(r.productNaam)}</a></p>` : ''}
+            </div>`).join('');
+          reviewsSectie.style.display = '';
+        }
+      } catch {}
+    }
   }
 
   // ===== Galerij =====
@@ -207,15 +228,29 @@ Lokaal afhalen of versturen?`;
             <button class="btn full" onclick='window.openCheckout(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse})})'>
               💬 ${escapeHtml(cfg.whatsappLabel)} — ik wil deze!
             </button>
-            <button class="btn secondary full" onclick='Cart.add(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse})}); document.querySelector("#cart-overlay").classList.add("open");'>
+            <button class="btn secondary full" onclick='Cart.add(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse, voorraad: item.voorraad || 0})}); document.querySelector("#cart-overlay").classList.add("open");'>
               🎁 Voeg toe aan verzameldoos
             </button>
           </div>
         ` : showcase ? `
-          <div class="bestel-acties">
-            <a class="btn full" href="${window.orderUrl('Hoi Pleun! Ik wil graag een ' + item.naam + ' op maat laten haken. Kunnen we de details bespreken?')}" target="_blank" rel="noopener">
-              💝 Vraag een eigen versie aan
-            </a>
+          <div class="offerte-form">
+            <h3>📐 Vraag een eigen versie aan</h3>
+            <p class="cd-hint">Vertel wat je wil — ik kijk wat ik voor je kan haken! 💝</p>
+            <div class="cd-field">
+              <input id="of-afmeting" type="text" placeholder="Gewenste afmeting (optioneel, bv. 15 cm)">
+            </div>
+            <div class="cd-field">
+              <input id="of-kleur" type="text" placeholder="Kleur of stijl (optioneel, bv. lichtroze + wit)">
+            </div>
+            <div class="cd-field">
+              <input id="of-deadline" type="text" placeholder="Gewenste deadline (optioneel, bv. voor 20 juni)">
+            </div>
+            <div class="cd-field">
+              <input id="of-wensen" type="text" placeholder="Andere wensen (optioneel)">
+            </div>
+            <button class="btn full" onclick="window.verstuurOfferte('${escapeHtml(item.naam)}')">
+              💬 Stuur aanvraag via WhatsApp
+            </button>
           </div>
         ` : binnenkort ? `
           <div class="bestel-acties">
@@ -232,9 +267,120 @@ Lokaal afhalen of versturen?`;
           </div>
         `}
       </div>
+
+      <div class="reviews-sectie" id="reviews-sectie">
+        <h3>💬 Reviews</h3>
+        <div id="reviews-lijst"><p class="cd-hint">Reviews laden... 🧶</p></div>
+        <div class="review-form">
+          <h4>Jouw ervaring</h4>
+          <p class="cd-hint">Heb je iets besteld bij Pleun? Deel je ervaring — ze stuurt misschien een extra cadeautje 🎁</p>
+          <div class="cd-field">
+            <input id="rv-naam" type="text" placeholder="Jouw naam (optioneel)">
+          </div>
+          <div class="rv-stars" id="rv-stars">
+            <button data-star="1" aria-label="1 ster">★</button>
+            <button data-star="2" aria-label="2 sterren">★</button>
+            <button data-star="3" aria-label="3 sterren">★</button>
+            <button data-star="4" aria-label="4 sterren">★</button>
+            <button data-star="5" aria-label="5 sterren">★</button>
+          </div>
+          <div class="cd-field">
+            <textarea id="rv-tekst" rows="3" placeholder="Schrijf je review hier... (verplicht)"></textarea>
+          </div>
+          <button class="btn full" id="rv-verstuur">💝 Review versturen</button>
+          <p id="rv-status" class="cd-hint" style="display:none;margin-top:0.5em"></p>
+        </div>
+      </div>
     `;
     document.title = item.naam + ' · Hooked by Pleun';
+
+    // Reviews sectie laden
+    loadReviewsForProduct(item.id, item.naam);
   }
+
+  async function loadReviewsForProduct(productId, productNaam) {
+    const sectie = document.getElementById('reviews-sectie');
+    if (!sectie) return;
+    try {
+      const res = await fetch('data/reviews.json?v=' + Date.now());
+      const data = await res.json();
+      const goedgekeurd = (data.reviews || []).filter(r => r.productId === productId && r.status === 'approved');
+      const lijst = document.getElementById('reviews-lijst');
+      if (!lijst) return;
+      if (goedgekeurd.length === 0) {
+        lijst.innerHTML = '<p class="cd-hint">Nog geen reviews — wees de eerste! 🌸</p>';
+      } else {
+        lijst.innerHTML = goedgekeurd.map(r => `
+          <div class="review-kaart">
+            <div class="rv-sterren">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+            <p class="rv-tekst">"${escapeHtml(r.tekst)}"</p>
+            <p class="rv-naam">— ${escapeHtml(r.naam || 'Anoniem')} · ${r.datum || ''}</p>
+          </div>`).join('');
+      }
+    } catch {
+      const lijst = document.getElementById('reviews-lijst');
+      if (lijst) lijst.innerHTML = '';
+    }
+
+    // Review submit
+    const verstuurBtn = document.getElementById('rv-verstuur');
+    if (verstuurBtn) {
+      let rvRating = 5;
+      const sterren = document.querySelectorAll('#rv-stars button');
+      sterren.forEach(btn => {
+        btn.addEventListener('click', () => {
+          rvRating = parseInt(btn.dataset.star);
+          sterren.forEach(b => b.classList.toggle('actief', parseInt(b.dataset.star) <= rvRating));
+        });
+      });
+      // Toon standaard 5 sterren
+      sterren.forEach(b => b.classList.add('actief'));
+
+      verstuurBtn.addEventListener('click', async () => {
+        const tekst = document.getElementById('rv-tekst')?.value.trim();
+        const naam = document.getElementById('rv-naam')?.value.trim();
+        const status = document.getElementById('rv-status');
+        if (!tekst || tekst.length < 5) {
+          if (status) { status.textContent = 'Schrijf eerst een reviewtekst 💝'; status.style.display = ''; }
+          return;
+        }
+        verstuurBtn.disabled = true;
+        verstuurBtn.textContent = '⏳ Versturen...';
+        try {
+          const cfg = window.SHOP_CONFIG || {};
+          const res = await fetch((cfg.workerUrl || '').replace(/\/$/, '') + '/review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, productNaam, naam, tekst, rating: rvRating }),
+          });
+          if (!res.ok) throw new Error('Server error');
+          if (status) { status.textContent = '💝 Dankjewel! Pleun leest hem snel.'; status.style.display = ''; }
+          verstuurBtn.textContent = '✅ Verstuurd!';
+          document.getElementById('rv-tekst').value = '';
+          document.getElementById('rv-naam').value = '';
+        } catch {
+          if (status) { status.textContent = '😕 Niet gelukt. Probeer opnieuw.'; status.style.display = ''; }
+          verstuurBtn.disabled = false;
+          verstuurBtn.textContent = '💝 Review versturen';
+        }
+      });
+    }
+  }
+
+  // ===== Offerte-aanvraag voor showcase-items =====
+  window.verstuurOfferte = function(itemNaam) {
+    const afmeting = document.getElementById('of-afmeting')?.value.trim();
+    const kleur    = document.getElementById('of-kleur')?.value.trim();
+    const deadline = document.getElementById('of-deadline')?.value.trim();
+    const wensen   = document.getElementById('of-wensen')?.value.trim();
+    let bericht = `📐 Offerte aanvraag — ${itemNaam}\n\nHoi Pleun! Ik wil graag een ${itemNaam} op maat laten haken.`;
+    if (afmeting) bericht += `\n\nAfmeting: ${afmeting}`;
+    if (kleur)    bericht += `\nKleur/stijl: ${kleur}`;
+    if (deadline) bericht += `\nDeadline: ${deadline}`;
+    if (wensen)   bericht += `\nWensen: ${wensen}`;
+    bericht += '\n\nKan je dit maken? Wat zijn de kosten?';
+    window.open(window.orderUrl(bericht), '_blank');
+  };
 
   // ===== Marketing: WhatsApp-kanaal-link + Countdown =====
   function renderKanaalLink() {

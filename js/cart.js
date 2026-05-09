@@ -21,12 +21,20 @@ window.orderUrl = function(text) {
 
   window.Cart = {
     items: () => read(),
-    count: () => read().length,
-    total: () => read().reduce((s, i) => s + (i.prijs || 0), 0),
+    count: () => read().reduce((s, i) => s + (i.aantal || 1), 0),
+    total: () => read().reduce((s, i) => s + (i.prijs || 0) * (i.aantal || 1), 0),
     add(item) {
       const arr = read();
-      if (arr.find(i => i.id === item.id)) {
-        showToast('Zit al in je verzameldoos 💝');
+      const existing = arr.find(i => i.id === item.id);
+      if (existing) {
+        const max = item.voorraad || existing.voorraad || 99;
+        if ((existing.aantal || 1) >= max) {
+          showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`);
+          return;
+        }
+        existing.aantal = (existing.aantal || 1) + 1;
+        write(arr);
+        showToast(`✨ ${item.naam} × ${existing.aantal}!`);
         return;
       }
       arr.push({
@@ -36,12 +44,31 @@ window.orderUrl = function(text) {
         foto: item.foto,
         categorie: item.categorie,
         verzendklasse: item.verzendklasse,
+        voorraad: item.voorraad || 0,
+        aantal: 1,
       });
       write(arr);
       showToast(`✨ ${item.naam} toegevoegd!`);
     },
     remove(id) {
       write(read().filter(i => i.id !== id));
+    },
+    increment(id) {
+      const arr = read();
+      const item = arr.find(i => i.id === id);
+      if (!item) return;
+      const max = item.voorraad || 99;
+      if ((item.aantal || 1) >= max) { showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`); return; }
+      item.aantal = (item.aantal || 1) + 1;
+      write(arr);
+    },
+    decrement(id) {
+      const arr = read();
+      const item = arr.find(i => i.id === id);
+      if (!item) return;
+      if ((item.aantal || 1) <= 1) { write(arr.filter(i => i.id !== id)); return; }
+      item.aantal = item.aantal - 1;
+      write(arr);
     },
     clear() { write([]); },
   };
@@ -104,16 +131,27 @@ window.orderUrl = function(text) {
       return;
     }
 
-    list.innerHTML = items.map(i => `
+    list.innerHTML = items.map(i => {
+      const n = i.aantal || 1;
+      const totaalPrijs = (i.prijs * n).toFixed(2).replace('.', ',');
+      const maxBereikt = i.voorraad > 0 && n >= i.voorraad;
+      return `
       <li>
-        <img src="${i.foto}" alt="${escapeHtml(i.naam)}">
-        <span class="name">${escapeHtml(i.naam)}</span>
-        <span class="price">€${i.prijs.toFixed(2).replace('.', ',')}</span>
+        <a class="cart-item-link" href="product.html?id=${encodeURIComponent(i.id)}">
+          <img src="${i.foto}" alt="${escapeHtml(i.naam)}">
+          <span class="name">${escapeHtml(i.naam)}</span>
+        </a>
+        <div class="cart-qty">
+          <button class="qty-btn" onclick="Cart.decrement('${i.id}')" aria-label="Minder">−</button>
+          <span class="qty-num">${n}</span>
+          <button class="qty-btn" onclick="Cart.increment('${i.id}')" aria-label="Meer"${maxBereikt ? ' disabled' : ''}>+</button>
+        </div>
+        <span class="price">€${totaalPrijs}</span>
         <button class="remove" onclick="Cart.remove('${i.id}')" aria-label="Verwijderen">×</button>
-      </li>
-    `).join('');
+      </li>`;
+    }).join('');
 
-    const subtotal = items.reduce((s, i) => s + i.prijs, 0);
+    const subtotal = items.reduce((s, i) => s + i.prijs * (i.aantal || 1), 0);
     const cfg = window.SHOP_CONFIG;
     const ship = calculateShipping(items, cfg);
     const eindtotaal = subtotal + ship.kosten;
@@ -185,13 +223,17 @@ window.orderUrl = function(text) {
     if (!modal) return;
 
     const cfg = window.SHOP_CONFIG;
-    const total = items.reduce((s, i) => s + i.prijs, 0);
+    const total = items.reduce((s, i) => s + i.prijs * (i.aantal || 1), 0);
     const ship = calculateShipping(items, cfg);
     const verzending = ship.kosten;
     const eindTotaal = total + verzending;
     const gratisVerzending = ship.gratis;
     const verzendInfo = ship.info;
-    const lijn = items.map((i, n) => `${n + 1}. ${i.naam} — €${i.prijs.toFixed(2).replace('.', ',')}`).join('\n');
+    const lijn = items.map((i, n) => {
+      const cnt = i.aantal || 1;
+      const prefix = cnt > 1 ? `${cnt}× ` : '';
+      return `${n + 1}. ${prefix}${i.naam} — €${(i.prijs * cnt).toFixed(2).replace('.', ',')}`;
+    }).join('\n');
 
     _checkout = { target, cfg, lijn, total, gratisVerzending, verzending, eindTotaal, verzendInfo };
 

@@ -55,6 +55,13 @@ export default {
     const url = new URL(request.url);
 
     try {
+      // === /review POST — publieke review-inzending (GEEN auth) ===
+      if (url.pathname === '/review' && request.method === 'POST') {
+        const body = await request.json().catch(() => ({}));
+        const result = await submitReview(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       // === /order — publieke redirect naar WhatsApp (GEEN auth) ===
       if (url.pathname === '/order' && request.method === 'GET') {
         if (!env.WHATSAPP_NUMBER) {
@@ -98,6 +105,13 @@ export default {
 
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
+      }
+
+      // === /review PUT — moderatie (auth vereist) ===
+      if (url.pathname === '/review' && request.method === 'PUT') {
+        const body = await request.json();
+        const result = await moderateReview(body, env);
+        return jsonResponse(result, 200, cors);
       }
 
       return jsonResponse({ error: 'not_found' }, 404, cors);
@@ -423,6 +437,73 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
     photoPath,
     siteUrl: 'https://crochetbypleun.github.io/',
   };
+}
+
+// ================================================================
+// Reviews — opslaan + modereren
+// ================================================================
+async function getReviewsFile(env) {
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'crochet-by-pleun-worker',
+  };
+  const url = `https://api.github.com/repos/${REPO}/contents/data/reviews.json`;
+  const res = await fetch(url, { headers: ghHeaders });
+  if (!res.ok) return { reviews: [], sha: null, ghHeaders, url };
+  const data = await res.json();
+  const content = JSON.parse(decodeBase64(data.content));
+  return { reviews: content.reviews || [], sha: data.sha, ghHeaders, url };
+}
+
+async function saveReviewsFile({ reviews, sha, ghHeaders, url }, message) {
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { ...ghHeaders, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message,
+      content: encodeBase64(JSON.stringify({ reviews }, null, 2)),
+      ...(sha && { sha }),
+    }),
+  });
+  if (!res.ok) throw new Error('reviews.json opslaan mislukt: ' + await res.text());
+}
+
+async function submitReview({ productId, productNaam, naam, tekst, rating }, env) {
+  if (!tekst || String(tekst).trim().length < 5) throw new Error('Review tekst te kort');
+  if (!env.GITHUB_TOKEN) throw new Error('GITHUB_TOKEN niet ingesteld');
+  const file = await getReviewsFile(env);
+  const review = {
+    id: crypto.randomUUID(),
+    productId:   String(productId  || '').slice(0, 100),
+    productNaam: String(productNaam || '').slice(0, 100),
+    naam:        String(naam        || '').slice(0, 80),
+    tekst:       String(tekst       || '').trim().slice(0, 600),
+    rating:      Math.max(1, Math.min(5, parseInt(rating) || 5)),
+    datum:       new Date().toISOString().slice(0, 10),
+    status:      'pending',
+    cadeau:      false,
+    uitgelicht:  false,
+  };
+  file.reviews.push(review);
+  await saveReviewsFile(file, `💬 Nieuwe review voor ${review.productNaam}`);
+  return { ok: true };
+}
+
+async function moderateReview({ id, actie }, env) {
+  if (!id || !actie) throw new Error('id en actie zijn verplicht');
+  const file = await getReviewsFile(env);
+  const idx = file.reviews.findIndex(r => r.id === id);
+  if (idx < 0) throw new Error('Review niet gevonden');
+  const r = file.reviews[idx];
+  if (actie === 'approve')    { r.status = 'approved'; }
+  else if (actie === 'reject')    { r.status = 'rejected'; }
+  else if (actie === 'cadeau')    { r.cadeau = !r.cadeau; }
+  else if (actie === 'uitgelicht') { r.uitgelicht = !r.uitgelicht; }
+  else throw new Error('Onbekende actie: ' + actie);
+  await saveReviewsFile(file, `🔧 Review ${actie}: ${r.productNaam}`);
+  return { ok: true, review: r };
 }
 
 function encodeBase64(str) {

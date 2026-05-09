@@ -1,7 +1,7 @@
 // Crochet by Pleun — Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
-const CACHE_VERSION = '2.3.9';
+const CACHE_VERSION = '2.4.0';
 const CACHE_NAME = `crochet-v${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -19,7 +19,9 @@ const PRECACHE = [
   '/js/cart.js',
   '/js/postcode.js',
   '/js/sw-register.js',
-  '/data/items.json'
+  '/js/modals.js',
+  '/data/items.json',
+  '/data/reviews.json'
 ];
 
 // ===== Install: precache alle assets =====
