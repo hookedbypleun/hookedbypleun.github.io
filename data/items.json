@@ -119,20 +119,24 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": "img/items/hallo-ik-ben-sammie-de-kikker-v2-1.jpg",
+      "foto": "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg",
       "varianten": [
         {
           "kleur": "lichtgroen",
-          "voorraad": 1,
           "fotos": [
             "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg"
           ]
         },
         {
           "kleur": "donkergroen",
-          "voorraad": 1,
           "fotos": [
             "img/items/hallo-ik-ben-sammie-de-kikker-donkergroen-1.jpg"
+          ]
+        },
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-moyw1jps.jpg"
           ]
         }
       ]
