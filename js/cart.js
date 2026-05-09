@@ -102,7 +102,8 @@ window.orderUrl = function(text) {
       const k = getShippingClass(it, cfg);
       if (VERZEND_RANG[k] > VERZEND_RANG[topKlasse]) topKlasse = k;
     });
-    const subtotaal = items.reduce((s, i) => s + i.prijs, 0);
+    // Subtotaal MET aantallen — anders klopt de gratis-verzending drempel niet
+    const subtotaal = items.reduce((s, i) => s + (i.prijs * (i.aantal || 1)), 0);
     const drempel = cfg.freeShippingThreshold || 0;
     const gratis = subtotaal >= drempel;
     const info = cfg.shipping[topKlasse];
