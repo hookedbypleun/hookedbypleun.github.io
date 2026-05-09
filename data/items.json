@@ -119,13 +119,19 @@
       "nieuw": true,
       "uitgelicht": false,
       "datumToegevoegd": "2026-05-09",
-      "foto": "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg",
+      "foto": "img/items/hallo-ik-ben-sammie-de-kikker-tweak-moywql9e.jpg",
       "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-tweak-moywql9e.jpg"
+          ]
+        },
         {
           "kleur": "Lichtgroen",
           "fotos": [
-            "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw45ui.jpg",
+            "img/items/hallo-ik-ben-sammie-de-kikker-lichtgroen-1.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw596q.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw65xo.jpg"
           ]
@@ -133,16 +139,10 @@
         {
           "kleur": "Donkergroen",
           "fotos": [
+            "img/items/hallo-ik-ben-sammie-de-kikker-moyw6z2t.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-donkergroen-1.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw6ryz.jpg",
-            "img/items/hallo-ik-ben-sammie-de-kikker-moyw6z2t.jpg",
             "img/items/hallo-ik-ben-sammie-de-kikker-moyw758f.jpg"
-          ]
-        },
-        {
-          "kleur": "",
-          "fotos": [
-            "img/items/hallo-ik-ben-sammie-de-kikker-moyw1jps.jpg"
           ]
         }
       ]
