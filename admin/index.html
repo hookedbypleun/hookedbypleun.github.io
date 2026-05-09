@@ -388,9 +388,15 @@
               <input id="w-voorwie" placeholder="bv. iemand die van pastel houdt, of een tienermeisje">
             </div>
 
-            <div class="veld">
-              <label>Iets bijzonders eraan?</label>
-              <input id="w-bijzonders" placeholder="bv. eerste van een serie, of glow-in-the-dark">
+            <div class="wiz-row">
+              <div class="veld">
+                <label>Afmeting (optioneel)</label>
+                <input id="w-afmeting" placeholder="bv. 4 cm breed, of 12 cm hoog">
+              </div>
+              <div class="veld">
+                <label>Iets bijzonders eraan?</label>
+                <input id="w-bijzonders" placeholder="bv. eerste van een serie, of glow-in-the-dark">
+              </div>
             </div>
 
             <div class="veld">
@@ -1624,6 +1630,7 @@
         voorWie: document.getElementById('w-voorwie').value.trim(),
         bijzonders: document.getElementById('w-bijzonders').value.trim(),
         vrijeTekst: document.getElementById('w-vrij').value.trim(),
+        afmeting: document.getElementById('w-afmeting').value.trim(),
         channels: wizState.channels,
       };
 
@@ -1844,6 +1851,7 @@
         kleuren: w.kleuren || [],
         altText: w.altText || '',
         extraKaartje: w.extraKaartje || '',
+        ...(wizState.input.afmeting ? { afmeting: wizState.input.afmeting } : {}),
         status: 'beschikbaar',
         voorraad: 1,
         nieuw: true,
@@ -1935,7 +1943,7 @@
       wizState.output = null;
       wizState.approved = { website: false, social: false };
       wizState.published = { website: false, social: false };
-      ['w-naam', 'w-prijs', 'w-uren', 'w-kleuren', 'w-voorwie', 'w-bijzonders', 'w-vrij', 'cmt-website', 'cmt-social'].forEach(id => {
+      ['w-naam', 'w-prijs', 'w-uren', 'w-kleuren', 'w-voorwie', 'w-afmeting', 'w-bijzonders', 'w-vrij', 'cmt-website', 'cmt-social'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
