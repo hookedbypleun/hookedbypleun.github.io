@@ -210,14 +210,15 @@ window.orderUrl = function(text) {
 
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  // Modal open/close
+  // Modal open/close — closest() ipv matches() zodat clicks op kinderen (emoji, count-span) ook tellen
   document.addEventListener('click', e => {
-    if (e.target.matches('[data-cart-open]')) {
+    if (e.target.closest('[data-cart-open]')) {
       e.preventDefault();
       const overlay = document.querySelector('#cart-overlay');
       if (overlay) { overlay.classList.add('open'); renderCartModal(); }
+      return;
     }
-    if (e.target.matches('.cart-overlay') || e.target.matches('.cart-close')) {
+    if (e.target.classList?.contains('cart-overlay') || e.target.closest('.cart-close')) {
       document.querySelector('#cart-overlay')?.classList.remove('open');
       window.hideCheckoutDetails?.();
     }
