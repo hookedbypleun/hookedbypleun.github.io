@@ -8,7 +8,7 @@
 // Secrets (instellen in Cloudflare dashboard → Settings → Variables):
 //   ADMIN_PASSWORD     — wachtwoord voor de admin-pagina
 //   GEMINI_API_KEY     — Google AI Studio API key (begint met "AIza...")
-//   GITHUB_TOKEN       — GitHub PAT met "Contents: write" op crochetbypleun/crochetbypleun.github.io
+//   GITHUB_TOKEN       — GitHub PAT met "Contents: write" op hookedbypleun/hookedbypleun.github.io
 //   WHATSAPP_NUMBER    — Pleun's WhatsApp-nummer (bv. 31635621715, zonder + of spaties)
 //
 // Endpoints:
@@ -18,9 +18,9 @@
 //   POST /refine     — { type, currentOutput, userComments, ... }   → herziene versie van die specifieke output
 //   POST /publish    — { item, photoBase64, photoFilename }         → commit naar GitHub
 
-const REPO = 'crochetbypleun/crochetbypleun.github.io';
+const REPO = 'hookedbypleun/hookedbypleun.github.io';
 const ALLOWED_ORIGINS = [
-  'https://crochetbypleun.github.io',
+  'https://hookedbypleun.github.io',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
 ];
@@ -435,7 +435,7 @@ async function publishToGitHub({ item, photoBase64, photoFilename }, env) {
     ok: true,
     itemId: item.id,
     photoPath,
-    siteUrl: 'https://crochetbypleun.github.io/',
+    siteUrl: 'https://hookedbypleun.github.io/',
   };
 }
 
