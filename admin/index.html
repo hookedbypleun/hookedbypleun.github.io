@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.30">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.31">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -857,8 +857,8 @@
     </div>
   </div>
 
-  <!-- Foto-tweak modal -->
-  <div id="photo-tweak-modal" hidden style="position:fixed; inset:0; background:rgba(62,52,71,0.65); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem">
+  <!-- Foto-tweak modal (display gestuurd via JS — geen hidden-attr i.v.m. inline-style conflict) -->
+  <div id="photo-tweak-modal" style="position:fixed; inset:0; background:rgba(62,52,71,0.65); z-index:1000; display:none; align-items:center; justify-content:center; padding:1rem">
     <div style="background:white; border-radius:var(--r-lg); padding:1rem 1.2rem; max-width:540px; width:100%; max-height:92vh; overflow:auto; box-shadow:var(--shadow-medium)">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
         <h3 style="margin:0">🎨 Foto tweaken</h3>
@@ -1006,8 +1006,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.30"></script>
-  <script src="../js/sw-register.js?v=3.0.30"></script>
+  <script src="../js/config.js?v=3.0.31"></script>
+  <script src="../js/sw-register.js?v=3.0.31"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2546,7 +2546,7 @@
       const path = v.fotos[fIdx];
       const src = fotoSrc(path);
       const modal = document.getElementById('photo-tweak-modal');
-      modal.hidden = false;
+      modal.style.display = 'flex';
       document.getElementById('tweak-bri').value = 0;
       document.getElementById('tweak-con').value = 0;
       document.getElementById('tweak-bri-val').textContent = '0';
@@ -2600,7 +2600,7 @@
     }
 
     function closeTweakModal() {
-      document.getElementById('photo-tweak-modal').hidden = true;
+      document.getElementById('photo-tweak-modal').style.display = 'none';
       _tweakState = { vIdx: -1, fIdx: -1, image: null, bri: 0, con: 0 };
     }
     window.closeTweakModal = closeTweakModal;
