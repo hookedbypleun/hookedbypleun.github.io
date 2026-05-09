@@ -169,14 +169,23 @@ nav .cart-count.empty { display: none; }
   position: relative;
   overflow: hidden;
 }
-.hero::before {
-  content: '🧶';
-  position: absolute;
-  font-size: 12rem;
-  opacity: 0.05;
-  top: -2rem;
-  right: -2rem;
-  transform: rotate(15deg);
+.hero-banner {
+  display: block;
+  max-width: min(560px, 92%);
+  width: 100%;
+  height: auto;
+  margin: 0 auto var(--gap-sm);
+  filter: drop-shadow(0 4px 12px rgba(232, 168, 142, 0.15));
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.tagline-wordplay {
+  color: var(--c-mustard-dark);
+  font-weight: 700;
 }
 .hero h1 { color: var(--c-ink); margin-bottom: 0.1em; }
 .hero .naam-sub {
@@ -876,7 +885,21 @@ footer {
   padding: var(--gap-xl) var(--content-pad);
   margin-top: var(--gap-xl);
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
+footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../img/branding/patroon.png');
+  background-size: 240px;
+  background-repeat: repeat;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+footer > * { position: relative; z-index: 1; }
 footer .signature {
   font-family: 'Caveat', cursive;
   font-size: 1.6rem;

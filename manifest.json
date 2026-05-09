@@ -1,0 +1,18 @@
+{
+  "name": "Hooked by Pleun",
+  "short_name": "Hooked by Pleun",
+  "description": "Handgehaakte knuffeltjes door Pleun (12) uit Brabant. Made small · Made with love.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#E8A88E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/branding/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

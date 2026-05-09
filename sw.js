@@ -1,7 +1,7 @@
 // Crochet by Pleun — Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
-const CACHE_VERSION = '2.4.2';
+const CACHE_VERSION = '3.0.0';
 const CACHE_NAME = `crochet-v${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -21,7 +21,12 @@ const PRECACHE = [
   '/js/sw-register.js',
   '/js/modals.js',
   '/data/items.json',
-  '/data/reviews.json'
+  '/data/reviews.json',
+  '/manifest.json',
+  '/img/branding/app-icon.png',
+  '/img/branding/banner.png',
+  '/img/branding/hoofdlogo.png',
+  '/img/branding/patroon.png'
 ];
 
 // ===== Install: precache alle assets =====
