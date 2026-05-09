@@ -203,22 +203,63 @@ async function callGemini({ prompt, photoBase64, mediaType, env, temperature = 0
 
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const finishReason = data.candidates?.[0]?.finishReason;
   if (!text) throw new Error('Lege Gemini response: ' + JSON.stringify(data).slice(0, 300));
 
   try {
     return JSON.parse(text);
   } catch {
+    // Probeer 1: regex extract
     const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Geen JSON in Gemini output: ' + text.slice(0, 200));
-    return JSON.parse(match[0]);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch {}
+    }
+    // Probeer 2: response was afgekapt — repareer onafgemaakte JSON
+    const repaired = repairTruncatedJson(text);
+    if (repaired) {
+      try { return JSON.parse(repaired); } catch {}
+    }
+    if (finishReason === 'MAX_TOKENS') {
+      throw new Error('AI-response te lang afgekapt — probeer "kortere" tekst of vraag een nieuwe versie.');
+    }
+    throw new Error('AI gaf een onleesbaar antwoord. Probeer opnieuw.');
   }
+}
+
+// Repareer JSON die midden in een string is afgekapt: sluit string, sluit braces.
+function repairTruncatedJson(text) {
+  const start = text.indexOf('{');
+  if (start < 0) return null;
+  let s = text.slice(start);
+  let inStr = false, esc = false, depthObj = 0, depthArr = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (esc) { esc = false; continue; }
+    if (c === '\\') { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{') depthObj++;
+    else if (c === '}') depthObj--;
+    else if (c === '[') depthArr++;
+    else if (c === ']') depthArr--;
+  }
+  let fixed = s;
+  if (inStr) fixed += '"';
+  // Verwijder trailing comma's vóór het sluiten
+  fixed = fixed.replace(/,\s*$/, '');
+  while (depthArr-- > 0) fixed += ']';
+  while (depthObj-- > 0) fixed += '}';
+  return fixed;
 }
 
 // ================================================================
 // /generate — dual output: website-artikel + WhatsApp-bericht
 // ================================================================
 async function generateWithGemini(input, env) {
-  const { photoBase64, mediaType, naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst } = input;
+  const { photoBase64, mediaType, naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst, channels } = input;
+  // Default: beide kanalen aan
+  const wantWebsite = !channels || channels.website !== false;
+  const wantSocial = !channels || channels.social !== false;
 
   const inputBlok = [
     naam ? `- Naam (zoals Pleun het noemt): ${naam}` : '- Naam: nog niet ingevuld, verzin een lieve simpele',
@@ -231,7 +272,29 @@ async function generateWithGemini(input, env) {
     vrijeTekst ? `- Pleuns eigen woorden over dit item: "${vrijeTekst}"` : null,
   ].filter(Boolean).join('\n');
 
-  const prompt = `Bekijk de foto en schrijf in Pleuns stem twee dingen voor dit nieuwe haakwerkje.
+  const websiteSchema = `"website": {
+    "naam": "korte lieve naam",
+    "beschrijving": "max 30 woorden, in eerste persoon, zoals Pleun het zou zeggen, vrolijk en eerlijk",
+    "categorie": "een van de categorieën",
+    "kleuren": ["kleur1", "kleur2"],
+    "altText": "korte beschrijving voor screenreaders, max 12 woorden",
+    "extraKaartje": "optioneel klein zinnetje met een leuke detail of weetje, mag leeg zijn"
+  }`;
+  const socialSchema = `"social": {
+    "tekst": "kant-en-klaar bericht voor Pleuns WhatsApp-kanaal — opent met een hook, vertelt over het item, eindigt met een uitnodiging om te bestellen via de site. Gebruik regelafbrekingen en emoji's. 60-100 woorden. Mag aan de prijs refereren als die er is.",
+    "hashtags": ["bv #handgehaakt", "max 4 stuks"]
+  }`;
+  const schemas = [];
+  if (wantWebsite) schemas.push(websiteSchema);
+  if (wantSocial) schemas.push(socialSchema);
+
+  const taakDesc = wantWebsite && wantSocial
+    ? 'twee dingen: een tekst voor op de site én een post voor het WhatsApp-kanaal'
+    : wantWebsite
+      ? 'een tekst voor op de site (productbeschrijving)'
+      : 'een post voor Pleuns WhatsApp-kanaal';
+
+  const prompt = `Bekijk de foto en schrijf in Pleuns stem ${taakDesc} voor dit nieuwe haakwerkje.
 
 Input van Pleun:
 ${inputBlok}
@@ -240,21 +303,11 @@ Beschikbare categorieën: ${CATEGORIEEN.join(', ')}.
 
 Geef ALLEEN een JSON-object terug met deze exacte structuur (geen andere tekst):
 {
-  "website": {
-    "naam": "korte lieve naam",
-    "beschrijving": "max 30 woorden, in eerste persoon, zoals Pleun het zou zeggen, vrolijk en eerlijk",
-    "categorie": "een van de categorieën",
-    "kleuren": ["kleur1", "kleur2"],
-    "altText": "korte beschrijving voor screenreaders, max 12 woorden",
-    "extraKaartje": "optioneel klein zinnetje met een leuke detail of weetje, mag leeg zijn"
-  },
-  "social": {
-    "tekst": "kant-en-klaar bericht voor Pleuns WhatsApp-kanaal — opent met een hook, vertelt over het item, eindigt met een uitnodiging om te bestellen via de site. Gebruik regelafbrekingen en emoji's. 60-100 woorden. Mag aan de prijs refereren als die er is.",
-    "hashtags": ["bv #handgehaakt", "max 4 stuks"]
-  }
+${schemas.join(',\n  ')}
 }`;
 
-  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 1500 });
+  const maxTokens = (wantWebsite && wantSocial) ? 3000 : 1500;
+  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens });
 }
 
 // ================================================================
@@ -266,9 +319,7 @@ async function refineWithGemini(input, env) {
   if (!['website', 'social'].includes(type)) {
     throw new Error('type moet "website" of "social" zijn');
   }
-  if (!userComments || !userComments.trim()) {
-    throw new Error('userComments is verplicht');
-  }
+  const hasComments = userComments && userComments.trim();
 
   const schemaText = type === 'website'
     ? `{
@@ -286,19 +337,22 @@ async function refineWithGemini(input, env) {
 
   const contextBlok = originalInput ? `\nOorspronkelijke input van Pleun:\n${JSON.stringify(originalInput, null, 2)}\n` : '';
 
+  const taakBlok = hasComments
+    ? `Wat Pleun wil veranderen (haar eigen woorden):\n"${userComments.trim()}"\n\nMaak een nieuwe versie die haar feedback verwerkt, in haar stem, met dezelfde structuur.`
+    : `Pleun wil een verse alternatieve versie zien — andere woordkeuze, andere invalshoek, dezelfde sfeer en stem. Vermijd dezelfde zinnen.`;
+
   const prompt = `Pleun wil de ${type === 'website' ? 'productbeschrijving op de site' : 'WhatsApp-kanaal-post'} herzien.
 
 Huidige versie:
 ${JSON.stringify(currentOutput, null, 2)}
 ${contextBlok}
-Wat Pleun wil veranderen (haar eigen woorden):
-"${userComments.trim()}"
+${taakBlok}
 
-Maak een nieuwe versie die haar feedback verwerkt, in haar stem, met dezelfde structuur. Geef ALLEEN dit JSON-object terug, niets anders:
+Geef ALLEEN dit JSON-object terug, niets anders:
 
 ${schemaText}`;
 
-  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 1000 });
+  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 2000 });
 }
 
 // ================================================================

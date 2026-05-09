@@ -25,16 +25,30 @@
       }
     });
 
-    // Wachten op nieuwe SW die klaar staat
+    // Nieuwe SW gevonden → automatisch activeren (geen banner-knop meer)
+    // Listener MOET vóór reg.update() worden gehangen!
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
       if (!newWorker) return;
       newWorker.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateBanner();
+          // Niet onderbreken als checkout bezig is
+          const cartOverlay = document.getElementById('cart-overlay');
+          const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
+          const inCheckout = cartOverlay?.classList.contains('open') && cartItems.length > 0;
+          if (inCheckout) {
+            // Toon banner zodat klant zelf kan kiezen
+            showUpdateBanner();
+          } else {
+            // Auto-skip + reload via controllerchange
+            reg.waiting?.postMessage('SKIP_WAITING');
+          }
         }
       });
     });
+
+    // NU pas update aanroepen — listener staat
+    reg.update().catch(() => {});
   }).catch(err => console.warn('[SW] Registratie mislukt:', err));
 
   // Nieuwe controller = update al toegepast → auto-reload
@@ -127,12 +141,12 @@
     }
   }, { passive: true });
 
-  document.addEventListener('touchend', () => {
+  document.addEventListener('touchend', async () => {
     if (!ptr.pulling) { ptr.startY = 0; ptr.active = false; return; }
 
     const el = getPtrEl();
+    const wasFullPull = el && el.classList.contains('klaar');
     if (el) {
-      // Animeer terugveren
       el.style.transition = 'height 0.3s ease, opacity 0.3s ease';
       el.style.height = '0';
       el.style.opacity = '0';
@@ -140,14 +154,30 @@
       setTimeout(() => { el.style.transition = ''; }, 350);
     }
 
-    // Check voor SW-update
-    navigator.serviceWorker?.getRegistration().then(reg => {
-      if (reg) reg.update();
-    });
-
     ptr.startY = 0;
     ptr.pulling = false;
     ptr.active = false;
+
+    // Bij volledige pull: forceer SW-update + nieuwe versie activeren + hard reload
+    if (wasFullPull) {
+      try {
+        const reg = await navigator.serviceWorker?.getRegistration();
+        if (reg) {
+          await reg.update();
+          // Wacht maximaal 1.5s op nieuwe SW
+          for (let i = 0; i < 15; i++) {
+            if (reg.waiting) { reg.waiting.postMessage('SKIP_WAITING'); break; }
+            if (!reg.installing) break;
+            await new Promise(r => setTimeout(r, 100));
+          }
+        }
+      } catch {}
+      // Cache-bust hard reload
+      location.href = location.pathname + '?v=' + Date.now() + (location.hash || '');
+    } else {
+      // Korte pull: alleen update-check op achtergrond
+      navigator.serviceWorker?.getRegistration().then(reg => reg?.update());
+    }
   });
 
 })();

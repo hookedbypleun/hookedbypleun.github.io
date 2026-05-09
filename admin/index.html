@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.css?v=2.3.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -61,6 +64,26 @@
     }
     .ai-smart .ai-drop.has-photo { padding: 0.5rem; border-style: solid; }
     .ai-smart .ai-drop img { max-width: 100%; max-height: 240px; border-radius: var(--r-md); }
+    .photo-choice {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+    .photo-choice .pc-card {
+      background: white; border: 3px solid transparent;
+      border-radius: var(--r-md); padding: 0.5rem;
+      cursor: pointer; text-align: center;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .photo-choice .pc-card:hover { transform: translateY(-2px); }
+    .photo-choice .pc-card.selected { border-color: var(--c-lavender); background: #f4ebf7; }
+    .photo-choice .pc-card img {
+      width: 100%; aspect-ratio: 1/1; object-fit: cover;
+      border-radius: var(--r-sm); display: block; margin-bottom: 0.3rem;
+    }
+    .photo-choice .pc-label { font-weight: 700; font-size: 0.85rem; color: var(--c-ink); }
+    .photo-choice .pc-sub { font-size: 0.72rem; color: var(--c-muted); }
+    .photo-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+    .photo-actions .btn { flex: 1; }
     .ai-smart .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .ai-smart input { padding: 0.7em 1em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-size: 1rem; font-family: inherit; }
     .ai-smart input:focus { outline: none; border-color: var(--c-lavender); }
@@ -124,6 +147,17 @@
     .wiz-panel h4 { margin: 0; color: var(--c-ink); display: flex; justify-content: space-between; align-items: center; }
     .wiz-panel h4 .badge-status { font-size: 0.75rem; padding: 0.2em 0.6em; border-radius: 99px; background: var(--c-cream-dark); color: var(--c-muted); }
     .wiz-panel.approved h4 .badge-status { background: #2E7D32; color: white; }
+    .wiz-panel.busy { position: relative; }
+    .wiz-panel.busy::after {
+      content: '🌸 AI is bezig...';
+      position: absolute; inset: 0;
+      background: rgba(244, 235, 247, 0.92);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--c-lavender-dark); font-size: 1.1rem;
+      border-radius: var(--r-md);
+      animation: pulseBusy 1.2s ease-in-out infinite;
+      z-index: 10;
+    }
 
     .wiz-preview {
       background: var(--c-cream); padding: 0.8rem; border-radius: var(--r-md);
@@ -132,9 +166,30 @@
     }
     .wiz-preview .pv-label { font-weight: 700; color: var(--c-lavender-dark); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-top: 0.6em; }
     .wiz-preview .pv-label:first-child { margin-top: 0; }
+    .wiz-preview .pv-edit {
+      width: 100%; box-sizing: border-box;
+      background: white; border: 2px solid var(--c-cream-dark); border-radius: 6px;
+      padding: 0.5em 0.6em; font: inherit; color: inherit; -webkit-appearance: none;
+      margin-top: 0.15em; transition: border-color 0.15s, background 0.15s;
+      font-size: 16px;  /* iOS zoom-fix bij focus */
+    }
+    .wiz-preview .pv-edit:hover { border-color: var(--c-lavender); }
+    .wiz-preview .pv-edit:focus { outline: none; border-color: var(--c-lavender); background: #fffdf6; }
+    .wiz-preview textarea.pv-edit { min-height: 90px; resize: vertical; line-height: 1.45; }
+    .wiz-edit-hint { font-size:0.78rem; color:var(--c-muted); margin:-0.2em 0 0.4em; font-style:italic; }
 
-    .wiz-cmt { width: 100%; min-height: 60px; padding: 0.5em 0.8em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box; }
+    .wiz-cmt { width: 100%; min-height: 60px; padding: 0.5em 0.8em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box; transition: border-color 0.2s; }
     .wiz-cmt:focus { outline: none; border-color: var(--c-lavender); }
+    .wiz-cmt.shake { animation: shake 0.4s; border-color: #c62828; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .refine-btn.btn-empty { opacity: 0.55; }
+    .refine-btn.refine-busy {
+      background: var(--c-lavender) !important;
+      color: white !important;
+      cursor: wait;
+      animation: pulseBusy 1.2s ease-in-out infinite;
+    }
+    @keyframes pulseBusy { 0%,100%{opacity:1} 50%{opacity:0.65} }
 
     .wiz-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .wiz-chip {
@@ -145,6 +200,9 @@
     .wiz-chip:hover { background: var(--c-lavender); color: white; }
 
     .wiz-panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .wiz-panel-publish { display: block; padding-top: 0.6rem; margin-top: 0.6rem; border-top: 2px dashed var(--c-cream-dark); }
+    .wiz-panel-publish .btn { opacity: 0.75; transition: opacity 0.2s; }
+    .wiz-panel.approved .wiz-panel-publish .btn { opacity: 1; }
     .wiz-publish-block {
       grid-column: 1 / -1;
       background: linear-gradient(135deg, var(--c-lavender), var(--c-pink));
@@ -270,6 +328,19 @@
             </div>
           </div>
 
+          <div class="veld" style="background:white; padding:0.9rem 1rem; border-radius:var(--r-md); margin-top:0.5rem">
+            <label style="margin-bottom:0.4em">Wat wil je hiervan maken?</label>
+            <p class="hint" style="margin:0 0 0.5em">Vink aan wat je wil. AI maakt alleen het aangevinkte.</p>
+            <label style="display:flex; align-items:center; gap:0.5em; font-weight:500; margin:0.3em 0; cursor:pointer">
+              <input type="checkbox" id="ch-website" checked style="width:1.2em; height:1.2em; cursor:pointer">
+              <span>🌐 Een tekst voor op de website</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5em; font-weight:500; margin:0.3em 0; cursor:pointer">
+              <input type="checkbox" id="ch-social" checked style="width:1.2em; height:1.2em; cursor:pointer">
+              <span>📱 Een post voor het WhatsApp-kanaal</span>
+            </label>
+          </div>
+
           <button class="btn full" id="btn-generate" onclick="wizGenerate()">✨ Maak voorstellen (AI)</button>
         </div>
 
@@ -284,7 +355,7 @@
         <!-- ===== STAP 3: REVIEW ===== -->
         <div class="wiz-pane" data-pane="3">
           <h3>👀 Bekijk en pas aan</h3>
-          <p style="color:var(--c-muted); margin-top:-0.5em">Beide moeten goedgekeurd zijn voordat je kunt publiceren. "Wat moet anders?" mag in je eigen woorden — AI snapt het wel.</p>
+          <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "✓ Akkoord" → krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiëren, of allebei.</p>
 
           <div class="wiz-panels">
             <!-- Website panel -->
@@ -300,8 +371,12 @@
                 <button type="button" class="wiz-chip" data-chip="korter en speelser">korter en speelser</button>
               </div>
               <div class="wiz-panel-actions">
-                <button class="btn secondary" onclick="wizRefine('website')">🔄 Nieuw voorstel</button>
+                <button class="btn secondary refine-btn" data-type="website" onclick="wizRefine('website')">🔄 Andere versie</button>
                 <button class="btn mustard" onclick="wizApprove('website')">✓ Akkoord</button>
+              </div>
+              <div class="wiz-panel-publish">
+                <button class="btn full mustard" onclick="wizPublish()">🌐 Plaats op de site</button>
+                <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0; text-align:center">Foto + tekst gaan naar GitHub</p>
               </div>
             </div>
 
@@ -318,17 +393,17 @@
                 <button type="button" class="wiz-chip" data-chip="rustiger">rustiger</button>
               </div>
               <div class="wiz-panel-actions">
-                <button class="btn secondary" onclick="wizRefine('social')">🔄 Nieuw voorstel</button>
+                <button class="btn secondary refine-btn" data-type="social" onclick="wizRefine('social')">🔄 Andere versie</button>
                 <button class="btn mustard" onclick="wizApprove('social')">✓ Akkoord</button>
+              </div>
+              <div class="wiz-panel-publish">
+                <button class="btn full mustard" onclick="wizCopySocial()">📋 Kopieer WhatsApp-post</button>
+                <p style="font-size:0.78rem; color:var(--c-muted); margin:0.3em 0 0; text-align:center">Plak in je WhatsApp-kanaal</p>
               </div>
             </div>
           </div>
 
-          <div class="wiz-publish-block" id="wiz-publish-block">
-            <h3>🎉 Beide goedgekeurd!</h3>
-            <p>Klik om je item op de site te plaatsen en je WhatsApp-post te openen.</p>
-            <button class="btn full" onclick="wizPublish()">🚀 Plaats item + open WhatsApp-post</button>
-          </div>
+          <div class="wiz-publish-block" id="wiz-publish-block" style="display:none"></div>
         </div>
 
         <!-- ===== STAP 4: SUCCESS ===== -->
@@ -476,49 +551,31 @@
     <button class="btn secondary" onclick="if(confirm('Weet je het zeker?')){localStorage.removeItem(STORAGE_KEY); location.reload();}">↺ Herlaad uit items.json</button>
 
     <!-- =============================== -->
-    <!-- CHANGELOG                       -->
+    <!-- AUTO-CHANGELOG                  -->
     <!-- =============================== -->
-    <h2 style="margin-top:3rem">📝 Changelog</h2>
-    <p style="color:var(--c-muted)">Bijhouden wat er veranderd is — voor Dave en Pleun. Nieuwste bovenaan.</p>
+    <h2 style="margin-top:3rem">📝 Recent toegevoegd</h2>
+    <p style="color:var(--c-muted)">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
+    <div id="auto-changelog" style="margin-bottom:1rem"></div>
 
-    <div id="changelog-list" style="margin-bottom:1rem"></div>
-
-    <form id="changelog-form" style="background:white; padding:1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft)">
-      <div class="row">
-        <div class="veld">
-          <label for="cl-datum">Datum</label>
-          <input id="cl-datum" type="date" required>
-        </div>
-        <div class="veld">
-          <label for="cl-versie">Versie</label>
-          <input id="cl-versie" placeholder="bv. 1.0.1" required>
-        </div>
-      </div>
-      <div class="veld">
-        <label for="cl-type">Type</label>
-        <select id="cl-type">
-          <option value="✨">✨ Nieuw</option>
-          <option value="🐛">🐛 Bugfix</option>
-          <option value="🎨">🎨 Uiterlijk</option>
-          <option value="📦">📦 Items</option>
-          <option value="⚙️">⚙️ Technisch</option>
-        </select>
-      </div>
-      <div class="veld">
-        <label for="cl-tekst">Wat is er veranderd?</label>
-        <textarea id="cl-tekst" placeholder="Beschrijf de wijziging..." required></textarea>
-      </div>
-      <div class="bestel-acties">
-        <button type="submit" class="btn full">➕ Toevoegen aan changelog</button>
-      </div>
-    </form>
-
-    <div style="margin-top:1rem">
-      <button class="btn mustard" onclick="exportChangelog()">📋 Kopieer changelog naar klembord</button>
+    <!-- Versie footer -->
+    <div id="admin-footer" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--c-cream-dark); text-align:center; color:var(--c-muted); font-size:0.85rem">
+      <div>🧶 <span class="version-tag">v…</span> · <span id="admin-version-date">…</span></div>
+      <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh ↓</div>
     </div>
   </div>
 
+  <!-- Pull-to-refresh indicator + update banner -->
+  <div id="ptr-indicator" style="position:fixed; top:0; left:0; right:0; height:0; background:linear-gradient(180deg, var(--c-lavender), var(--c-pink)); opacity:0; z-index:9999; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; pointer-events:none">↓ pull to refresh</div>
+  <div id="update-banner" style="position:fixed; bottom:1rem; left:1rem; right:1rem; background:white; padding:0.8em 1em; border-radius:var(--r-md); box-shadow:0 4px 16px rgba(0,0,0,0.15); display:none; align-items:center; gap:0.6em; z-index:9999; max-width:480px; margin:0 auto"></div>
+  <style>
+    #update-banner.zichtbaar { display:flex; }
+    #update-banner button { background:var(--c-lavender); color:white; border:none; padding:0.4em 0.9em; border-radius:99px; font-weight:700; cursor:pointer; font-family:inherit }
+    #update-banner button.sluiten { background:transparent; color:var(--c-muted); padding:0 0.4em; font-size:1.3rem }
+    #ptr-indicator.klaar { opacity:1 !important; }
+  </style>
+
   <script src="../js/config.js"></script>
+  <script src="../js/sw-register.js"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -533,6 +590,7 @@
       }
       renderCategories();
       renderItems();
+      renderAutoChangelog();
     }
     async function loadFromFile() {
       const res = await fetch('../data/items.json?v=' + Date.now());
@@ -541,6 +599,7 @@
     function save() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
       renderItems();
+      renderAutoChangelog();
     }
     function renderCategories() {
       const sel = document.getElementById('f-categorie');
@@ -790,90 +849,71 @@
     init();
 
     // ============================================
-    // CHANGELOG
+    // AUTO-CHANGELOG — afgeleid uit items.json
     // ============================================
-    const CL_KEY = 'pleun_changelog_v1';
-
-    function loadChangelog() {
-      try { return JSON.parse(localStorage.getItem(CL_KEY) || '[]'); }
-      catch { return []; }
+    function fmtDate(d) {
+      if (!d) return '';
+      try {
+        const dt = new Date(d);
+        const m = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+        return `${dt.getDate()} ${m[dt.getMonth()]} ${dt.getFullYear()}`;
+      } catch { return d; }
     }
-    function saveChangelog(entries) {
-      localStorage.setItem(CL_KEY, JSON.stringify(entries));
-    }
-
-    const TYPE_LABELS = {
-      '✨': 'Nieuw', '🐛': 'Bugfix', '🎨': 'Uiterlijk', '📦': 'Items', '⚙️': 'Technisch'
-    };
-
-    function renderChangelog() {
-      const entries = loadChangelog();
-      const list = document.getElementById('changelog-list');
-      if (entries.length === 0) {
-        list.innerHTML = '<p style="color:var(--c-muted)">Nog geen entries. Voeg de eerste toe hieronder!</p>';
+    function renderAutoChangelog() {
+      const list = document.getElementById('auto-changelog');
+      if (!list) return;
+      const items = (DATA.items || []).filter(i => i.datumToegevoegd);
+      // Groepeer op datum, nieuwste eerst
+      const byDate = {};
+      items.forEach(i => {
+        const d = i.datumToegevoegd;
+        if (!byDate[d]) byDate[d] = [];
+        byDate[d].push(i);
+      });
+      const dates = Object.keys(byDate).sort().reverse().slice(0, 10);
+      if (dates.length === 0) {
+        list.innerHTML = '<p style="color:var(--c-muted)">Nog geen items toegevoegd — voeg er een toe via de wizard hierboven 🌸</p>';
         return;
       }
-      list.innerHTML = entries.map((e, idx) => `
-        <div style="background:white; padding:0.8rem 1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft); margin-bottom:0.5rem; display:flex; gap:0.8rem; align-items:flex-start;">
-          <div style="min-width:52px; text-align:center; font-size:1.5rem; line-height:1">${e.type}</div>
-          <div style="flex:1">
-            <div style="font-weight:700; color:var(--c-ink)">${e.versie} <span style="font-weight:400; color:var(--c-muted); font-size:0.9rem">· ${e.datum}</span></div>
-            <div style="margin-top:0.2em">${e.tekst}</div>
+      list.innerHTML = dates.map(d => {
+        const dayItems = byDate[d];
+        return `
+          <div style="background:white; padding:0.7rem 1rem; border-radius:var(--r-md); box-shadow:var(--shadow-soft); margin-bottom:0.5rem;">
+            <div style="font-weight:700; color:var(--c-lavender-dark); font-size:0.85rem; margin-bottom:0.3em">${fmtDate(d)} · ${dayItems.length} ${dayItems.length === 1 ? 'item' : 'items'}</div>
+            <div style="font-size:0.92rem; line-height:1.5">${dayItems.map(i => `✨ ${i.naam}`).join('<br>')}</div>
           </div>
-          <button onclick="deleteChangelogEntry(${idx})" style="background:none; border:none; cursor:pointer; color:var(--c-muted); font-size:1.2rem; padding:0 0.3rem" title="Verwijderen">×</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    window.deleteChangelogEntry = function(idx) {
-      if (!confirm('Entry verwijderen?')) return;
-      const entries = loadChangelog();
-      entries.splice(idx, 1);
-      saveChangelog(entries);
-      renderChangelog();
-    };
-
-    window.exportChangelog = function() {
-      const entries = loadChangelog();
-      if (entries.length === 0) { alert('Geen changelog entries om te exporteren.'); return; }
-      const text = entries.map(e =>
-        `## ${e.versie} — ${e.datum}\n${e.type} ${TYPE_LABELS[e.type] || ''}: ${e.tekst}`
-      ).join('\n\n');
-      navigator.clipboard?.writeText(text);
-      alert('📋 Changelog gekopieerd naar klembord!');
-    };
-
-    document.getElementById('changelog-form').addEventListener('submit', e => {
-      e.preventDefault();
-      const entry = {
-        datum: document.getElementById('cl-datum').value,
-        versie: document.getElementById('cl-versie').value.trim(),
-        type: document.getElementById('cl-type').value,
-        tekst: document.getElementById('cl-tekst').value.trim(),
-      };
-      const entries = loadChangelog();
-      entries.unshift(entry); // nieuwste bovenaan
-      saveChangelog(entries);
-      renderChangelog();
-      document.getElementById('changelog-form').reset();
-      // Zet datum terug op vandaag
-      document.getElementById('cl-datum').value = new Date().toISOString().slice(0, 10);
-    });
-
-    // Zet standaard datum op vandaag
-    document.getElementById('cl-datum').value = new Date().toISOString().slice(0, 10);
-    // Zet standaard versie op huidige versie
-    document.getElementById('cl-versie').value = '1.0.0';
-
-    renderChangelog();
+    // Versie-datum invullen (sw-register.js handelt versie zelf via .version-tag)
+    (function showVersionDate() {
+      const cfg = window.SHOP_CONFIG || {};
+      const vd = document.getElementById('admin-version-date');
+      if (vd) vd.textContent = cfg.versionDate || '';
+    })();
 
     // ================================================
     // ✨ AI SMART MODE — voor Pleun
     // ================================================
-    const AI_PW_KEY = 'pleun_ai_pw_v1';
+    const AI_PW_KEY = 'pleun_ai_pw_v2';
+    const AI_PW_TTL_MS = 12 * 60 * 60 * 1000;  // 12 uur
     let AI_PHOTO = null;          // { dataURL, base64, mediaType, ext }
     let AI_GENERATED = null;      // { naam, beschrijving, categorie, kleuren, altText }
-    let AI_PASSWORD = sessionStorage.getItem(AI_PW_KEY) || '';
+    function readStoredPw() {
+      try {
+        const raw = localStorage.getItem(AI_PW_KEY);
+        if (!raw) return '';
+        const obj = JSON.parse(raw);
+        if (!obj.pw || !obj.t) return '';
+        if (Date.now() - obj.t > AI_PW_TTL_MS) { localStorage.removeItem(AI_PW_KEY); return ''; }
+        return obj.pw;
+      } catch { return ''; }
+    }
+    function writeStoredPw(pw) {
+      localStorage.setItem(AI_PW_KEY, JSON.stringify({ pw, t: Date.now() }));
+    }
+    let AI_PASSWORD = readStoredPw();
 
     // ============================================================
     // Wizard state
@@ -882,7 +922,9 @@
       photo: null,           // { dataURL, base64, mediaType, ext }
       input: null,           // { naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst }
       output: null,          // { website: {...}, social: {...} }
+      channels: { website: true, social: true },  // Welke kanalen wil ze posten?
       approved: { website: false, social: false },
+      published: { website: false, social: false },
       busy: false,
     };
 
@@ -930,7 +972,7 @@
           return;
         }
         AI_PASSWORD = pw;
-        sessionStorage.setItem(AI_PW_KEY, pw);
+        writeStoredPw(pw);
         document.getElementById('ai-gate').style.display = 'none';
         document.getElementById('ai-main').style.display = 'block';
       } catch (err) {
@@ -965,25 +1007,161 @@
 
     function handleAIPhoto(file) {
       if (!file.type.startsWith('image/')) { aiSetStatus('Dat is geen foto 🙃', 'error'); return; }
-      if (file.size > 4_000_000) {
-        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB — maak 'm kleiner (max 4 MB) 📐`, 'error');
+      if (file.size > 12_000_000) {
+        aiSetStatus(`Foto is ${(file.size/1_000_000).toFixed(1)} MB — maak 'm kleiner (max 12 MB) 📐`, 'error');
         return;
       }
+      aiSetStatus('✨ Foto wordt geanalyseerd...', 'busy');
       const reader = new FileReader();
-      reader.onload = ev => {
-        const dataURL = ev.target.result;
-        const base64 = dataURL.split(',')[1];
-        wizState.photo = {
-          dataURL, base64,
-          mediaType: file.type,
-          ext: (file.name.split('.').pop() || 'jpg').toLowerCase().replace('jpeg', 'jpg'),
-        };
-        aiDrop.classList.add('has-photo');
-        document.getElementById('ai-drop-content').innerHTML =
-          `<img src="${dataURL}" alt=""><p style="margin:0.5em 0 0; color:var(--c-muted); font-size:0.9rem">Tap voor andere foto</p>`;
-        aiSetStatus('', '');
+      reader.onload = async ev => {
+        try {
+          const origDataURL = ev.target.result;
+          const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace('jpeg', 'jpg');
+          const original = await resizeOnly(origDataURL);
+          const enhanced = await enhancePhoto(origDataURL);
+
+          // Bewaar beide; default = opgefrist als die anders is, anders origineel
+          const wasChanged = !enhanced.info.startsWith('al goed');
+          wizState.photoOriginal = { dataURL: original.dataURL, mediaType: 'image/jpeg', ext: 'jpg' };
+          wizState.photoEnhanced = { dataURL: enhanced.dataURL, mediaType: 'image/jpeg', ext: 'jpg', changed: wasChanged };
+          showPhotoChoice(wasChanged ? 'enhanced' : 'original');
+          aiSetStatus('', '');
+        } catch (err) {
+          aiSetStatus('❌ Foto-bewerking mislukt: ' + err.message, 'error');
+        }
       };
       reader.readAsDataURL(file);
+    }
+
+    // Resize zonder kleur-bewerking — voor de 'origineel' optie
+    async function resizeOnly(dataURL) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1600;
+          let w = img.naturalWidth, h = img.naturalHeight;
+          if (w > MAX || h > MAX) {
+            if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+            else        { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve({ dataURL: c.toDataURL('image/jpeg', 0.9) });
+        };
+        img.onerror = () => reject(new Error('Foto kon niet worden geladen'));
+        img.src = dataURL;
+      });
+    }
+
+    function showPhotoChoice(defaultPick) {
+      aiDrop.classList.add('has-photo');
+      const orig = wizState.photoOriginal;
+      const enh = wizState.photoEnhanced;
+      const subEnh = enh.changed ? 'lichter + meer kleur' : 'amper verschil';
+      document.getElementById('ai-drop-content').innerHTML = `
+        <p style="margin:0 0 0.4rem; font-weight:700; color:var(--c-lavender-dark)">Welke foto wil je gebruiken?</p>
+        <div class="photo-choice" id="photo-choice">
+          <div class="pc-card ${defaultPick==='original'?'selected':''}" data-pick="original">
+            <img src="${orig.dataURL}" alt="origineel">
+            <div class="pc-label">Origineel</div>
+            <div class="pc-sub">jouw eigen foto</div>
+          </div>
+          <div class="pc-card ${defaultPick==='enhanced'?'selected':''}" data-pick="enhanced">
+            <img src="${enh.dataURL}" alt="opgefrist">
+            <div class="pc-label">Opgefrist ✨</div>
+            <div class="pc-sub">${subEnh}</div>
+          </div>
+        </div>
+        <div class="photo-actions">
+          <button class="btn secondary" type="button" onclick="aiResetPhoto(); event.stopPropagation();">↺ Andere foto</button>
+        </div>
+      `;
+      pickPhoto(defaultPick);
+      document.querySelectorAll('#photo-choice .pc-card').forEach(card => {
+        card.addEventListener('click', e => {
+          e.stopPropagation();
+          pickPhoto(card.dataset.pick);
+        });
+      });
+    }
+
+    function pickPhoto(which) {
+      const src = which === 'enhanced' ? wizState.photoEnhanced : wizState.photoOriginal;
+      wizState.photo = { dataURL: src.dataURL, base64: src.dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
+      document.querySelectorAll('#photo-choice .pc-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.pick === which);
+      });
+    }
+
+    // Slimme foto-enhancer: per foto histogram-analyse, alleen aanpassen wat nodig is
+    async function enhancePhoto(dataURL) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const MAX = 1600;
+            let w = img.naturalWidth, h = img.naturalHeight;
+            if (w > MAX || h > MAX) {
+              if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+              else        { w = Math.round(w * MAX / h); h = MAX; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // Bouw luminantie-histogram
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const data = imgData.data;
+            const total = w * h;
+            const hist = new Uint32Array(256);
+            for (let i = 0; i < data.length; i += 4) {
+              const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) | 0;
+              hist[lum]++;
+            }
+            // Vind P2 en P98 (negeer 2% extreme outliers — sensorruis, witte rand, etc.)
+            const lo = total * 0.02, hi = total * 0.98;
+            let cum = 0, p2 = 0, p98 = 255, found2 = false;
+            for (let i = 0; i < 256; i++) {
+              cum += hist[i];
+              if (!found2 && cum >= lo) { p2 = i; found2 = true; }
+              if (cum >= hi) { p98 = i; break; }
+            }
+            const range = p98 - p2;
+
+            // Beslis: foto al goed → alleen resizen + comprimeren
+            let info;
+            if (range >= 215 && p2 <= 18 && p98 >= 235) {
+              info = `al goed belicht (range ${range})`;
+            } else {
+              // Auto-levels: stretch P2..P98 → 5..250 op alle 3 kanalen
+              const targetLo = 5, targetHi = 250;
+              const scale = (targetHi - targetLo) / Math.max(1, range);
+              for (let i = 0; i < data.length; i += 4) {
+                for (let c = 0; c < 3; c++) {
+                  let v = (data[i + c] - p2) * scale + targetLo;
+                  data[i + c] = v < 0 ? 0 : v > 255 ? 255 : v;
+                }
+              }
+              ctx.putImageData(imgData, 0, 0);
+              // Lichte saturatie-boost (alleen als auto-levels was toegepast)
+              const final = document.createElement('canvas');
+              final.width = w; final.height = h;
+              const fctx = final.getContext('2d');
+              fctx.filter = 'saturate(1.10)';
+              fctx.drawImage(canvas, 0, 0);
+              const out = final.toDataURL('image/jpeg', 0.9);
+              resolve({ dataURL: out, info: `opgefrist (P2=${p2}, P98=${p98})` });
+              return;
+            }
+            const out = canvas.toDataURL('image/jpeg', 0.9);
+            resolve({ dataURL: out, info });
+          } catch (e) { reject(e); }
+        };
+        img.onerror = () => reject(new Error('Foto kon niet worden geladen'));
+        img.src = dataURL;
+      });
     }
 
     function aiResetPhoto() {
@@ -1006,26 +1184,85 @@
         const ta = document.getElementById(targetId);
         ta.value = (ta.value.trim() ? ta.value.trim() + ', ' : '') + chip;
         ta.focus();
+        updateRefineButtonLabels();
       });
     });
 
     // ============================================================
     // Render preview blocks
     // ============================================================
+    const WIZ_CATEGORIES = ['diertjes', 'scrunchies', 'blobs', 'sleutelhangers', 'mutsen', 'onderzetters', 'tassen', 'haakpakketten'];
+
     function renderWebsitePreview(w) {
       if (!w) return '';
       const kleuren = (w.kleuren || []).join(', ');
-      const extra = w.extraKaartje ? `\n\n💌 Kaartje: ${w.extraKaartje}` : '';
-      return `<span class="pv-label">Naam</span>${esc(w.naam)}<span class="pv-label">Beschrijving</span>${esc(w.beschrijving)}<span class="pv-label">Categorie</span>${esc(w.categorie || '–')}<span class="pv-label">Kleuren</span>${esc(kleuren || '–')}<span class="pv-label">Alt-tekst</span>${esc(w.altText || '–')}${extra ? '<span class="pv-label">Kaartje</span>' + esc(w.extraKaartje) : ''}`;
+      const catOpts = WIZ_CATEGORIES.map(c =>
+        `<option value="${c}" ${c === w.categorie ? 'selected' : ''}>${c}</option>`).join('');
+      return `
+        <p class="wiz-edit-hint">✏️ Klik op de tekst om aan te passen</p>
+        <span class="pv-label">Naam</span>
+        <input class="pv-edit" data-type="website" data-key="naam" value="${esc(w.naam || '')}">
+        <span class="pv-label">Beschrijving</span>
+        <textarea class="pv-edit" data-type="website" data-key="beschrijving">${esc(w.beschrijving || '')}</textarea>
+        <span class="pv-label">Categorie</span>
+        <select class="pv-edit" data-type="website" data-key="categorie">${catOpts}</select>
+        <span class="pv-label">Kleuren (komma-gescheiden)</span>
+        <input class="pv-edit" data-type="website" data-key="kleuren-csv" value="${esc(kleuren)}">
+        <span class="pv-label">Alt-tekst (voor screenreaders)</span>
+        <input class="pv-edit" data-type="website" data-key="altText" value="${esc(w.altText || '')}">
+        <span class="pv-label">Extra kaartje (optioneel)</span>
+        <input class="pv-edit" data-type="website" data-key="extraKaartje" value="${esc(w.extraKaartje || '')}">
+      `;
     }
 
     function renderSocialPreview(s) {
       if (!s) return '';
       const tags = (s.hashtags || []).join(' ');
-      return `<span class="pv-label">Bericht</span>${esc(s.tekst)}${tags ? '<span class="pv-label">Hashtags</span>' + esc(tags) : ''}`;
+      return `
+        <p class="wiz-edit-hint">✏️ Klik op de tekst om aan te passen</p>
+        <span class="pv-label">Bericht voor WhatsApp-kanaal</span>
+        <textarea class="pv-edit" data-type="social" data-key="tekst" style="min-height:140px">${esc(s.tekst || '')}</textarea>
+        <span class="pv-label">Hashtags (spatie-gescheiden, optioneel)</span>
+        <input class="pv-edit" data-type="social" data-key="hashtags-csv" value="${esc(tags)}">
+      `;
     }
 
-    function esc(s) { return String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+    // Live two-way binding: edits in preview → wizState.output
+    document.addEventListener('input', e => {
+      const el = e.target;
+      if (!el.classList) return;
+      if (el.classList.contains('pv-edit')) {
+        const type = el.dataset.type;
+        const key = el.dataset.key;
+        if (!wizState.output) wizState.output = {};
+        if (!wizState.output[type]) wizState.output[type] = {};
+        const v = el.value;
+        if (key === 'kleuren-csv') {
+          wizState.output[type].kleuren = v.split(',').map(s => s.trim()).filter(Boolean);
+        } else if (key === 'hashtags-csv') {
+          wizState.output[type].hashtags = v.split(/\s+/).map(s => s.trim()).filter(Boolean);
+        } else {
+          wizState.output[type][key] = v;
+        }
+        return;
+      }
+      if (el.classList.contains('wiz-cmt')) {
+        // 'Wat moet anders?' textarea — update refine-knop label
+        updateRefineButtonLabels();
+      }
+    });
+
+    function updateRefineButtonLabels() {
+      ['website', 'social'].forEach(type => {
+        const cmt = document.getElementById('cmt-' + type);
+        const btn = document.querySelector('.refine-btn[data-type="' + type + '"]');
+        if (!cmt || !btn) return;
+        btn.classList.remove('btn-empty');
+        btn.textContent = cmt.value.trim() ? '🔄 Pas aan op feedback' : '🔄 Andere versie';
+      });
+    }
+
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
     function refreshPreviews() {
       document.getElementById('prev-website').innerHTML = renderWebsitePreview(wizState.output?.website);
@@ -1042,6 +1279,15 @@
       if (!naam) { aiSetStatus('Vul eerst een naam in 💝', 'error'); return; }
       if (isNaN(prijs) || prijs <= 0) { aiSetStatus('Vul eerst een prijs in 💸', 'error'); return; }
 
+      // Lees kanaal-selectie
+      wizState.channels = {
+        website: document.getElementById('ch-website').checked,
+        social: document.getElementById('ch-social').checked,
+      };
+      if (!wizState.channels.website && !wizState.channels.social) {
+        aiSetStatus('Vink minstens één kanaal aan 🎯', 'error'); return;
+      }
+
       wizState.input = {
         naam, prijs,
         categorieHint: document.getElementById('w-categorie').value,
@@ -1050,7 +1296,12 @@
         voorWie: document.getElementById('w-voorwie').value.trim(),
         bijzonders: document.getElementById('w-bijzonders').value.trim(),
         vrijeTekst: document.getElementById('w-vrij').value.trim(),
+        channels: wizState.channels,
       };
+
+      // Verberg panels die niet gekozen zijn
+      document.getElementById('panel-website').style.display = wizState.channels.website ? '' : 'none';
+      document.getElementById('panel-social').style.display = wizState.channels.social ? '' : 'none';
 
       wizGoStep(2);
       aiSetStatus('', '');
@@ -1083,11 +1334,17 @@
     async function wizRefine(type) {
       const cmtEl = document.getElementById('cmt-' + type);
       const userComments = cmtEl.value.trim();
-      if (!userComments) { aiSetStatus('Type eerst wat anders moet, of klik direct op ✓ Akkoord', 'error'); return; }
+      // Lege textarea = vraag om verse variatie. Met tekst = gerichte aanpassing.
 
       const panel = document.getElementById('panel-' + type);
+      const refineBtn = panel.querySelector('.refine-btn');
       const btns = panel.querySelectorAll('button');
       btns.forEach(b => b.disabled = true);
+      panel.classList.add('busy');
+      if (refineBtn) {
+        refineBtn.classList.add('refine-busy');
+        refineBtn.textContent = '⏳ AI is bezig...';
+      }
       aiSetStatus('🔄 Nieuwe versie aan het maken...', 'busy');
 
       try {
@@ -1103,19 +1360,30 @@
             mediaType: wizState.photo?.mediaType,
           }),
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) {
+          const errText = await res.text();
+          if (res.status === 429 || /quota|rate|limit/i.test(errText)) {
+            throw new Error('Te veel requests — wacht een minuut en probeer opnieuw.');
+          }
+          throw new Error(errText);
+        }
         const newOutput = await res.json();
         wizState.output[type] = newOutput;
         wizState.approved[type] = false;  // herziene versie moet opnieuw approved worden
         cmtEl.value = '';
         refreshPreviews();
         updateApprovalUI();
-        aiSetStatus('Nieuwe versie klaar — bekijk en kies', 'success');
+        aiSetStatus('✅ Nieuwe versie klaar', 'success');
         setTimeout(() => aiSetStatus('', ''), 3000);
       } catch (err) {
         aiSetStatus('❌ ' + err.message, 'error');
       } finally {
         btns.forEach(b => b.disabled = false);
+        panel.classList.remove('busy');
+        if (refineBtn) {
+          refineBtn.classList.remove('refine-busy');
+          updateRefineButtonLabels();
+        }
       }
     }
 
@@ -1151,6 +1419,17 @@
     }
 
     async function wizPublish() {
+      // Confirm-flow als nog niet alles gecheckt is
+      if (!wizState.approved.website) {
+        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de website-tekst. Toch plaatsen?')) return;
+      }
+      // Alleen waarschuwen voor social als ze die WEL had aangevinkt
+      if (wizState.channels?.social && !wizState.published?.social && !wizState.approved.social) {
+        if (!confirm('Je doet nu alleen de WEBSITE-post — geen WhatsApp-bericht. Doorgaan?')) return;
+      }
+      if (!wizState.photo) {
+        alert('Eerst een foto kiezen 📸'); return;
+      }
       const w = wizState.output.website;
       const id = slugifyAI((w.categorie || '') + '-' + (w.naam || ''));
       const item = {
@@ -1183,6 +1462,8 @@
         });
         if (!res.ok) throw new Error(await res.text());
         const result = await res.json();
+        wizState.published = wizState.published || {};
+        wizState.published.website = true;
         aiSetStatus('', '');
         document.getElementById('success-title').textContent = '✅ Live op de site!';
         document.getElementById('success-msg').innerHTML =
@@ -1194,9 +1475,19 @@
     }
 
     function wizCopySocial() {
+      // Confirm-flow als nog niet alles gecheckt is
+      if (!wizState.approved.social) {
+        if (!confirm('Je hebt nog geen ✓ Akkoord gegeven op de WhatsApp-tekst. Toch kopiëren?')) return;
+      }
+      // Alleen waarschuwen voor website als ze die WEL had aangevinkt
+      if (wizState.channels?.website && !wizState.published?.website && !wizState.approved.website) {
+        if (!confirm('Je doet nu alleen de WHATSAPP-post — de website wordt niet bijgewerkt. Doorgaan?')) return;
+      }
       const tekst = wizState.output?.social?.tekst || '';
       if (!tekst) { aiSetStatus('Geen WhatsApp-tekst gevonden 🤔', 'error'); return; }
       navigator.clipboard.writeText(tekst).then(() => {
+        wizState.published = wizState.published || {};
+        wizState.published.social = true;
         aiSetStatus('✓ Gekopieerd! Plak in je WhatsApp-kanaal 📋', 'success');
         setTimeout(() => aiSetStatus('', ''), 4000);
       }).catch(() => {
@@ -1209,6 +1500,7 @@
       wizState.input = null;
       wizState.output = null;
       wizState.approved = { website: false, social: false };
+      wizState.published = { website: false, social: false };
       ['w-naam', 'w-prijs', 'w-uren', 'w-kleuren', 'w-voorwie', 'w-bijzonders', 'w-vrij', 'cmt-website', 'cmt-social'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -1222,12 +1514,16 @@
 
     // Expose to global scope
     window.aiUnlock = aiUnlock;
+    window.aiResetPhoto = aiResetPhoto;
     window.wizGenerate = wizGenerate;
     window.wizRefine = wizRefine;
     window.wizApprove = wizApprove;
     window.wizPublish = wizPublish;
     window.wizCopySocial = wizCopySocial;
     window.wizReset = wizReset;
+    window.wizState = wizState;
+    window.refreshPreviews = refreshPreviews;
+    window.wizGoStep = wizGoStep;
   </script>
 </body>
 </html>
