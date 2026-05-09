@@ -52,6 +52,14 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; color-scheme: light; }
+
+/* Anchor scroll-offset zodat anchors niet onder de sticky nav landen */
+:target,
+h2[id],
+h3[id],
+section[id] {
+  scroll-margin-top: 90px;
+}
 body {
   margin: 0;
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
@@ -170,7 +178,14 @@ nav .cart-count.empty { display: none; }
   right: -2rem;
   transform: rotate(15deg);
 }
-.hero h1 { color: var(--c-ink); }
+.hero h1 { color: var(--c-ink); margin-bottom: 0.1em; }
+.hero .naam-sub {
+  font-family: 'Caveat', cursive;
+  color: var(--c-muted);
+  font-size: 1.15rem;
+  margin: 0 0 0.4em;
+  letter-spacing: 0.02em;
+}
 .hero .tagline {
   font-family: 'Caveat', cursive;
   font-size: clamp(1.4rem, 3vw, 1.8rem);

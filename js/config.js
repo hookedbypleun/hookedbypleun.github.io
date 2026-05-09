@@ -3,7 +3,7 @@
 
 window.SHOP_CONFIG = {
   // === Versie ===
-  version: '2.0.0',
+  version: '2.1.0',
   versionDate: '2026-05-09',
 
   // === Cloudflare Worker (admin AI-publicatie) ===
@@ -12,7 +12,8 @@ window.SHOP_CONFIG = {
   workerUrl: 'https://crochet-by-pleun.thegaveryahoo.workers.dev',
 
   // === Merk ===
-  shopName: "Crochet by Pleun",
+  shopName: "Hooked by Pleun",
+  shopNameSecondary: "crochet by Pleun",
   tagline: "Made small. Made with love.",
   ownerName: "Pleun",
   ownerAge: 12,

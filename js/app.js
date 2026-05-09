@@ -215,7 +215,7 @@ Lokaal afhalen of versturen?`;
         `}
       </div>
     `;
-    document.title = item.naam + ' · Crochet by Pleun';
+    document.title = item.naam + ' · Hooked by Pleun';
   }
 
   // ===== Marketing: WhatsApp-kanaal-link + Countdown =====
