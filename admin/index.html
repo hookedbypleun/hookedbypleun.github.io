@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.45">
+  <link rel="stylesheet" href="../css/style.css?v=3.1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -791,7 +791,26 @@
     <!-- =============================== -->
     <!-- REVIEWS MODERATIE               -->
     <!-- =============================== -->
-    <details style="margin-top:3rem" class="admin-section">
+    <!-- SITE INSTELLINGEN              -->
+    <!-- =============================== -->
+    <details class="admin-section" style="margin-top:1.5rem">
+      <summary>🌸 Site-instellingen</summary>
+      <p style="color:var(--c-muted); margin:0.6rem 0 0.5rem">Aanpasbare gegevens die op de homepage staan.</p>
+      <div style="background:white; padding:0.7rem 0.9rem; border-radius:var(--r-sm); margin-top:0.4rem">
+        <label for="cfg-volgers" style="font-weight:700; font-size:0.9rem; display:block; margin-bottom:0.3em">
+          🎀 Volgers in WhatsApp-kanaal
+        </label>
+        <p style="font-size:0.83rem; color:var(--c-muted); margin:0 0 0.5rem">Update als je een nieuw rond getal wil tonen op de homepage.</p>
+        <div style="display:flex; gap:0.4rem; align-items:center">
+          <input type="number" id="cfg-volgers" min="0" max="100000" placeholder="bv. 41"
+                 style="flex:0 0 110px; padding:0.5em 0.7em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:1rem">
+          <button type="button" class="btn" onclick="saveSiteConfig()" style="flex:1">💾 Bewaren</button>
+        </div>
+        <p id="cfg-status" style="display:none; margin:0.4rem 0 0; font-size:0.85rem"></p>
+      </div>
+    </details>
+
+    <details style="margin-top:1.5rem" class="admin-section">
       <summary>💬 Reviews modereren</summary>
       <p style="color:var(--c-muted); margin-top:0.6rem">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
       <div id="reviews-admin-list"><p style="color:var(--c-muted)">🔒 Log eerst in (boven aan de pagina) om reviews te zien.</p></div>
@@ -993,8 +1012,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.45"></script>
-  <script src="../js/sw-register.js?v=3.0.45"></script>
+  <script src="../js/config.js?v=3.1.0"></script>
+  <script src="../js/sw-register.js?v=3.1.0"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3238,6 +3257,45 @@
     window.wizGoStep = wizGoStep;
     window.editWithAI = editWithAI;
     window.smartEdit = smartEdit;
+
+    // === Site-instellingen (volgers etc.) ===
+    async function loadSiteConfig() {
+      try {
+        const res = await fetch('../data/site-config.json?v=' + Date.now());
+        if (!res.ok) return;
+        const cfg = await res.json();
+        const inp = document.getElementById('cfg-volgers');
+        if (inp && typeof cfg.volgers === 'number') inp.value = cfg.volgers;
+      } catch { /* ignore */ }
+    }
+    loadSiteConfig();
+
+    async function saveSiteConfig() {
+      const inp = document.getElementById('cfg-volgers');
+      const status = document.getElementById('cfg-status');
+      const num = parseInt(inp?.value, 10);
+      function setStatus(msg, color) {
+        status.style.display = 'block';
+        status.textContent = msg;
+        status.style.color = color || 'var(--c-muted)';
+      }
+      if (isNaN(num) || num < 0) { alert('Vul een getal in.'); return; }
+      if (!AI_PASSWORD || !workerUrl()) { alert('Eerst inloggen.'); return; }
+      setStatus('⏳ Opslaan...', 'var(--c-muted)');
+      try {
+        const res = await fetch(workerUrl() + '/update-site-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
+          body: JSON.stringify({ volgers: num }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        setStatus('✅ Opgeslagen! Geef de site 1-2 min om door te komen.', 'var(--c-success-text)');
+        setTimeout(() => { status.style.display = 'none'; }, 4000);
+      } catch (err) {
+        setStatus('⚠️ ' + (err.message || err), '#B71C1C');
+      }
+    }
+    window.saveSiteConfig = saveSiteConfig;
     window.toggleEditPhotoTweak = toggleEditPhotoTweak;
     window.editPhotoSetMode = editPhotoSetMode;
     window.editPhotoApplyFilters = editPhotoApplyFilters;

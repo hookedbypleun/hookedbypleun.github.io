@@ -102,6 +102,14 @@
   async function renderHome() {
     const grid = document.getElementById('home-uitgelicht');
     if (!grid) return;
+    // Volgers-aantal injecteren vanuit site-config.json (Pleun beheert via admin)
+    fetch('data/site-config.json?v=' + Date.now())
+      .then(r => r.ok ? r.json() : null)
+      .then(cfg => {
+        const el = document.getElementById('volgers-count');
+        if (el && cfg && typeof cfg.volgers === 'number') el.textContent = cfg.volgers;
+      })
+      .catch(() => {});
     const data = await loadData();
     const uitgelicht = data.items.filter(i => i.uitgelicht && i.status !== 'uitverkocht' && i.status !== 'archief').slice(0, 4);
     grid.innerHTML = uitgelicht.map(kaartHTML).join('') ||

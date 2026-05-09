@@ -199,6 +199,13 @@ export default {
         return jsonResponse(result, 200, cors);
       }
 
+      // === /update-site-config POST — site-stats (volgers etc.) ===
+      if (url.pathname === '/update-site-config' && request.method === 'POST') {
+        const body = await request.json();
+        const result = await updateSiteConfigInGitHub(body, env);
+        return jsonResponse(result, 200, cors);
+      }
+
       if (url.pathname === '/auth') {
         return jsonResponse({ ok: true }, 200, cors);
       }
@@ -632,6 +639,50 @@ async function uploadPhotoToGitHub({ photoBase64, photoFilename, mediaType }, en
   if (!up.ok) throw new Error(`Foto upload mislukt: ${await up.text()}`);
 
   return { path };
+}
+
+// ================================================================
+// /update-site-config — site-stats (volgers, lastUpdate)
+// ================================================================
+async function updateSiteConfigInGitHub({ volgers }, env) {
+  if (!env.GITHUB_TOKEN) throw new Error('GITHUB_TOKEN niet ingesteld');
+  const num = parseInt(volgers, 10);
+  if (isNaN(num) || num < 0 || num > 1000000) {
+    throw new Error('Volgers-aantal ongeldig');
+  }
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'crochet-by-pleun-worker',
+    'Content-Type': 'application/json',
+  };
+  const path = 'data/site-config.json';
+  const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+  let sha = undefined;
+  let existing = {};
+  const check = await fetch(url, { headers: ghHeaders });
+  if (check.ok) {
+    const data = await check.json();
+    sha = data.sha;
+    try {
+      const decoded = atob(data.content.replace(/\s/g, ''));
+      existing = JSON.parse(decoded);
+    } catch { /* nieuw bestand */ }
+  }
+  const updated = { ...existing, volgers: num, lastUpdate: new Date().toISOString().slice(0, 10) };
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(updated, null, 2) + '\n')));
+  const up = await fetch(url, {
+    method: 'PUT',
+    headers: ghHeaders,
+    body: JSON.stringify({
+      message: `🌸 Site-config: ${num} volgers`,
+      content,
+      ...(sha && { sha }),
+    }),
+  });
+  if (!up.ok) throw new Error(`Update mislukt: ${await up.text()}`);
+  return { ok: true, volgers: num };
 }
 
 // ================================================================
