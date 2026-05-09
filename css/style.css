@@ -198,6 +198,33 @@ nav .cart-count.empty { display: none; }
 .badge.mustard  { background: var(--c-mustard); color: white; border-color: var(--c-mustard-dark); }
 .badge.pink     { background: var(--c-pink); color: var(--c-ink); border-color: var(--c-pink-dark); }
 
+.features-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-sm);
+  margin: var(--gap-md) 0;
+  width: 100%;
+  max-width: 460px;
+}
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.8em 0.5em;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  gap: 0.15em;
+}
+.feature:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+.feature-icon  { font-size: 1.4rem; line-height: 1.2; }
+.feature-title { font-weight: 800; font-size: 0.8rem; color: var(--c-ink); }
+.feature-sub   { font-size: 0.72rem; color: var(--c-ink); opacity: 0.75; line-height: 1.3; }
+.feature.lavender { background: var(--c-lavender); }
+.feature.mustard  { background: var(--c-mustard); }
+.feature.pink     { background: var(--c-pink); }
+
 .cta-row {
   display: flex;
   justify-content: center;
