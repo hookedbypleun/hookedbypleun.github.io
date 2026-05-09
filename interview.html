@@ -29,10 +29,21 @@
     }
     .iv-progress-text { font-weight: 700; font-size: 0.85rem; color: var(--c-lavender-dark); white-space: nowrap; }
 
+    .iv-toc {
+      background: white; border-radius: var(--r-md);
+      padding: var(--gap-md); margin-bottom: var(--gap-md);
+      box-shadow: var(--shadow-soft);
+      font-size: 0.9rem;
+    }
+    .iv-toc h3 { margin-top: 0; color: var(--c-lavender-dark); }
+    .iv-toc ol { padding-left: 1.4em; margin: 0; }
+    .iv-toc a { color: var(--c-text); display: block; padding: 0.1em 0; }
+
     .iv-section {
       background: white; border-radius: var(--r-md);
       padding: var(--gap-md); margin-bottom: var(--gap-md);
       box-shadow: var(--shadow-soft);
+      scroll-margin-top: 120px;
     }
     .iv-section h2 { color: var(--c-lavender-dark); font-size: 1.3rem; margin: 0 0 0.5em; }
     .iv-section .iv-section-hint { font-size: 0.9rem; color: var(--c-muted); margin: -0.4em 0 var(--gap-md); }
@@ -41,7 +52,7 @@
     .iv-question label {
       display: block; font-weight: 700; color: var(--c-ink); margin-bottom: 0.4em; font-size: 0.95rem;
     }
-    .iv-question .iv-hint { font-size: 0.8rem; color: var(--c-muted); margin: -0.2em 0 0.4em; }
+    .iv-question .iv-hint { font-size: 0.8rem; color: var(--c-muted); margin: -0.2em 0 0.4em; font-style: italic; }
     .iv-question textarea {
       width: 100%;
       border: 1.5px solid var(--c-cream-dark);
@@ -61,6 +72,12 @@
     .iv-question textarea:focus { outline: none; border-color: var(--c-lavender); background: white; }
     .iv-question textarea.heeft-antwoord { border-color: var(--c-pink); background: #FFF8F9; }
 
+    /* Compacte dit-of-dat */
+    .iv-quick { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em var(--gap-sm); }
+    .iv-quick .iv-question { margin-bottom: 0.5em; }
+    .iv-quick label { font-size: 0.9rem; margin-bottom: 0.2em; }
+    .iv-quick textarea { min-height: 2.2em; padding: 0.4em 0.7em; }
+
     .iv-submit-box {
       background: linear-gradient(135deg, #f4ebf7, var(--c-cream));
       border-radius: var(--r-md); padding: var(--gap-lg);
@@ -68,6 +85,10 @@
       border: 2px dashed var(--c-lavender);
     }
     .iv-submit-box h3 { color: var(--c-lavender-dark); margin-top: 0; }
+
+    @media (max-width: 480px) {
+      .iv-quick { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -87,7 +108,7 @@
   <header class="hero">
     <h1>📝 Vragenlijst voor Pleun</h1>
     <p class="tagline">Antwoord in je eigen woorden 💝</p>
-    <p class="lede">Hoe meer je vertelt, hoe meer de site écht jouw site wordt. Geen goed of fout — gewoon zoals jij het zegt. Sla rustig over wat je niet wilt beantwoorden. Je antwoorden worden onthouden terwijl je typt.</p>
+    <p class="lede">Hoe meer je vertelt, hoe meer de site écht jouw site wordt. Geen goed of fout — gewoon zoals jij het zegt. Sla rustig over wat je niet wilt beantwoorden, en pak het op een ander moment weer op. Alles wordt automatisch opgeslagen terwijl je typt.</p>
   </header>
 
   <div class="iv-progress">
@@ -97,12 +118,39 @@
 
   <section class="section">
 
-    <div class="iv-section">
+    <div class="iv-toc">
+      <h3>📚 14 thema's</h3>
+      <ol>
+        <li><a href="#s1">🌸 Wie ben je?</a></li>
+        <li><a href="#s2">🏫 School & vrienden</a></li>
+        <li><a href="#s3">💬 Hoe praat jij?</a></li>
+        <li><a href="#s4">🧶 Je haak-leven</a></li>
+        <li><a href="#s5">🎨 Wat vind je mooi?</a></li>
+        <li><a href="#s6">✨ Wat maakt jou jou?</a></li>
+        <li><a href="#s7">💭 Voelen & denken</a></li>
+        <li><a href="#s8">📱 Online & social</a></li>
+        <li><a href="#s9">🌍 Plekken & dingen</a></li>
+        <li><a href="#s10">🛒 Over je shop</a></li>
+        <li><a href="#s11">📷 Hoe moet de site voelen?</a></li>
+        <li><a href="#s12">🤔 Snel: dit of dat?</a></li>
+        <li><a href="#s13">🧠 Gekke vragen</a></li>
+        <li><a href="#s14">🎉 Tot slot</a></li>
+      </ol>
+    </div>
+
+    <!-- 1 -->
+    <div class="iv-section" id="s1">
       <h2>🌸 Wie ben je?</h2>
       <p class="iv-section-hint">Even kennismaken — de basis.</p>
 
-      <div class="iv-question"><label>Hoe oud ben je en wanneer ben je jarig?</label>
+      <div class="iv-question"><label>Hoe oud ben je en wanneer ben je jarig? Sterrenbeeld?</label>
         <textarea data-q="leeftijd"></textarea></div>
+
+      <div class="iv-question"><label>Welke 3 woorden beschrijven jou volgens jezelf?</label>
+        <textarea data-q="3-woorden-zelf"></textarea></div>
+
+      <div class="iv-question"><label>Welke 3 woorden zouden je vriendinnen over jou zeggen?</label>
+        <textarea data-q="3-woorden-vriendinnen"></textarea></div>
 
       <div class="iv-question"><label>Wat is je lievelingsdier? Waarom juist die?</label>
         <textarea data-q="lievelingsdier"></textarea></div>
@@ -126,33 +174,79 @@
         <textarea data-q="emojis"></textarea></div>
     </div>
 
-    <div class="iv-section">
+    <!-- 2 -->
+    <div class="iv-section" id="s2">
+      <h2>🏫 School & vrienden</h2>
+      <p class="iv-section-hint">Het stukje leven naast haken.</p>
+
+      <div class="iv-question"><label>In welke klas zit je en op welke school?</label>
+        <p class="iv-hint">Mag globaal — we zetten dit niet allemaal op de site.</p>
+        <textarea data-q="school"></textarea></div>
+
+      <div class="iv-question"><label>Wat is je favoriete vak? En je minst favoriete?</label>
+        <textarea data-q="vakken"></textarea></div>
+
+      <div class="iv-question"><label>Heb je broers of zussen? (alleen voornamen, of niks)</label>
+        <textarea data-q="gezin"></textarea></div>
+
+      <div class="iv-question"><label>Wat doe je meestal met je beste vriendinnen?</label>
+        <textarea data-q="vriendinnen"></textarea></div>
+
+      <div class="iv-question"><label>Wat doe je in de pauze op school?</label>
+        <textarea data-q="pauze"></textarea></div>
+
+      <div class="iv-question"><label>Hoe ga je naar school?</label>
+        <textarea data-q="reizen-school"></textarea></div>
+
+      <div class="iv-question"><label>Is er iets typisch dat jullie klas of vriendengroep zegt?</label>
+        <p class="iv-hint">Een grapje, een woord, een rare uitspraak die alleen jullie snappen.</p>
+        <textarea data-q="klas-uitspraak"></textarea></div>
+
+      <div class="iv-question"><label>Weten je vrienden van je shop? Wat zeggen ze ervan?</label>
+        <textarea data-q="vrienden-shop"></textarea></div>
+    </div>
+
+    <!-- 3 -->
+    <div class="iv-section" id="s3">
       <h2>💬 Hoe praat jij?</h2>
-      <p class="iv-section-hint">Hier komt jouw stem op de site terecht — dus wees gewoon jezelf.</p>
+      <p class="iv-section-hint">Hier komt jouw stem op de site terecht — wees gewoon jezelf, hoe gekker hoe beter.</p>
 
       <div class="iv-question"><label>Welke woorden of uitdrukkingen zeg je heel vaak?</label>
         <p class="iv-hint">Slang, gekke woorden, dingen die je vriendinnen je horen zeggen.</p>
         <textarea data-q="slang"></textarea></div>
 
       <div class="iv-question"><label>Hoe typ jij in WhatsApp tegen vriendinnen?</label>
-        <p class="iv-hint">Veel emoji of weinig? Korte zinnen of lange? Hoofdletters of klein? Veel uitroeptekens?</p>
+        <p class="iv-hint">Veel emoji of weinig? Korte zinnen of lange? Hoofdletters of klein? Veel uitroeptekens? Punten?</p>
         <textarea data-q="typ-stijl"></textarea></div>
 
       <div class="iv-question"><label>Schrijf even hoe jij in een berichtje zou zeggen dat iets héél cool is.</label>
-        <p class="iv-hint">Gewoon een echt voorbeeld — alsof je het nu typt naar je beste vriendin.</p>
+        <p class="iv-hint">Echt voorbeeld — alsof je het nu typt naar je beste vriendin.</p>
         <textarea data-q="berichtje-cool"></textarea></div>
 
-      <div class="iv-question"><label>Wat zeg jij in plaats van "geweldig" of "leuk"?</label>
-        <textarea data-q="alternatieven"></textarea></div>
+      <div class="iv-question"><label>Schrijf even hoe jij iets jammer of teleurstellend zou zeggen in een bericht.</label>
+        <textarea data-q="berichtje-jammer"></textarea></div>
+
+      <div class="iv-question"><label>Schrijf even hoe jij zou zeggen dat je super blij bent.</label>
+        <textarea data-q="berichtje-blij"></textarea></div>
+
+      <div class="iv-question"><label>Wat zeg je in plaats van "geweldig" of "leuk"?</label>
+        <textarea data-q="alternatieven-leuk"></textarea></div>
+
+      <div class="iv-question"><label>Wat zeg je in plaats van "echt waar?" of "no way"?</label>
+        <textarea data-q="alternatieven-waar"></textarea></div>
 
       <div class="iv-question"><label>Heb je een uitspraak die echt alleen jij doet?</label>
         <textarea data-q="eigen-uitspraak"></textarea></div>
 
-      <div class="iv-question"><label>Een woord waar jij gewoon blij van wordt als je het zegt?</label>
-        <textarea data-q="blij-woord"></textarea></div>
+      <div class="iv-question"><label>Welke woorden vind je gewoon mooi om te zeggen?</label>
+        <textarea data-q="mooie-woorden"></textarea></div>
+
+      <div class="iv-question"><label>Welk woord vind je écht irritant klinken?</label>
+        <textarea data-q="irritant-woord"></textarea></div>
     </div>
 
-    <div class="iv-section">
+    <!-- 4 -->
+    <div class="iv-section" id="s4">
       <h2>🧶 Je haak-leven</h2>
       <p class="iv-section-hint">Vertel het écht, met details — die maken het bijzonder.</p>
 
@@ -165,23 +259,39 @@
       <div class="iv-question"><label>Wat is het moeilijkste dat je ooit hebt gehaakt?</label>
         <textarea data-q="moeilijkste"></textarea></div>
 
-      <div class="iv-question"><label>Hoe lang per dag haak je? En waar het liefst?</label>
+      <div class="iv-question"><label>Hoeveel tijd haak je per dag gemiddeld?</label>
+        <textarea data-q="hoeveel-tijd"></textarea></div>
+
+      <div class="iv-question"><label>Waar haak je het liefst?</label>
         <p class="iv-hint">Bank, bed, vliegtuig, in de auto, op school in de pauze?</p>
-        <textarea data-q="hoe-vaak"></textarea></div>
+        <textarea data-q="waar-haken"></textarea></div>
 
       <div class="iv-question"><label>Wat doe je als iets gewoon niet lukt?</label>
         <textarea data-q="niet-lukt"></textarea></div>
 
-      <div class="iv-question"><label>Heb je een naam voor je haaknaald? 😆</label>
+      <div class="iv-question"><label>Heb je een naam voor je haaknaald?</label>
         <textarea data-q="haaknaald-naam"></textarea></div>
 
-      <div class="iv-question"><label>Welke wol of welk garen vind je het allermooist?</label>
+      <div class="iv-question"><label>Welke wol of welk garen vind je het mooist om mee te werken?</label>
         <textarea data-q="wol"></textarea></div>
+
+      <div class="iv-question"><label>Wat is jouw signature haak-trucje, of iets dat alleen jij doet?</label>
+        <textarea data-q="signature-trucje"></textarea></div>
+
+      <div class="iv-question"><label>Vertel je grappigste haak-fail.</label>
+        <textarea data-q="haak-fail"></textarea></div>
+
+      <div class="iv-question"><label>Welke muziek of welk geluid hoort bij haken voor jou?</label>
+        <textarea data-q="haak-muziek"></textarea></div>
+
+      <div class="iv-question"><label>Hoe weet je dat een item écht klaar is?</label>
+        <textarea data-q="klaar-weten"></textarea></div>
     </div>
 
-    <div class="iv-section">
+    <!-- 5 -->
+    <div class="iv-section" id="s5">
       <h2>🎨 Wat vind je mooi?</h2>
-      <p class="iv-section-hint">Smaak. Daar gaat de hele site op gebaseerd worden.</p>
+      <p class="iv-section-hint">Smaak. Hier baseren we het hele uiterlijk van de site op.</p>
 
       <div class="iv-question"><label>Welke kleuren passen volgens jou perfect bij elkaar?</label>
         <textarea data-q="kleur-combos"></textarea></div>
@@ -190,7 +300,7 @@
         <textarea data-q="kleur-niet"></textarea></div>
 
       <div class="iv-question"><label>Welke aesthetic past bij jou?</label>
-        <p class="iv-hint">Cottagecore, pastel, kawaii, retro, sportief, dark, anders? Mag ook iets eigens zijn.</p>
+        <p class="iv-hint">Cottagecore, pastel, kawaii, retro, sportief, dark, romantisch, anders? Mag ook iets eigens zijn dat je zelf bedenkt.</p>
         <textarea data-q="aesthetic"></textarea></div>
 
       <div class="iv-question"><label>Wat vind jij het schattigste dat bestaat?</label>
@@ -198,9 +308,33 @@
 
       <div class="iv-question"><label>Welk merk, welke stijl of welke Insta-feed vind je super?</label>
         <textarea data-q="inspiratie"></textarea></div>
+
+      <div class="iv-question"><label>Welke geur vind je het lekkerst?</label>
+        <textarea data-q="geur"></textarea></div>
+
+      <div class="iv-question"><label>Welke materiaal of textuur voelt heerlijk aan?</label>
+        <textarea data-q="textuur"></textarea></div>
+
+      <div class="iv-question"><label>Welk seizoen vind je het mooist en waarom?</label>
+        <textarea data-q="seizoen"></textarea></div>
+
+      <div class="iv-question"><label>Welk weer maakt jou blij?</label>
+        <textarea data-q="weer"></textarea></div>
+
+      <div class="iv-question"><label>Welk lettertype of schrijfstijl vind je gaaf?</label>
+        <p class="iv-hint">Sierlijke krullen? Strakke blokletters? Rond en zacht? Een voorbeeld dat je leuk vindt mag ook.</p>
+        <textarea data-q="font"></textarea></div>
+
+      <div class="iv-question"><label>Welk patroon vind je mooi?</label>
+        <p class="iv-hint">Stippen, strepen, bloemen, ruitjes, hartjes, niks?</p>
+        <textarea data-q="patroon"></textarea></div>
+
+      <div class="iv-question"><label>Wat zou je nóóit dragen?</label>
+        <textarea data-q="nooit-dragen"></textarea></div>
     </div>
 
-    <div class="iv-section">
+    <!-- 6 -->
+    <div class="iv-section" id="s6">
       <h2>✨ Wat maakt jou jou?</h2>
       <p class="iv-section-hint">De dingen die niemand anders zo zou zeggen.</p>
 
@@ -221,9 +355,94 @@
 
       <div class="iv-question"><label>Wat zou je veranderen aan de wereld als je het mocht?</label>
         <textarea data-q="wereld"></textarea></div>
+
+      <div class="iv-question"><label>Wat is iets waar je écht trots op bent?</label>
+        <textarea data-q="trots"></textarea></div>
+
+      <div class="iv-question"><label>Wat is iets waar je goed in wil worden?</label>
+        <textarea data-q="goed-in-worden"></textarea></div>
+
+      <div class="iv-question"><label>Wat doe je als je verdrietig bent?</label>
+        <textarea data-q="verdrietig"></textarea></div>
+
+      <div class="iv-question"><label>Wat doe je als je heel blij bent?</label>
+        <textarea data-q="heel-blij"></textarea></div>
     </div>
 
-    <div class="iv-section">
+    <!-- 7 -->
+    <div class="iv-section" id="s7">
+      <h2>💭 Voelen & denken</h2>
+      <p class="iv-section-hint">Een beetje dieper — alleen wat je wil delen.</p>
+
+      <div class="iv-question"><label>Waar denk je vaak aan voordat je gaat slapen?</label>
+        <textarea data-q="slapen-denken"></textarea></div>
+
+      <div class="iv-question"><label>Welk gevoel had je bij je allereerste haak-bestelling?</label>
+        <textarea data-q="eerste-bestelling"></textarea></div>
+
+      <div class="iv-question"><label>Wat maakt jou rustig?</label>
+        <textarea data-q="rustig"></textarea></div>
+
+      <div class="iv-question"><label>Wat geeft jou energie?</label>
+        <textarea data-q="energie"></textarea></div>
+
+      <div class="iv-question"><label>Waar ben je dankbaar voor?</label>
+        <textarea data-q="dankbaar"></textarea></div>
+
+      <div class="iv-question"><label>Een gedachte waar je vaak op terug komt?</label>
+        <textarea data-q="terugkerende-gedachte"></textarea></div>
+    </div>
+
+    <!-- 8 -->
+    <div class="iv-section" id="s8">
+      <h2>📱 Online & social</h2>
+      <p class="iv-section-hint">Hoe jij online bent (privé, niet de shop).</p>
+
+      <div class="iv-question"><label>Welke social media gebruik je en hoe vaak?</label>
+        <textarea data-q="social-gebruik"></textarea></div>
+
+      <div class="iv-question"><label>Welke account(s) volg je voor inspiratie?</label>
+        <textarea data-q="inspiratie-accounts"></textarea></div>
+
+      <div class="iv-question"><label>Wat post je zelf? (jouw eigen account, niet de shop)</label>
+        <textarea data-q="post-zelf"></textarea></div>
+
+      <div class="iv-question"><label>Heb je een online vriendin die je in het echt nooit hebt ontmoet?</label>
+        <textarea data-q="online-vriend"></textarea></div>
+
+      <div class="iv-question"><label>Wat vind je het irritantst aan internet of social media?</label>
+        <textarea data-q="internet-irritant"></textarea></div>
+
+      <div class="iv-question"><label>Welke trend vind je nu super, en welke vind je flauw?</label>
+        <textarea data-q="trends"></textarea></div>
+    </div>
+
+    <!-- 9 -->
+    <div class="iv-section" id="s9">
+      <h2>🌍 Plekken & dingen</h2>
+      <p class="iv-section-hint">Waar je was, waar je heen wil, waar je het fijnst bent.</p>
+
+      <div class="iv-question"><label>Waar zou je nu het liefst zijn?</label>
+        <textarea data-q="nu-waar"></textarea></div>
+
+      <div class="iv-question"><label>Verste plek waar je geweest bent?</label>
+        <textarea data-q="verste-plek"></textarea></div>
+
+      <div class="iv-question"><label>Mooiste plek die je kent?</label>
+        <textarea data-q="mooiste-plek"></textarea></div>
+
+      <div class="iv-question"><label>Plek in je eigen huis waar je het fijnst bent?</label>
+        <textarea data-q="huis-plek"></textarea></div>
+
+      <div class="iv-question"><label>Plek in Brabant die mensen écht zouden moeten kennen?</label>
+        <textarea data-q="brabant-plek"></textarea></div>
+
+      <div class="iv-question"><label>Stad of land waar je ooit naartoe wil?</label>
+        <textarea data-q="droom-bestemming"></textarea></div>
+    </div>
+
+    <!-- 10 -->
+    <div class="iv-section" id="s10">
       <h2>🛒 Over je shop</h2>
       <p class="iv-section-hint">Hoe jij naar je eigen ding kijkt.</p>
 
@@ -242,33 +461,135 @@
       <div class="iv-question"><label>Heb je dromen over wat je verder met haken wil doen?</label>
         <textarea data-q="droom-haken"></textarea></div>
 
-      <div class="iv-question"><label>Wat zou je willen dat klanten weten over jou — wat ze nu nog niet weten?</label>
+      <div class="iv-question"><label>Wat zou je willen dat klanten over jou weten — wat ze nu nog niet weten?</label>
         <textarea data-q="willen-weten"></textarea></div>
+
+      <div class="iv-question"><label>Wat is een typische klant voor jou? Wie zie je voor je?</label>
+        <textarea data-q="typische-klant"></textarea></div>
+
+      <div class="iv-question"><label>Een fout die je weleens hebt gemaakt en hoe je het hebt opgelost.</label>
+        <textarea data-q="fout-shop"></textarea></div>
+
+      <div class="iv-question"><label>Hoe voelt het als iemand iets van jou koopt?</label>
+        <textarea data-q="koop-gevoel"></textarea></div>
+
+      <div class="iv-question"><label>Wat is een prijs die je gewoon eerlijk vindt voor wat je doet?</label>
+        <p class="iv-hint">Niet wat 'het hoort', maar wat jij eerlijk vindt voor jouw werk en tijd.</p>
+        <textarea data-q="eerlijke-prijs"></textarea></div>
     </div>
 
-    <div class="iv-section">
-      <h2>🎉 Random vragen</h2>
-      <p class="iv-section-hint">Voor de fun — antwoord wat je wil.</p>
+    <!-- 11 -->
+    <div class="iv-section" id="s11">
+      <h2>📷 Hoe moet de site voelen?</h2>
+      <p class="iv-section-hint">Direct over de site — heel belangrijk.</p>
+
+      <div class="iv-question"><label>In één zin: hoe wil je dat de site voelt voor wie hem opent?</label>
+        <textarea data-q="site-gevoel"></textarea></div>
+
+      <div class="iv-question"><label>Welke 3 woorden moeten mensen denken als ze de site openen?</label>
+        <textarea data-q="site-3-woorden"></textarea></div>
+
+      <div class="iv-question"><label>Wat moet écht NIET op je site komen?</label>
+        <textarea data-q="site-niet"></textarea></div>
+
+      <div class="iv-question"><label>Welke kleuren wil je 100% zien? En welke beslist niet?</label>
+        <textarea data-q="site-kleuren"></textarea></div>
+
+      <div class="iv-question"><label>Veel emoji of juist heel weinig?</label>
+        <textarea data-q="site-emoji"></textarea></div>
+
+      <div class="iv-question"><label>Welke pagina vind je het belangrijkst en waarom?</label>
+        <textarea data-q="site-belangrijk"></textarea></div>
+
+      <div class="iv-question"><label>Iets aan de huidige site dat je écht graag anders wil?</label>
+        <textarea data-q="site-anders"></textarea></div>
+
+      <div class="iv-question"><label>Een idee voor de site dat je nog nergens anders hebt gezien?</label>
+        <textarea data-q="site-idee"></textarea></div>
+    </div>
+
+    <!-- 12 -->
+    <div class="iv-section" id="s12">
+      <h2>🤔 Snel: dit of dat?</h2>
+      <p class="iv-section-hint">Antwoord met één keuze, of allebei als je twijfelt 😉</p>
+
+      <div class="iv-quick">
+        <div class="iv-question"><label>Zomer of winter?</label><textarea data-q="d-zw"></textarea></div>
+        <div class="iv-question"><label>Strand of bos?</label><textarea data-q="d-sb"></textarea></div>
+        <div class="iv-question"><label>Hond of kat?</label><textarea data-q="d-hk"></textarea></div>
+        <div class="iv-question"><label>Roze of blauw?</label><textarea data-q="d-rb"></textarea></div>
+        <div class="iv-question"><label>Boek of film?</label><textarea data-q="d-bf"></textarea></div>
+        <div class="iv-question"><label>Muziek of stilte?</label><textarea data-q="d-ms"></textarea></div>
+        <div class="iv-question"><label>Vroeg op of laat opblijven?</label><textarea data-q="d-vl"></textarea></div>
+        <div class="iv-question"><label>Zoet of hartig?</label><textarea data-q="d-zh"></textarea></div>
+        <div class="iv-question"><label>Pizza of pasta?</label><textarea data-q="d-pp"></textarea></div>
+        <div class="iv-question"><label>Zee of zwembad?</label><textarea data-q="d-zz"></textarea></div>
+        <div class="iv-question"><label>Insta of TikTok?</label><textarea data-q="d-it"></textarea></div>
+        <div class="iv-question"><label>App of bellen?</label><textarea data-q="d-ab"></textarea></div>
+        <div class="iv-question"><label>Cadeau of cadeaubon?</label><textarea data-q="d-cc"></textarea></div>
+        <div class="iv-question"><label>Verrassen of verrast worden?</label><textarea data-q="d-vv"></textarea></div>
+        <div class="iv-question"><label>Alleen of met mensen?</label><textarea data-q="d-am"></textarea></div>
+        <div class="iv-question"><label>Pyjama of joggingpak?</label><textarea data-q="d-pj"></textarea></div>
+        <div class="iv-question"><label>Ochtend of avond?</label><textarea data-q="d-oa"></textarea></div>
+        <div class="iv-question"><label>Plannen of meegaan met de stroom?</label><textarea data-q="d-pm"></textarea></div>
+      </div>
+    </div>
+
+    <!-- 13 -->
+    <div class="iv-section" id="s13">
+      <h2>🧠 Gekke vragen</h2>
+      <p class="iv-section-hint">De fun-zone. Wees zo creatief als je wil.</p>
+
+      <div class="iv-question"><label>Als jouw shop een dier was, welk dier dan?</label>
+        <textarea data-q="shop-dier"></textarea></div>
+
+      <div class="iv-question"><label>Welk lied moet er spelen als iemand je site opent?</label>
+        <textarea data-q="opening-lied"></textarea></div>
+
+      <div class="iv-question"><label>Als je een eigen winkel in het echt mocht openen, hoe ziet die eruit?</label>
+        <p class="iv-hint">Hele klein detail mag — een tafel, een geur, een lichtje, een muur.</p>
+        <textarea data-q="droom-winkel"></textarea></div>
+
+      <div class="iv-question"><label>Welk gerecht ben je: pizza, pasta, salade, taart, of iets anders?</label>
+        <textarea data-q="gerecht"></textarea></div>
+
+      <div class="iv-question"><label>Als jij een nieuwe kleur kon uitvinden, hoe ziet die eruit en hoe heet hij?</label>
+        <textarea data-q="nieuwe-kleur"></textarea></div>
+
+      <div class="iv-question"><label>Welke superkracht zou je willen?</label>
+        <textarea data-q="superkracht"></textarea></div>
+
+      <div class="iv-question"><label>Als jouw leven een serie was, hoe zou de eerste aflevering eindigen?</label>
+        <textarea data-q="serie-cliffhanger"></textarea></div>
+
+      <div class="iv-question"><label>Iets dat je eigenlijk nooit hardop zegt maar wel vaak denkt?</label>
+        <textarea data-q="stille-gedachte"></textarea></div>
+    </div>
+
+    <!-- 14 -->
+    <div class="iv-section" id="s14">
+      <h2>🎉 Tot slot</h2>
+      <p class="iv-section-hint">Bijna klaar 💝</p>
 
       <div class="iv-question"><label>Wat is je grootste wens?</label>
         <textarea data-q="wens"></textarea></div>
 
-      <div class="iv-question"><label>Wat doe je als je je verveelt?</label>
-        <textarea data-q="vervelen"></textarea></div>
+      <div class="iv-question"><label>Iets dat je ooit op de site zou willen zien staan?</label>
+        <textarea data-q="op-site"></textarea></div>
 
-      <div class="iv-question"><label>Wat zou een perfecte dag voor jou zijn?</label>
-        <textarea data-q="perfecte-dag"></textarea></div>
+      <div class="iv-question"><label>Wat zou je tegen jezelf van 5 jaar geleden willen zeggen?</label>
+        <textarea data-q="5-geleden"></textarea></div>
 
-      <div class="iv-question"><label>Heb je een verhaal of grappige anekdote die je ooit op de site zou willen zien?</label>
-        <textarea data-q="verhaal"></textarea></div>
+      <div class="iv-question"><label>Wat zou je tegen jezelf over 5 jaar willen zeggen?</label>
+        <textarea data-q="5-vooruit"></textarea></div>
 
-      <div class="iv-question"><label>Iets toe te voegen wat hier niet stond?</label>
+      <div class="iv-question"><label>Iets toe te voegen wat hier niet gevraagd is?</label>
         <textarea data-q="overig"></textarea></div>
     </div>
 
     <div class="iv-submit-box">
       <h3>🎀 Klaar?</h3>
-      <p>Je antwoorden zijn opgeslagen. Tap hieronder om ze te versturen — er opent WhatsApp waar je kunt kiezen naar wie je het stuurt.</p>
+      <p>Je antwoorden zijn de hele tijd opgeslagen. Tap hieronder om ze te bundelen — er opent dan WhatsApp en je kiest zelf naar wie je het stuurt.</p>
       <button class="btn full" id="iv-submit">💝 Verstuur mijn antwoorden</button>
       <p style="margin-top: 0.8em; font-size: 0.8rem; color: var(--c-muted);">
         <a href="#" id="iv-clear">Alles wissen en opnieuw beginnen</a>
@@ -300,7 +621,7 @@
       function updateProgress() {
         let filled = 0;
         textareas.forEach(ta => {
-          const heeft = ta.value.trim().length >= 3;
+          const heeft = ta.value.trim().length >= 2;
           ta.classList.toggle('heeft-antwoord', heeft);
           if (heeft) filled++;
         });
@@ -309,7 +630,6 @@
         countEl.textContent = `${filled} / ${textareas.length}`;
       }
 
-      // Laad opgeslagen antwoorden + autosave
       textareas.forEach(ta => {
         const key = STORAGE_PREFIX + ta.dataset.q;
         ta.value = localStorage.getItem(key) || '';
@@ -322,7 +642,6 @@
       });
       updateProgress();
 
-      // Verstuur
       document.getElementById('iv-submit').addEventListener('click', () => {
         const sections = document.querySelectorAll('.iv-section');
         let txt = '📝 *Pleun\'s vragenlijst*\n\n';
@@ -352,11 +671,9 @@
         }
 
         txt += `\n\n— ${totalAnswered} vragen beantwoord 🎀`;
-        // Open WhatsApp share-screen (je kiest zelf naar wie)
         window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
       });
 
-      // Wissen
       document.getElementById('iv-clear').addEventListener('click', e => {
         e.preventDefault();
         if (!confirm('Weet je het zeker? Alle antwoorden worden gewist.')) return;
