@@ -320,16 +320,16 @@
     },
     {
       "id": "sleutelhangers-aardbei-sleutelhanger",
-      "naam": "Aardbei sleutelhanger",
+      "naam": "Aardbei Sleutelhanger",
       "categorie": "sleutelhangers",
-      "prijs": 3,
-      "beschrijving": "Kleine gehaakte aardbei sleutelhanger! 🍓 Ik heb deze gemaakt van superzacht chenille garen in een lief koraal kleurtje. ZO leuk voor aan je tas of sleutelbos. Echt knuffelbaar!",
+      "prijs": 2,
+      "beschrijving": "Dit is mijn ZO leuke aardbei sleutelhanger! 🍓 Ik heb 'm gehaakt met superzacht chenille garen. Ideaal voor aan je tas of je sleutelbos. ZO vrolijk! ✨",
       "kleuren": [
-        "koraal",
-        "groen"
+        "rood",
+        "lichtgroen"
       ],
-      "altText": "Gehaakte aardbei sleutelhanger van pluizig koraal chenille met groene blaadjes en kraaloogjes.",
-      "extraKaartje": "Perfect als een klein cadeautje voor iemand die je lief vindt! 💝",
+      "altText": "Kleine gehaakte aardbei sleutelhanger van zacht chenille garen, rood met groen.",
+      "extraKaartje": "Wist je dat ik deze maak terwijl mijn katten toekijken? 🐱",
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
