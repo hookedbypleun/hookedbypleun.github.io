@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.3.1">
+  <link rel="stylesheet" href="../css/style.css?v=2.3.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -389,6 +389,20 @@
         <div class="wiz-pane" data-pane="3">
           <h3>👀 Bekijk en pas aan</h3>
           <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "✓ Akkoord" → krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiëren, of allebei.</p>
+
+          <!-- Foto-overzicht + helderheid-slider -->
+          <div id="step3-photo" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
+            <div style="display:flex; gap:0.8rem; align-items:flex-start">
+              <img id="step3-thumb" src="" alt="gekozen foto" style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0">
+              <div style="flex:1; min-width:0">
+                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Gekozen foto</div>
+                <div class="photo-bri-row" style="margin:0; padding:0.4rem 0.6rem">
+                  <label>💡 Helderheid <span id="bri-val3">0</span></label>
+                  <input type="range" id="photo-bri3" min="-40" max="40" step="5" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="wiz-panel-tabs" id="panel-tabs" style="display:none">
             <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">🌐 Website</button>
@@ -1517,6 +1531,30 @@
       const tabS = document.getElementById('tab-social');
       if (tabW) tabW.style.display = wizState.channels.website ? '' : 'none';
       if (tabS) tabS.style.display = wizState.channels.social  ? '' : 'none';
+
+      // Foto-overzicht in stap 3 vullen
+      const step3Photo = document.getElementById('step3-photo');
+      const step3Thumb = document.getElementById('step3-thumb');
+      const bri3 = document.getElementById('photo-bri3');
+      const briVal3 = document.getElementById('bri-val3');
+      if (step3Photo && wizState.photo) {
+        step3Thumb.src = wizState.photo.dataURL;
+        const bv = wizState.photoBrightness;
+        if (bri3) bri3.value = bv;
+        if (briVal3) briVal3.textContent = bv > 0 ? '+' + bv : bv;
+        step3Photo.style.display = '';
+        bri3?.addEventListener('input', e => {
+          const val = parseInt(e.target.value, 10);
+          briVal3.textContent = val > 0 ? '+' + val : val;
+          const bri1 = document.getElementById('photo-bri');
+          const briVal1 = document.getElementById('bri-val');
+          if (bri1) bri1.value = val;
+          if (briVal1) briVal1.textContent = val > 0 ? '+' + val : val;
+          applyBrightness(val);
+          // Thumb direct updaten na verwerking
+          setTimeout(() => { if (wizState.photo) step3Thumb.src = wizState.photo.dataURL; }, 120);
+        });
+      }
     }
 
     // ============================================================

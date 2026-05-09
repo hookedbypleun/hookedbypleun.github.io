@@ -229,6 +229,10 @@ window.orderUrl = function(text) {
         <div class="cd-field">
           <input id="cd-notitie" type="text" placeholder="Wensen? (kleur, naam erop, cadeau...)" oninput="window.updatePreview()">
         </div>
+        <div class="cd-field">
+          <input id="cd-bron" type="text" placeholder="Hoe ken je Hooked by Pleun? (optioneel)" oninput="window.updatePreview()">
+          <span class="cd-field-hint">Vind ik leuk om te weten 🌸</span>
+        </div>
       </div>
       <div class="checkout-preview">
         <h3>💬 Voorbeeldbericht</h3>
@@ -261,6 +265,7 @@ window.orderUrl = function(text) {
     const postcode  = document.getElementById('cd-postcode')?.value.trim() || '';
     const woonplaats= document.getElementById('cd-woonplaats')?.value.trim() || '';
     const notitie   = document.getElementById('cd-notitie')?.value.trim() || '';
+    const bron      = document.getElementById('cd-bron')?.value.trim() || '';
 
     const pcWoonplaats = [postcode, woonplaats].filter(Boolean).join(' ');
 
@@ -268,7 +273,7 @@ window.orderUrl = function(text) {
       naam       ? `Naam: ${naam}`                          : 'Naam:',
       adres      ? `Adres: ${adres}`                        : 'Adres:',
       pcWoonplaats ? `Postcode: ${pcWoonplaats}`            : 'Postcode + woonplaats:',
-    ].join('\n') + (notitie ? `\nWensen: ${notitie}` : '');
+    ].join('\n') + (notitie ? `\nWensen: ${notitie}` : '') + (bron ? `\nVia: ${bron}` : '');
 
     const bericht =
 `Hoi Pleun! 💝

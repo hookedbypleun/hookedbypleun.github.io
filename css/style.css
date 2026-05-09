@@ -808,6 +808,7 @@ section.section {
 .cd-field input:focus { outline: none; border-color: var(--c-lavender); }
 .cd-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 0.5em; }
 .cd-two-col input { width: 100%; }
+.cd-field-hint { display: block; font-size: 0.78rem; color: var(--c-muted); margin-top: 0.2em; font-style: italic; }
 
 .checkout-preview h3 { font-size: 1rem; margin-bottom: 0.3em; }
 .checkout-preview textarea {
