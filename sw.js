@@ -1,7 +1,7 @@
 // Crochet by Pleun — Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
-const CACHE_VERSION = '1.0.0';
+const CACHE_VERSION = '1.3.1';
 const CACHE_NAME = `crochet-v${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -57,8 +57,8 @@ self.addEventListener('fetch', event => {
   // Sla externe requests over (fonts, analytics, wa.me)
   if (url.origin !== self.location.origin) return;
 
-  // JSON en HTML: network-first (altijd verse data)
-  if (url.pathname.endsWith('.json') || url.pathname.endsWith('.html') || url.pathname === '/') {
+  // JSON, HTML en config.js: network-first (altijd verse data)
+  if (url.pathname.endsWith('.json') || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '/js/config.js') {
     event.respondWith(networkFirst(request));
     return;
   }
