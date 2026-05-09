@@ -185,11 +185,11 @@ nav .cart-count.empty { display: none; }
 }
 .hero-banner {
   display: block;
-  max-width: min(420px, 78%);
+  max-width: min(600px, 90%);
   width: 100%;
   height: auto;
   margin: 0 auto var(--gap-xs);
-  filter: drop-shadow(0 3px 10px rgba(232, 168, 142, 0.15));
+  filter: drop-shadow(0 4px 14px rgba(232, 168, 142, 0.2));
 }
 .visually-hidden {
   position: absolute !important;
