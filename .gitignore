@@ -6,3 +6,5 @@ admin/private/
 .DS_Store
 Thumbs.db
 node_modules/
+cloudflare-worker/.wrangler/
+.wrangler/
