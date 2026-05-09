@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" href="img/branding/app-icon.png?v=4">
   <link rel="apple-touch-icon" href="img/branding/app-icon.png?v=4">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css?v=3.0.11">
+  <link rel="stylesheet" href="css/style.css?v=3.0.12">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -114,11 +114,27 @@
   </section>
 
   <!-- Reviews van klanten -->
-  <section class="section" id="home-reviews-section" style="display:none">
+  <section class="section" id="home-reviews-section">
     <div class="section-header">
       <h2>💝 Wat anderen zeggen</h2>
     </div>
     <div class="reviews-grid" id="home-reviews"></div>
+    <div class="shop-review-form" style="max-width:500px; margin:var(--gap-lg) auto 0; background:white; border-radius:var(--r-md); padding:var(--gap-md); box-shadow:var(--shadow-soft)">
+      <h3 style="text-align:center; margin-top:0">Iets besteld? Vertel! 🌸</h3>
+      <div class="cd-field"><input id="shop-rv-naam" type="text" placeholder="Je naam (optioneel)" style="width:100%; padding:0.5em 0.7em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:0.95rem; background:var(--c-cream)"></div>
+      <div class="cd-field" style="margin:var(--gap-sm) 0">
+        <div class="sterren-kiezer" id="shop-rv-sterren" style="font-size:1.6rem; cursor:pointer; text-align:center">
+          <button data-star="1" aria-label="1 ster" style="background:none;border:none;font-size:inherit;cursor:pointer;color:var(--c-mustard)">★</button>
+          <button data-star="2" aria-label="2 sterren" style="background:none;border:none;font-size:inherit;cursor:pointer;color:var(--c-mustard)">★</button>
+          <button data-star="3" aria-label="3 sterren" style="background:none;border:none;font-size:inherit;cursor:pointer;color:var(--c-mustard)">★</button>
+          <button data-star="4" aria-label="4 sterren" style="background:none;border:none;font-size:inherit;cursor:pointer;color:var(--c-mustard)">★</button>
+          <button data-star="5" aria-label="5 sterren" style="background:none;border:none;font-size:inherit;cursor:pointer;color:var(--c-mustard)">★</button>
+        </div>
+      </div>
+      <div class="cd-field"><textarea id="shop-rv-tekst" rows="3" placeholder="Wat vond je ervan?" style="width:100%; padding:0.5em 0.7em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit; font-size:0.95rem; background:var(--c-cream); resize:none"></textarea></div>
+      <button class="btn full" id="shop-rv-verstuur" style="margin-top:var(--gap-sm)">💝 Review versturen</button>
+      <p id="shop-rv-status" class="cd-hint" style="display:none; margin-top:0.5em; text-align:center"></p>
+    </div>
   </section>
 
   <!-- Sociaal bewijs uit poll -->
@@ -173,7 +189,7 @@
       <a onclick="openIdeeenbus(); return false;" href="#">💡 Idee of foutje?</a>
       <a onclick="openDisclaimer(); return false;" href="#">📜 Goed om te weten</a>
     </div>
-    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> · Privacy: alle bestellingen verlopen via WhatsApp, geen accounts, geen tracking. <span class="version-tag">v3.0.11</span></small>
+    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> · Privacy: alle bestellingen verlopen via WhatsApp, geen accounts, geen tracking. <span class="version-tag">v3.0.12</span></small>
   </footer>
 
   <script src="js/config.js"></script>

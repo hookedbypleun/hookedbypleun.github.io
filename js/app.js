@@ -75,25 +75,66 @@
       nieuwGrid.innerHTML = sorted.map(kaartHTML).join('');
     }
 
-    // Reviews-blok op homepage
+    // Reviews-blok op homepage — alle goedgekeurde reviews (shop-breed)
     const reviewsGrid = document.getElementById('home-reviews');
     const reviewsSectie = document.getElementById('home-reviews-section');
     if (reviewsGrid && reviewsSectie) {
       try {
         const rvRes = await fetch('data/reviews.json?v=' + Date.now());
         const rvData = await rvRes.json();
-        const uitgelicht = (rvData.reviews || []).filter(r => r.status === 'approved' && r.uitgelicht).slice(0, 3);
-        if (uitgelicht.length > 0) {
-          reviewsGrid.innerHTML = uitgelicht.map(r => `
+        const goedgekeurd = (rvData.reviews || []).filter(r => r.status === 'approved').slice(0, 6);
+        if (goedgekeurd.length > 0) {
+          reviewsGrid.innerHTML = goedgekeurd.map(r => `
             <div class="review-kaart">
               <div class="rv-sterren">${'★'.repeat(r.rating || 5)}</div>
               <p class="rv-tekst">"${escapeHtml(r.tekst)}"</p>
               <p class="rv-naam">— ${escapeHtml(r.naam || 'Anoniem')}</p>
-              ${r.productNaam ? `<p class="rv-product"><a href="product.html?id=${encodeURIComponent(r.productId)}">${escapeHtml(r.productNaam)}</a></p>` : ''}
+              ${r.productNaam ? `<p class="rv-product">${escapeHtml(r.productNaam)}</p>` : ''}
             </div>`).join('');
-          reviewsSectie.style.display = '';
+        } else {
+          reviewsGrid.innerHTML = '<p class="cd-hint" style="text-align:center;grid-column:1/-1">Nog geen reviews — wees de eerste! 🌸</p>';
         }
       } catch {}
+
+      // Shop-review formulier
+      const shopVerstuur = document.getElementById('shop-rv-verstuur');
+      if (shopVerstuur) {
+        let shopRating = 5;
+        document.getElementById('shop-rv-sterren')?.addEventListener('click', e => {
+          const btn = e.target.closest('[data-star]');
+          if (!btn) return;
+          shopRating = parseInt(btn.dataset.star);
+          btn.parentElement.querySelectorAll('button').forEach((b, i) => {
+            b.textContent = i < shopRating ? '★' : '☆';
+          });
+        });
+        shopVerstuur.addEventListener('click', async () => {
+          const tekst = document.getElementById('shop-rv-tekst')?.value.trim();
+          const naam = document.getElementById('shop-rv-naam')?.value.trim();
+          const status = document.getElementById('shop-rv-status');
+          if (!tekst || tekst.length < 5) {
+            if (status) { status.textContent = 'Schrijf eerst iets 💝'; status.style.display = ''; }
+            return;
+          }
+          shopVerstuur.disabled = true;
+          shopVerstuur.textContent = '⏳ Versturen...';
+          try {
+            const cfg = window.SHOP_CONFIG || {};
+            const res = await fetch((cfg.workerUrl || '').replace(/\/$/, '') + '/review', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ productId: '', productNaam: '', naam, tekst, rating: shopRating }),
+            });
+            if (!res.ok) throw new Error();
+            if (status) { status.textContent = 'Bedankt! Pleun keurt je review zo snel mogelijk goed 🎀'; status.style.display = ''; }
+            shopVerstuur.textContent = '✅ Verstuurd!';
+          } catch {
+            if (status) { status.textContent = '😕 Niet gelukt. Probeer opnieuw.'; status.style.display = ''; }
+            shopVerstuur.disabled = false;
+            shopVerstuur.textContent = '💝 Review versturen';
+          }
+        });
+      }
     }
   }
 
