@@ -200,7 +200,6 @@ Lokaal afhalen of versturen?`;
             binnenkort ? '<span style="color:var(--c-mustard-dark)">Binnenkort ✨</span>' :
             showcase ? '<span style="color:var(--c-lavender-dark)">Op maat</span>' : '—'}
         </div>
-        <p class="beschrijving">${escapeHtml(item.beschrijving)}</p>
 
         ${item.eigenPatroon ? `
           <div class="eigen-spotlight">
@@ -208,23 +207,60 @@ Lokaal afhalen of versturen?`;
           </div>
         ` : ''}
 
-        ${item.afmeting || (item.kleuren && item.kleuren.length) ? `
-        <div class="specs">
-          <dl>
-            ${item.afmeting ? `<dt>Afmeting</dt><dd>${escapeHtml(item.afmeting)}</dd>` : ''}
-            ${item.kleuren?.length ? `<dt>Kleuren</dt><dd>${item.kleuren.map(escapeHtml).join(', ')}</dd>` : ''}
-            ${item.voorraad > 0 ? `<dt>Voorraad</dt><dd>${item.voorraad} stuk${item.voorraad > 1 ? 's' : ''}</dd>` : ''}
-          </dl>
-        </div>` : ''}
+        <!-- Tab-balk -->
+        <div class="product-tabs-bar">
+          <button class="actief" onclick="window.showProductTab('info')">📦 Over dit item</button>
+          <button onclick="window.showProductTab('reviews')">💬 Reviews <span class="rv-count-badge" id="rv-tab-badge" style="display:none">0</span></button>
+        </div>
 
-        ${koopbaar ? `
-          <div class="postcode-box">
-            <label for="pc">📍 Waar woon je? (postcode)</label>
-            <input id="pc" type="text" maxlength="7" inputmode="numeric" placeholder="bv. 5074" oninput="checkPostcode(this, document.getElementById('pc-result'))">
-            <span id="pc-result" class="postcode-result"></span>
+        <!-- Tab: Info -->
+        <div class="product-tab-pane actief" id="prod-tab-info">
+          <p class="beschrijving">${escapeHtml(item.beschrijving)}</p>
+          ${item.afmeting || (item.kleuren && item.kleuren.length) || item.voorraad > 0 ? `
+          <div class="specs">
+            <dl>
+              ${item.afmeting ? `<dt>Afmeting</dt><dd>${escapeHtml(item.afmeting)}</dd>` : ''}
+              ${item.kleuren?.length ? `<dt>Kleuren</dt><dd>${item.kleuren.map(escapeHtml).join(', ')}</dd>` : ''}
+              ${item.voorraad > 0 ? `<dt>Voorraad</dt><dd>${item.voorraad} stuk${item.voorraad > 1 ? 's' : ''}</dd>` : ''}
+            </dl>
+          </div>` : ''}
+          ${koopbaar ? `
+            <div class="postcode-box">
+              <label for="pc">📍 Waar woon je? (postcode)</label>
+              <input id="pc" type="text" maxlength="7" inputmode="numeric" placeholder="bv. 5074" oninput="checkPostcode(this, document.getElementById('pc-result'))">
+              <span id="pc-result" class="postcode-result"></span>
+            </div>` : ''}
+        </div>
+
+        <!-- Tab: Reviews -->
+        <div class="product-tab-pane" id="prod-tab-reviews">
+          <div id="reviews-sectie">
+            <div id="reviews-lijst"><p class="cd-hint">Reviews laden... 🧶</p></div>
+            <div class="review-form">
+              <h4>Jouw ervaring 💝</h4>
+              <p class="cd-hint">Heb je iets besteld bij Pleun? Deel je ervaring — ze stuurt misschien een extra cadeautje 🎁</p>
+              <div class="cd-field">
+                <input id="rv-naam" type="text" placeholder="Jouw naam (optioneel)">
+              </div>
+              <div class="rv-stars" id="rv-stars">
+                <button data-star="1" aria-label="1 ster">★</button>
+                <button data-star="2" aria-label="2 sterren">★</button>
+                <button data-star="3" aria-label="3 sterren">★</button>
+                <button data-star="4" aria-label="4 sterren">★</button>
+                <button data-star="5" aria-label="5 sterren">★</button>
+              </div>
+              <div class="cd-field">
+                <textarea id="rv-tekst" rows="3" placeholder="Schrijf je review hier... (verplicht)"></textarea>
+              </div>
+              <button class="btn full" id="rv-verstuur">💝 Review versturen</button>
+              <p id="rv-status" class="cd-hint" style="display:none;margin-top:0.5em"></p>
+            </div>
           </div>
+        </div>
 
-          <div class="bestel-acties">
+        <!-- Bestel-acties — altijd zichtbaar -->
+        ${koopbaar ? `
+          <div class="bestel-acties" style="margin-top:var(--gap-md)">
             <button class="btn full" onclick='window.openCheckout(${JSON.stringify({id: item.id, naam: item.naam, prijs: item.prijs, foto: item.foto, categorie: item.categorie, verzendklasse: item.verzendklasse})})'>
               💬 ${escapeHtml(cfg.whatsappLabel)} — ik wil deze!
             </button>
@@ -233,7 +269,7 @@ Lokaal afhalen of versturen?`;
             </button>
           </div>
         ` : showcase ? `
-          <div class="offerte-form">
+          <div class="offerte-form" style="margin-top:var(--gap-md)">
             <h3>📐 Vraag een eigen versie aan</h3>
             <p class="cd-hint">Vertel wat je wil — ik kijk wat ik voor je kan haken! 💝</p>
             <div class="cd-field">
@@ -253,43 +289,19 @@ Lokaal afhalen of versturen?`;
             </button>
           </div>
         ` : binnenkort ? `
-          <div class="bestel-acties">
+          <div class="bestel-acties" style="margin-top:var(--gap-md)">
             <a class="btn mustard full" href="${cfg.channelInviteUrl}" target="_blank" rel="noopener">
               🔔 Volg het kanaal — krijg launch-bericht
             </a>
           </div>
         ` : `
-          <div class="bestel-acties">
+          <div class="bestel-acties" style="margin-top:var(--gap-md)">
             <p style="color:var(--c-muted)">Dit item is uitverkocht. Wil je iets soortgelijks op maat?</p>
             <a class="btn secondary full" href="${window.orderUrl('Hoi Pleun! Ik zag dat ' + item.naam + ' uitverkocht is. Kun je iets soortgelijks op maat haken?')}" target="_blank" rel="noopener">
               💌 Vraag een nieuwe aan
             </a>
           </div>
         `}
-      </div>
-
-      <div class="reviews-sectie" id="reviews-sectie">
-        <h3>💬 Reviews</h3>
-        <div id="reviews-lijst"><p class="cd-hint">Reviews laden... 🧶</p></div>
-        <div class="review-form">
-          <h4>Jouw ervaring</h4>
-          <p class="cd-hint">Heb je iets besteld bij Pleun? Deel je ervaring — ze stuurt misschien een extra cadeautje 🎁</p>
-          <div class="cd-field">
-            <input id="rv-naam" type="text" placeholder="Jouw naam (optioneel)">
-          </div>
-          <div class="rv-stars" id="rv-stars">
-            <button data-star="1" aria-label="1 ster">★</button>
-            <button data-star="2" aria-label="2 sterren">★</button>
-            <button data-star="3" aria-label="3 sterren">★</button>
-            <button data-star="4" aria-label="4 sterren">★</button>
-            <button data-star="5" aria-label="5 sterren">★</button>
-          </div>
-          <div class="cd-field">
-            <textarea id="rv-tekst" rows="3" placeholder="Schrijf je review hier... (verplicht)"></textarea>
-          </div>
-          <button class="btn full" id="rv-verstuur">💝 Review versturen</button>
-          <p id="rv-status" class="cd-hint" style="display:none;margin-top:0.5em"></p>
-        </div>
       </div>
     `;
     document.title = item.naam + ' · Hooked by Pleun';
@@ -299,14 +311,20 @@ Lokaal afhalen of versturen?`;
   }
 
   async function loadReviewsForProduct(productId, productNaam) {
-    const sectie = document.getElementById('reviews-sectie');
-    if (!sectie) return;
     try {
       const res = await fetch('data/reviews.json?v=' + Date.now());
       const data = await res.json();
       const goedgekeurd = (data.reviews || []).filter(r => r.productId === productId && r.status === 'approved');
       const lijst = document.getElementById('reviews-lijst');
       if (!lijst) return;
+
+      // Badge in tab-knop bijwerken
+      const badge = document.getElementById('rv-tab-badge');
+      if (badge && goedgekeurd.length > 0) {
+        badge.textContent = goedgekeurd.length;
+        badge.style.display = '';
+      }
+
       if (goedgekeurd.length === 0) {
         lijst.innerHTML = '<p class="cd-hint">Nog geen reviews — wees de eerste! 🌸</p>';
       } else {
@@ -366,6 +384,17 @@ Lokaal afhalen of versturen?`;
       });
     }
   }
+
+  // ===== Product-tab wisselen =====
+  window.showProductTab = function(name) {
+    document.querySelectorAll('.product-tab-pane').forEach(p => p.classList.remove('actief'));
+    document.querySelectorAll('.product-tabs-bar button').forEach(b => {
+      const isActive = b.getAttribute('onclick')?.includes(`'${name}'`);
+      b.classList.toggle('actief', isActive);
+    });
+    const pane = document.getElementById('prod-tab-' + name);
+    if (pane) pane.classList.add('actief');
+  };
 
   // ===== Offerte-aanvraag voor showcase-items =====
   window.verstuurOfferte = function(itemNaam) {

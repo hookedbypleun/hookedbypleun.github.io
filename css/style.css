@@ -1163,37 +1163,48 @@ footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md);
   gap: var(--gap-sm);
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
+}
+.cart-item-link .name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cart-item-link:hover .name {
   text-decoration: underline;
   color: var(--c-lavender-dark);
 }
-.cart-list li { flex-wrap: wrap; }
+/* li nooit wrappen — alles op één rij */
+.cart-list li { flex-wrap: nowrap; align-items: center; }
 
 .cart-qty {
   display: flex;
   align-items: center;
-  gap: 0.3em;
+  gap: 0.2em;
   background: var(--c-cream);
   border-radius: var(--r-pill);
-  padding: 0.15em 0.4em;
+  padding: 0.1em 0.3em;
+  flex-shrink: 0;
 }
 .qty-btn {
   background: white;
   border: 1.5px solid var(--c-cream-dark);
   color: var(--c-lavender-dark);
   border-radius: 50%;
-  width: 26px; height: 26px;
+  width: 24px; height: 24px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-weight: 700; font-size: 1rem; padding: 0;
+  cursor: pointer; font-weight: 700; font-size: 0.95rem; padding: 0;
   transition: all 0.15s;
   line-height: 1;
+  flex-shrink: 0;
 }
 .qty-btn:hover:not(:disabled) { background: var(--c-lavender); color: white; border-color: var(--c-lavender); }
 .qty-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.qty-num { font-weight: 700; min-width: 1.4em; text-align: center; font-size: 0.95rem; }
+.qty-num { font-weight: 700; min-width: 1.2em; text-align: center; font-size: 0.88rem; }
+.cart-list .price { flex-shrink: 0; font-size: 0.9rem; }
+.cart-list .remove { flex-shrink: 0; }
 
 /* ============================================
    Offerte-aanvraagformulier (showcase items)
@@ -1310,6 +1321,50 @@ footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md);
   line-height: 1.6;
 }
 .disclaimer-lijst li { padding-left: 0.3em; }
+
+/* ============================================
+   Product-pagina tabs (Info / Reviews)
+   ============================================ */
+
+.product-tabs-bar {
+  display: flex;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 2px solid var(--c-lavender);
+  margin: var(--gap-lg) 0 var(--gap-md);
+}
+.product-tabs-bar button {
+  flex: 1;
+  padding: 0.75em 0.5em;
+  border: none;
+  background: white;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--c-lavender-dark);
+  transition: background 0.15s, color 0.15s;
+  border-right: 2px solid var(--c-lavender);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+}
+.product-tabs-bar button:last-child { border-right: none; }
+.product-tabs-bar button.actief { background: var(--c-lavender); color: white; }
+
+.product-tab-pane { display: none; }
+.product-tab-pane.actief { display: block; }
+
+.rv-count-badge {
+  background: var(--c-pink);
+  color: var(--c-ink);
+  border-radius: 99px;
+  font-size: 0.72rem;
+  padding: 0.1em 0.5em;
+  font-weight: 700;
+  line-height: 1.4;
+}
 
 /* Footer extra links */
 footer .extra-links {
