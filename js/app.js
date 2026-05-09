@@ -504,8 +504,14 @@ Lokaal afhalen of versturen?`;
       hint.classList.remove('zichtbaar');
       void hint.offsetWidth; // reset animatie
       hint.classList.add('zichtbaar');
-      hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      setTimeout(() => hint.classList.remove('zichtbaar'), 4000);
+      // Scroll het hele varianten-blok naar boven met buffer voor sticky-nav,
+      // zodat hint én kleur-knoppen tegelijk in beeld komen.
+      const target = document.getElementById('varianten-keuze') || hint;
+      const rect = target.getBoundingClientRect();
+      const buffer = 110; // sticky nav (~70px) + extra ademruimte
+      const top = Math.max(0, window.scrollY + rect.top - buffer);
+      window.scrollTo({ top, behavior: 'smooth' });
+      setTimeout(() => hint.classList.remove('zichtbaar'), 4500);
     }
 
     // Kleur selecteren = bestel-keuze registreren + hoofdfoto springen; thumbs blijven compleet
