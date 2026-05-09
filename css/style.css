@@ -5,23 +5,28 @@
    ============================================ */
 
 :root {
-  /* Kleurenpalet */
+  /* Kleurenpalet — Pleuns stijl: lichtroze als hoofdkleur, lichtblauw als accent */
   --c-lavender: #B5A1D6;
   --c-lavender-dark: #8A75AD;
   --c-cream: #FAF6EE;
   --c-cream-dark: #F0E8D8;
   --c-pink: #F5C6CB;
   --c-pink-dark: #E5959D;
+  --c-blue: #C5DDED;          /* zacht hemelsblauw — Pleuns 2e favoriet */
+  --c-blue-dark: #8FBCD8;
+  --c-coral: #F5B79E;          /* koraal — past bij beige */
   --c-mustard: #E5B85C;
   --c-mustard-dark: #C99838;
   --c-ink: #3E3447;
   --c-text: #5B5060;
   --c-muted: #9A8FA0;
 
-  /* Status */
+  /* Status (zachter groen — geen donkergroen op haar verzoek) */
   --c-sold: #C99898;
-  --c-new: #6BAA75;
+  --c-new: #7DB87E;
   --c-sale: #E5959D;
+  --c-success-bg: #EDF7EE;
+  --c-success-text: #4F8A52;
 
   /* Schaduwen */
   --shadow-soft: 0 4px 16px rgba(91, 80, 96, 0.08);
@@ -595,7 +600,7 @@ section.section {
   border-radius: var(--r-md);
   font-weight: 600;
 }
-.postcode-result.lokaal { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+.postcode-result.lokaal { background: var(--c-success-bg); color: var(--c-success-text); border: 1px solid #C8E6C9; }
 .postcode-result.verzending { background: #FFF8E1; color: #5C4D00; border: 1px solid #FFE57F; }
 
 /* ============================================
@@ -681,8 +686,8 @@ section.section {
   font-size: 1.1rem;
 }
 .cart-bonus {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--c-success-bg);
+  color: var(--c-success-text);
   padding: 0.6em 1em;
   border-radius: var(--r-md);
   font-size: 0.9rem;

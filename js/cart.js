@@ -80,7 +80,7 @@ window.orderUrl = function(text) {
       <div class="row"><span>${items.length} item${items.length > 1 ? 's' : ''}</span><span>€${subtotal.toFixed(2).replace('.', ',')}</span></div>
       <div class="row">
         <span>Verzending</span>
-        <span>${gratisVerzending ? '<strong style="color:#2E7D32">Gratis 💚</strong>' : '€' + cfg.shippingNL.toFixed(2).replace('.', ',') + ' (of gratis lokaal)'}</span>
+        <span>${gratisVerzending ? '<strong style="color:#4F8A52">Gratis 💚</strong>' : '€' + cfg.shippingNL.toFixed(2).replace('.', ',') + ' (of gratis lokaal)'}</span>
       </div>
       <div class="row total"><span>Totaal</span><span>€${(subtotal + (gratisVerzending ? 0 : cfg.shippingNL)).toFixed(2).replace('.', ',')}</span></div>
       ${!gratisVerzending && items.length === 1
