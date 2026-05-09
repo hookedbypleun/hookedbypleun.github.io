@@ -955,7 +955,8 @@ footer .links {
   font-size: 0.9rem;
 }
 footer .links a { color: var(--c-cream); opacity: 0.9; }
-footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md); }
+footer p { max-width: 20em; margin-left: auto; margin-right: auto; text-wrap: balance; }
+footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md); max-width: 30em; margin-left: auto; margin-right: auto; text-wrap: balance; }
 
 /* ============================================
    About / Over Pleun
