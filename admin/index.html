@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
-  <link rel="stylesheet" href="../css/style.css?v=2.3.2">
+  <link rel="stylesheet" href="../css/style.css?v=2.3.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -64,32 +64,61 @@
     }
     .ai-smart .ai-drop.has-photo { padding: 0.5rem; border-style: solid; }
     .ai-smart .ai-drop img { max-width: 100%; max-height: 240px; border-radius: var(--r-md); }
-    .photo-choice {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
-      margin-top: 0.6rem;
+    /* === Foto-verbetersectie === */
+    .photo-large-wrap {
+      position: relative; border-radius: var(--r-md); overflow: hidden;
+      background: #111; margin-bottom: 0.7rem;
+      max-height: 300px; display: flex; align-items: center; justify-content: center;
     }
-    .photo-choice .pc-card {
-      background: white; border: 3px solid transparent;
-      border-radius: var(--r-md); padding: 0.5rem;
+    .photo-large-wrap img {
+      width: 100%; max-height: 300px; object-fit: contain; display: block;
+      transition: filter 0.15s;
+    }
+    .photo-mode-tabs {
+      display: flex; border-radius: var(--r-md); overflow: hidden;
+      border: 2px solid var(--c-cream-dark); margin-bottom: 0.6rem;
+    }
+    .photo-mode-btn {
+      flex: 1; padding: 0.55em 0.3em; border: none; background: white;
+      font-family: inherit; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+      color: var(--c-muted); transition: background 0.15s, color 0.15s;
+      border-right: 2px solid var(--c-cream-dark);
+    }
+    .photo-mode-btn:last-child { border-right: none; }
+    .photo-mode-btn.active { background: var(--c-lavender); color: white; }
+    .photo-sliders {
+      background: white; border-radius: var(--r-md); padding: 0.6rem 0.8rem;
+      border: 2px solid var(--c-cream-dark); margin-bottom: 0.6rem;
+    }
+    .photo-slider-row { margin-bottom: 0.4rem; }
+    .photo-slider-row:last-child { margin-bottom: 0; }
+    .photo-slider-row label { font-size: 0.82rem; font-weight: 700; color: var(--c-ink); display: flex; justify-content: space-between; margin-bottom: 0.2em; }
+    .photo-slider-row input[type=range] { width: 100%; accent-color: var(--c-lavender); cursor: pointer; }
+    .photo-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;
+    }
+    .photo-compare .pc-card {
+      background: var(--c-cream); border: 2px solid transparent;
+      border-radius: var(--r-md); padding: 0.4rem;
       cursor: pointer; text-align: center;
-      transition: border-color 0.15s, transform 0.15s;
+      transition: border-color 0.15s;
     }
-    .photo-choice .pc-card:hover { transform: translateY(-2px); }
-    .photo-choice .pc-card.selected { border-color: var(--c-lavender); background: #f4ebf7; }
-    .photo-choice .pc-card img {
+    .photo-compare .pc-card:hover { border-color: var(--c-lavender); }
+    .photo-compare .pc-card.selected { border-color: var(--c-lavender); background: #f4ebf7; }
+    .photo-compare .pc-card img {
       width: 100%; aspect-ratio: 1/1; object-fit: cover;
-      border-radius: var(--r-sm); display: block; margin-bottom: 0.3rem;
+      border-radius: var(--r-sm); display: block; margin-bottom: 0.25rem;
     }
-    .photo-choice .pc-label { font-weight: 700; font-size: 0.85rem; color: var(--c-ink); }
-    .photo-choice .pc-sub { font-size: 0.72rem; color: var(--c-muted); }
-    .photo-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+    .photo-compare .pc-label { font-weight: 700; font-size: 0.78rem; color: var(--c-ink); }
+    .photo-compare .pc-sub { font-size: 0.68rem; color: var(--c-muted); }
+    .photo-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
     .photo-actions .btn { flex: 1; }
+    /* Behouden voor stap-3 slider */
     .photo-bri-row {
-      margin-top: 0.7rem; padding: 0.6rem 0.8rem;
-      background: white; border-radius: var(--r-md);
+      padding: 0.4rem 0.6rem; background: white; border-radius: var(--r-md);
       border: 2px solid var(--c-cream-dark);
     }
-    .photo-bri-row label { font-size: 0.85rem; font-weight: 700; color: var(--c-ink); display: flex; justify-content: space-between; margin-bottom: 0.3em; }
+    .photo-bri-row label { font-size: 0.82rem; font-weight: 700; color: var(--c-ink); display: flex; justify-content: space-between; margin-bottom: 0.2em; }
     .photo-bri-row input[type=range] { width: 100%; accent-color: var(--c-lavender); cursor: pointer; }
     .ai-smart .ai-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
     .ai-smart input { padding: 0.7em 1em; border: 2px solid var(--c-cream-dark); border-radius: var(--r-md); font-size: 1rem; font-family: inherit; }
@@ -390,23 +419,30 @@
           <h3>👀 Bekijk en pas aan</h3>
           <p style="color:var(--c-muted); margin-top:-0.5em">Klik op tekst om aan te passen. "✓ Akkoord" → krijg je een plaats-knop. Je kunt alleen de website plaatsen, alleen de WhatsApp-post kopiëren, of allebei.</p>
 
-          <!-- Foto-overzicht + helderheid-slider -->
+          <!-- Foto-overzicht + sliders -->
           <div id="step3-photo" style="display:none; margin-bottom:0.8rem; background:white; border-radius:var(--r-md); padding:0.7rem; box-shadow:var(--shadow-soft)">
             <div style="display:flex; gap:0.8rem; align-items:flex-start">
-              <img id="step3-thumb" src="" alt="gekozen foto" style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0">
+              <img id="step3-thumb" src="" alt="gekozen foto" style="width:80px; height:80px; object-fit:cover; border-radius:var(--r-sm); flex-shrink:0; transition:filter 0.15s">
               <div style="flex:1; min-width:0">
-                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Gekozen foto</div>
-                <div class="photo-bri-row" style="margin:0; padding:0.4rem 0.6rem">
-                  <label>💡 Helderheid <span id="bri-val3">0</span></label>
-                  <input type="range" id="photo-bri3" min="-40" max="40" step="5" value="0">
+                <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4em; color:var(--c-lavender-dark)">📸 Foto</div>
+                <div class="photo-bri-row" style="margin:0 0 0.4rem">
+                  <label>☀️ Helderheid <span id="bri-val3">0</span></label>
+                  <input type="range" id="photo-bri3" min="-50" max="50" step="5" value="0">
+                </div>
+                <div class="photo-bri-row" style="margin:0">
+                  <label>🎚️ Contrast <span id="con-val3">0</span></label>
+                  <input type="range" id="photo-con3" min="-50" max="50" step="5" value="0">
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="wiz-panel-tabs" id="panel-tabs" style="display:none">
-            <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">🌐 Website</button>
-            <button class="wiz-panel-tab" id="tab-social" onclick="selectPanelTab('social')">📱 WhatsApp</button>
+          <div id="panel-tabs-wrap" style="display:none">
+            <div class="wiz-panel-tabs" id="panel-tabs">
+              <button class="wiz-panel-tab active" id="tab-website" onclick="selectPanelTab('website')">🌐 Website</button>
+              <button class="wiz-panel-tab" id="tab-social" onclick="selectPanelTab('social')">📱 WhatsApp</button>
+            </div>
+            <p style="font-size:0.78rem; color:var(--c-muted); margin:0.2em 0 0.6em; text-align:center">Schakel hier tussen de website-tekst en de WhatsApp-post</p>
           </div>
 
           <div class="wiz-panels">
@@ -971,9 +1007,11 @@
     // Wizard state
     // ============================================================
     const wizState = {
-      photo: null,           // { dataURL, base64, mediaType, ext } — final (met helderheid)
-      photoBase: null,       // idem, maar zonder helderheids-aanpassing
-      photoBrightness: 0,    // slider waarde -40..+40
+      photo: null,           // { dataURL, base64, mediaType, ext } — final (gebakken)
+      photoBase: null,       // base zonder sliders
+      photoBrightness: 0,    // slider -50..+50
+      photoContrast: 0,      // slider -50..+50
+      photoMode: 'auto',     // 'auto' | 'origineel' | 'handmatig'
       input: null,           // { naam, prijs, categorieHint, urenWerk, kleurenHint, voorWie, bijzonders, vrijeTekst }
       output: null,          // { website: {...}, social: {...} }
       channels: { website: true, social: true },  // Welke kanalen wil ze posten?
@@ -1112,74 +1150,163 @@
       aiDrop.classList.add('has-photo');
       const orig = wizState.photoOriginal;
       const enh = wizState.photoEnhanced;
-      const subEnh = enh.changed ? 'lichter + meer kleur' : 'amper verschil';
+      const subEnh = enh.changed ? 'lichter & kleurvoller' : 'amper verschil';
+      const initMode = enh.changed ? 'auto' : 'origineel';
+      const initSrc  = initMode === 'auto' ? enh.dataURL : orig.dataURL;
+
       document.getElementById('ai-drop-content').innerHTML = `
-        <p style="margin:0 0 0.4rem; font-weight:700; color:var(--c-lavender-dark)">Welke foto wil je gebruiken?</p>
-        <div class="photo-choice" id="photo-choice">
-          <div class="pc-card ${defaultPick==='original'?'selected':''}" data-pick="original">
+        <p style="margin:0 0 0.5rem; font-weight:700; font-size:0.9rem; color:var(--c-lavender-dark)">📸 Foto verfijnen</p>
+
+        <!-- Grote preview -->
+        <div class="photo-large-wrap">
+          <img id="photo-large-preview" src="${initSrc}" alt="foto preview">
+        </div>
+
+        <!-- Modi -->
+        <div class="photo-mode-tabs">
+          <button class="photo-mode-btn ${initMode==='auto'?'active':''}" data-mode="auto"      onclick="setPhotoMode('auto');event.stopPropagation()">🤖 Automatisch</button>
+          <button class="photo-mode-btn ${initMode==='origineel'?'active':''}" data-mode="origineel" onclick="setPhotoMode('origineel');event.stopPropagation()">📷 Origineel</button>
+          <button class="photo-mode-btn" data-mode="handmatig" onclick="setPhotoMode('handmatig');event.stopPropagation()">✏️ Handmatig</button>
+        </div>
+
+        <!-- Sliders (alleen zichtbaar in Handmatig) -->
+        <div class="photo-sliders" id="photo-sliders" style="display:none">
+          <div class="photo-slider-row">
+            <label>☀️ Helderheid <span id="bri-val">0</span></label>
+            <input type="range" id="photo-bri" min="-50" max="50" step="5" value="0">
+          </div>
+          <div class="photo-slider-row">
+            <label>🎚️ Contrast <span id="con-val">0</span></label>
+            <input type="range" id="photo-con" min="-50" max="50" step="5" value="0">
+          </div>
+        </div>
+
+        <!-- Vergelijk: origineel vs opgefrist -->
+        <div class="photo-compare" id="photo-compare">
+          <div class="pc-card ${initMode==='origineel'?'selected':''}" data-pick="original">
             <img src="${orig.dataURL}" alt="origineel">
             <div class="pc-label">Origineel</div>
-            <div class="pc-sub">jouw eigen foto</div>
+            <div class="pc-sub">jouw foto</div>
           </div>
-          <div class="pc-card ${defaultPick==='enhanced'?'selected':''}" data-pick="enhanced">
+          <div class="pc-card ${initMode==='auto'?'selected':''}" data-pick="enhanced">
             <img src="${enh.dataURL}" alt="opgefrist">
             <div class="pc-label">Opgefrist ✨</div>
             <div class="pc-sub">${subEnh}</div>
           </div>
         </div>
-        <div class="photo-bri-row">
-          <label>💡 Helderheid <span id="bri-val">0</span></label>
-          <input type="range" id="photo-bri" min="-40" max="40" step="5" value="0">
-        </div>
+
         <div class="photo-actions">
           <button class="btn secondary" type="button" onclick="aiResetPhoto(); event.stopPropagation();">↺ Andere foto</button>
         </div>
       `;
-      pickPhoto(defaultPick);
-      document.querySelectorAll('#photo-choice .pc-card').forEach(card => {
+
+      // Initialiseer
+      wizState.photoMode = initMode;
+      setPhotoBase(initMode === 'auto' ? enh.dataURL : orig.dataURL);
+
+      // Slider events
+      document.getElementById('photo-bri').addEventListener('input', e => {
+        e.stopPropagation();
+        applyFilters(parseInt(e.target.value,10), wizState.photoContrast);
+      });
+      document.getElementById('photo-con').addEventListener('input', e => {
+        e.stopPropagation();
+        applyFilters(wizState.photoBrightness, parseInt(e.target.value,10));
+      });
+
+      // Vergelijk-thumbnails klikbaar (alleen in handmatig mode)
+      document.querySelectorAll('#photo-compare .pc-card').forEach(card => {
         card.addEventListener('click', e => {
           e.stopPropagation();
-          pickPhoto(card.dataset.pick);
+          if (wizState.photoMode !== 'handmatig') return;
+          const src = card.dataset.pick === 'enhanced' ? wizState.photoEnhanced.dataURL : wizState.photoOriginal.dataURL;
+          setPhotoBase(src);
+          document.querySelectorAll('#photo-compare .pc-card').forEach(c => c.classList.toggle('selected', c === card));
+          const preview = document.getElementById('photo-large-preview');
+          if (preview) preview.src = src;
+          applyFilters(wizState.photoBrightness, wizState.photoContrast);
         });
       });
-      document.getElementById('photo-bri').addEventListener('input', e => {
-        applyBrightness(parseInt(e.target.value, 10));
-      });
     }
 
-    function pickPhoto(which) {
-      const src = which === 'enhanced' ? wizState.photoEnhanced : wizState.photoOriginal;
-      wizState.photoBase = { dataURL: src.dataURL, mediaType: 'image/jpeg', ext: 'jpg' };
-      wizState.photoBrightness = 0;
-      const briSlider = document.getElementById('photo-bri');
-      if (briSlider) briSlider.value = 0;
-      applyBrightness(0);
-      document.querySelectorAll('#photo-choice .pc-card').forEach(c => {
-        c.classList.toggle('selected', c.dataset.pick === which);
-      });
+    function setPhotoBase(dataURL) {
+      wizState.photoBase = { dataURL, mediaType: 'image/jpeg', ext: 'jpg' };
+      wizState.photo = { dataURL, base64: dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
     }
 
-    function applyBrightness(val) {
-      wizState.photoBrightness = val;
+    function setPhotoMode(mode) {
+      wizState.photoMode = mode;
+      document.querySelectorAll('.photo-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      const sliders = document.getElementById('photo-sliders');
+      const preview = document.getElementById('photo-large-preview');
+
+      if (mode === 'auto') {
+        if (sliders) sliders.style.display = 'none';
+        const src = wizState.photoEnhanced.dataURL;
+        setPhotoBase(src);
+        if (preview) { preview.src = src; preview.style.filter = ''; }
+        // Vergelijk: enhanced geselecteerd
+        document.querySelectorAll('#photo-compare .pc-card').forEach(c => c.classList.toggle('selected', c.dataset.pick === 'enhanced'));
+      } else if (mode === 'origineel') {
+        if (sliders) sliders.style.display = 'none';
+        const src = wizState.photoOriginal.dataURL;
+        setPhotoBase(src);
+        if (preview) { preview.src = src; preview.style.filter = ''; }
+        document.querySelectorAll('#photo-compare .pc-card').forEach(c => c.classList.toggle('selected', c.dataset.pick === 'original'));
+      } else {
+        // Handmatig — start vanuit opgefrist als base
+        if (sliders) sliders.style.display = '';
+        const src = wizState.photoEnhanced.dataURL;
+        setPhotoBase(src);
+        if (preview) preview.src = src;
+        // Reset sliders
+        wizState.photoBrightness = 0; wizState.photoContrast = 0;
+        const briEl = document.getElementById('photo-bri'); if (briEl) briEl.value = 0;
+        const conEl = document.getElementById('photo-con'); if (conEl) conEl.value = 0;
+        const briVal = document.getElementById('bri-val'); if (briVal) briVal.textContent = '0';
+        const conVal = document.getElementById('con-val'); if (conVal) conVal.textContent = '0';
+        if (preview) preview.style.filter = '';
+        document.querySelectorAll('#photo-compare .pc-card').forEach(c => c.classList.toggle('selected', c.dataset.pick === 'enhanced'));
+      }
+    }
+
+    function applyFilters(bri, con) {
+      wizState.photoBrightness = bri;
+      wizState.photoContrast   = con;
       const briVal = document.getElementById('bri-val');
-      if (briVal) briVal.textContent = val > 0 ? '+' + val : val;
+      const conVal = document.getElementById('con-val');
+      if (briVal) briVal.textContent = bri > 0 ? '+'+bri : String(bri);
+      if (conVal) conVal.textContent = con > 0 ? '+'+con : String(con);
+      // Instant visuele feedback via CSS filter op de preview
+      const preview = document.getElementById('photo-large-preview');
+      if (preview) {
+        preview.style.filter = `brightness(${1+bri/100}) contrast(${1+con/100})`;
+      }
+      // wizState.photo wordt pas gebakken bij Generate (bakePhotoFilters)
+    }
+
+    async function bakePhotoFilters() {
+      const bri = wizState.photoBrightness;
+      const con = wizState.photoContrast;
       if (!wizState.photoBase) return;
-      if (val === 0) {
-        const b = wizState.photoBase;
-        wizState.photo = { dataURL: b.dataURL, base64: b.dataURL.split(',')[1], mediaType: b.mediaType, ext: b.ext };
+      if (bri === 0 && con === 0) {
+        wizState.photo = { ...wizState.photoBase, base64: wizState.photoBase.dataURL.split(',')[1] };
         return;
       }
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.filter = `brightness(${1 + val / 100})`;
-        ctx.drawImage(img, 0, 0);
-        const dataURL = canvas.toDataURL('image/jpeg', 0.9);
-        wizState.photo = { dataURL, base64: dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
-      };
-      img.src = wizState.photoBase.dataURL;
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.filter = `brightness(${1+bri/100}) contrast(${1+con/100})`;
+          ctx.drawImage(img, 0, 0);
+          const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+          wizState.photo = { dataURL, base64: dataURL.split(',')[1], mediaType: 'image/jpeg', ext: 'jpg' };
+          resolve();
+        };
+        img.src = wizState.photoBase.dataURL;
+      });
     }
 
     // Slimme foto-enhancer: per foto histogram-analyse, alleen aanpassen wat nodig is
@@ -1391,6 +1518,9 @@
       document.getElementById('panel-website').classList.toggle('ch-off', !wizState.channels.website);
       document.getElementById('panel-social').classList.toggle('ch-off', !wizState.channels.social);
 
+      // Bak CSS-filter in canvas vóór upload naar AI
+      await bakePhotoFilters();
+
       wizGoStep(2);
       aiSetStatus('', '');
 
@@ -1522,7 +1652,7 @@
 
     function initPanelTabs() {
       const both = wizState.channels.website && wizState.channels.social;
-      document.getElementById('panel-tabs').style.display = both ? '' : 'none';
+      document.getElementById('panel-tabs-wrap').style.display = both ? '' : 'none';
       // Activeer het eerste beschikbare kanaal
       const first = wizState.channels.website ? 'website' : 'social';
       selectPanelTab(first);
@@ -1535,25 +1665,36 @@
       // Foto-overzicht in stap 3 vullen
       const step3Photo = document.getElementById('step3-photo');
       const step3Thumb = document.getElementById('step3-thumb');
-      const bri3 = document.getElementById('photo-bri3');
-      const briVal3 = document.getElementById('bri-val3');
-      if (step3Photo && wizState.photo) {
-        step3Thumb.src = wizState.photo.dataURL;
-        const bv = wizState.photoBrightness;
+      if (step3Photo && wizState.photoBase) {
+        // Toon de base foto in de thumbnail; CSS filter zorgt voor live preview
+        step3Thumb.src = wizState.photoBase.dataURL;
+        const bv = wizState.photoBrightness, cv = wizState.photoContrast;
+        const bri3 = document.getElementById('photo-bri3');
+        const con3 = document.getElementById('photo-con3');
+        const briVal3 = document.getElementById('bri-val3');
+        const conVal3 = document.getElementById('con-val3');
         if (bri3) bri3.value = bv;
-        if (briVal3) briVal3.textContent = bv > 0 ? '+' + bv : bv;
+        if (con3) con3.value = cv;
+        if (briVal3) briVal3.textContent = bv > 0 ? '+'+bv : String(bv);
+        if (conVal3) conVal3.textContent = cv > 0 ? '+'+cv : String(cv);
+        // Zet filter op de thumb
+        step3Thumb.style.filter = `brightness(${1+bv/100}) contrast(${1+cv/100})`;
         step3Photo.style.display = '';
-        bri3?.addEventListener('input', e => {
-          const val = parseInt(e.target.value, 10);
-          briVal3.textContent = val > 0 ? '+' + val : val;
+
+        const updateThumbFilter = () => {
+          const b = parseInt(bri3?.value||0), c = parseInt(con3?.value||0);
+          if (briVal3) briVal3.textContent = b > 0 ? '+'+b : String(b);
+          if (conVal3) conVal3.textContent = c > 0 ? '+'+c : String(c);
+          step3Thumb.style.filter = `brightness(${1+b/100}) contrast(${1+c/100})`;
+          // Sync met stap-1 sliders
           const bri1 = document.getElementById('photo-bri');
-          const briVal1 = document.getElementById('bri-val');
-          if (bri1) bri1.value = val;
-          if (briVal1) briVal1.textContent = val > 0 ? '+' + val : val;
-          applyBrightness(val);
-          // Thumb direct updaten na verwerking
-          setTimeout(() => { if (wizState.photo) step3Thumb.src = wizState.photo.dataURL; }, 120);
-        });
+          const con1 = document.getElementById('photo-con');
+          if (bri1) bri1.value = b;
+          if (con1) con1.value = c;
+          applyFilters(b, c);
+        };
+        bri3?.addEventListener('input', updateThumbFilter);
+        con3?.addEventListener('input', updateThumbFilter);
       }
     }
 
@@ -1675,6 +1816,8 @@
       wizState.photo = null;
       wizState.photoBase = null;
       wizState.photoBrightness = 0;
+      wizState.photoContrast = 0;
+      wizState.photoMode = 'auto';
       wizState.input = null;
       wizState.output = null;
       wizState.approved = { website: false, social: false };
@@ -1697,6 +1840,8 @@
     window.wizRefine = wizRefine;
     window.wizApprove = wizApprove;
     window.selectPanelTab = selectPanelTab;
+    window.setPhotoMode = setPhotoMode;
+    window.applyFilters = applyFilters;
     window.wizPublish = wizPublish;
     window.wizCopySocial = wizCopySocial;
     window.wizReset = wizReset;
