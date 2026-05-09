@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.0.19">
+  <link rel="stylesheet" href="../css/style.css?v=3.0.20">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -946,8 +946,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.0.19"></script>
-  <script src="../js/sw-register.js?v=3.0.19"></script>
+  <script src="../js/config.js?v=3.0.20"></script>
+  <script src="../js/sw-register.js?v=3.0.20"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1442,6 +1442,8 @@
         writeStoredPw(pw);
         document.getElementById('ai-gate').style.display = 'none';
         document.getElementById('ai-main').style.display = 'block';
+        // Reviews laden zodra admin ingelogd is
+        try { loadAdminReviews?.(); } catch {}
       } catch (err) {
         document.getElementById('ai-gate-msg').textContent = '❌ Worker niet bereikbaar: ' + err.message;
       }
@@ -1450,6 +1452,8 @@
     if (AI_PASSWORD && workerUrl()) {
       document.getElementById('ai-gate').style.display = 'none';
       document.getElementById('ai-main').style.display = 'block';
+      // Reviews direct laden bij page-refresh als al ingelogd
+      document.addEventListener('DOMContentLoaded', () => { try { loadAdminReviews?.(); } catch {} });
     } else if (!workerUrl()) {
       document.getElementById('ai-gate-msg').textContent =
         'ℹ️ AI-modus nog niet geconfigureerd. Vul workerUrl in js/config.js — zie cloudflare-worker/README.md.';
@@ -2753,13 +2757,12 @@
     }
 
     async function modereerReview(id, actie) {
-      const token = sessionStorage.getItem('pleun_admin_token');
-      if (!token) { alert('Eerst inloggen 🔒'); return; }
-      const cfg = window.SHOP_CONFIG || {};
+      if (!AI_PASSWORD) { alert('Eerst inloggen 🔒'); return; }
+      const url = workerUrl();
       try {
-        const res = await fetch(cfg.workerUrl.replace(/\/$/, '') + '/review', {
+        const res = await fetch(url + '/review', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_PASSWORD },
           body: JSON.stringify({ id, actie }),
         });
         const data = await res.json();
@@ -2771,15 +2774,7 @@
     }
 
     window.modereerReview = modereerReview;
-
-    // Reviews laden zodra admin ingelogd is
-    const _origAiUnlock = window.aiUnlock;
-    window.aiUnlock = async function() {
-      await _origAiUnlock?.();
-      loadAdminReviews();
-    };
-    // Ook direct laden als al ingelogd (page refresh)
-    if (sessionStorage.getItem('pleun_admin_token')) loadAdminReviews();
+    window.loadAdminReviews = loadAdminReviews;
   </script>
 
   <!-- ===== Modus-switcher ===== -->
