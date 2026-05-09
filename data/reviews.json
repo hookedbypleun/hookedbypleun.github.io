@@ -1,3 +1,16 @@
 {
-  "reviews": []
+  "reviews": [
+    {
+      "id": "8fca2de1-60f2-4a05-a01d-6cd103c6cb43",
+      "productId": "",
+      "productNaam": "",
+      "naam": "Claude test",
+      "tekst": "Test review na deploy v3.0.18",
+      "rating": 5,
+      "datum": "2026-05-09",
+      "status": "pending",
+      "cadeau": false,
+      "uitgelicht": false
+    }
+  ]
 }
