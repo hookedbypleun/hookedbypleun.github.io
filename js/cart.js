@@ -1,4 +1,4 @@
-// Verzameldoos â€” items verzamelen voor 1 bestelling.
+// Verzameldoos — items verzamelen voor 1 bestelling.
 // LocalStorage zodat hij blijft staan als je tussen pagina's klikt.
 
 // Globale helper: bouwt de juiste WhatsApp-bestel-URL.
@@ -29,12 +29,12 @@ window.orderUrl = function(text) {
       if (existing) {
         const max = item.voorraad || existing.voorraad || 99;
         if ((existing.aantal || 1) >= max) {
-          showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar ðŸ’`);
+          showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`);
           return;
         }
         existing.aantal = (existing.aantal || 1) + 1;
         write(arr);
-        showToast(`âœ¨ ${item.naam} Ã— ${existing.aantal}!`);
+        showToast(`✨ ${item.naam} × ${existing.aantal}!`);
         return;
       }
       arr.push({
@@ -48,7 +48,7 @@ window.orderUrl = function(text) {
         aantal: 1,
       });
       write(arr);
-      showToast(`âœ¨ ${item.naam} toegevoegd!`);
+      showToast(`✨ ${item.naam} toegevoegd!`);
     },
     remove(id) {
       write(read().filter(i => i.id !== id));
@@ -58,7 +58,7 @@ window.orderUrl = function(text) {
       const item = arr.find(i => i.id === id);
       if (!item) return;
       const max = item.voorraad || 99;
-      if ((item.aantal || 1) >= max) { showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar ðŸ’`); return; }
+      if ((item.aantal || 1) >= max) { showToast(`Maximaal ${max} stuk${max !== 1 ? 's' : ''} beschikbaar 💝`); return; }
       item.aantal = (item.aantal || 1) + 1;
       write(arr);
     },
@@ -74,7 +74,7 @@ window.orderUrl = function(text) {
   };
 
   // ============================================================
-  // Verzending berekening â€” slim 3-tarief systeem
+  // Verzending berekening — slim 3-tarief systeem
   // ============================================================
   // Hierarchie: brief < brievenbus < pakket. Cart krijgt het hoogste benodigde tarief.
   const VERZEND_RANG = { brief: 1, brievenbus: 2, pakket: 3 };
@@ -124,7 +124,7 @@ window.orderUrl = function(text) {
     const items = read();
 
     if (items.length === 0) {
-      list.innerHTML = '<li class="cart-empty">Je verzameldoos is nog leeg ðŸŒ¸<br>Voeg lieve dingen toe en bestel ze in Ã©Ã©n keer!</li>';
+      list.innerHTML = '<li class="cart-empty">Je verzameldoos is nog leeg 🌸<br>Voeg lieve dingen toe en bestel ze in één keer!</li>';
       summary.style.display = 'none';
       const checkout = document.querySelector('#cart-checkout');
       if (checkout) checkout.style.display = 'none';
@@ -142,12 +142,12 @@ window.orderUrl = function(text) {
           <span class="name">${escapeHtml(i.naam)}</span>
         </a>
         <div class="cart-qty">
-          <button class="qty-btn" onclick="Cart.decrement('${i.id}')" aria-label="Minder">âˆ’</button>
+          <button class="qty-btn" onclick="Cart.decrement('${i.id}')" aria-label="Minder">−</button>
           <span class="qty-num">${n}</span>
           <button class="qty-btn" onclick="Cart.increment('${i.id}')" aria-label="Meer"${maxBereikt ? ' disabled' : ''}>+</button>
         </div>
-        <span class="price">â‚¬${totaalPrijs}</span>
-        <button class="remove" onclick="Cart.remove('${i.id}')" aria-label="Verwijderen">Ã—</button>
+        <span class="price">€${totaalPrijs}</span>
+        <button class="remove" onclick="Cart.remove('${i.id}')" aria-label="Verwijderen">×</button>
       </li>`;
     }).join('');
 
@@ -162,25 +162,25 @@ window.orderUrl = function(text) {
       const pct = Math.min(100, Math.round((ship.subtotaal / ship.drempel) * 100));
       progressHtml = `
         <div class="cart-spaarmeter">
-          <div class="spaar-tekst">ðŸ’¡ Nog <strong>â‚¬${ship.gap.toFixed(2).replace('.', ',')}</strong> tot gratis verzending!</div>
+          <div class="spaar-tekst">💡 Nog <strong>€${ship.gap.toFixed(2).replace('.', ',')}</strong> tot gratis verzending!</div>
           <div class="spaar-bar"><div class="spaar-fill" style="width:${pct}%"></div></div>
         </div>`;
     } else if (ship.gratis) {
-      progressHtml = `<div class="cart-spaarmeter gratis">ðŸŽ‰ Yay, <strong>gratis verzending</strong> verdiend!</div>`;
+      progressHtml = `<div class="cart-spaarmeter gratis">🎉 Yay, <strong>gratis verzending</strong> verdiend!</div>`;
     }
 
     const verzendLabel = ship.gratis
-      ? '<strong style="color:#4F8A52">Gratis ðŸ’š</strong>'
-      : `${ship.info.icon} â‚¬${ship.info.prijs.toFixed(2).replace('.', ',')} <small style="color:var(--c-muted)">(${ship.info.label.toLowerCase()})</small>`;
+      ? '<strong style="color:#4F8A52">Gratis 💚</strong>'
+      : `${ship.info.icon} €${ship.info.prijs.toFixed(2).replace('.', ',')} <small style="color:var(--c-muted)">(${ship.info.label.toLowerCase()})</small>`;
 
     summary.style.display = 'block';
     summary.innerHTML = `
-      <div class="row"><span>${items.length} item${items.length > 1 ? 's' : ''}</span><span>â‚¬${subtotal.toFixed(2).replace('.', ',')}</span></div>
+      <div class="row"><span>${items.length} item${items.length > 1 ? 's' : ''}</span><span>€${subtotal.toFixed(2).replace('.', ',')}</span></div>
       <div class="row">
         <span>Verzending</span>
         <span>${verzendLabel}</span>
       </div>
-      <div class="row total"><span>Totaal</span><span>â‚¬${eindtotaal.toFixed(2).replace('.', ',')}</span></div>
+      <div class="row total"><span>Totaal</span><span>€${eindtotaal.toFixed(2).replace('.', ',')}</span></div>
       ${progressHtml}
     `;
 
@@ -213,7 +213,7 @@ window.orderUrl = function(text) {
   });
 
   // ================================================================
-  // Checkout details â€” stap 2: verzendgegevens invullen
+  // Checkout details — stap 2: verzendgegevens invullen
   // ================================================================
 
   let _checkout = null;
@@ -231,8 +231,8 @@ window.orderUrl = function(text) {
     const verzendInfo = ship.info;
     const lijn = items.map((i, n) => {
       const cnt = i.aantal || 1;
-      const prefix = cnt > 1 ? `${cnt}Ã— ` : '';
-      return `${n + 1}. ${prefix}${i.naam} â€” â‚¬${(i.prijs * cnt).toFixed(2).replace('.', ',')}`;
+      const prefix = cnt > 1 ? `${cnt}× ` : '';
+      return `${n + 1}. ${prefix}${i.naam} — €${(i.prijs * cnt).toFixed(2).replace('.', ',')}`;
     }).join('\n');
 
     _checkout = { target, cfg, lijn, total, gratisVerzending, verzending, eindTotaal, verzendInfo };
@@ -254,10 +254,10 @@ window.orderUrl = function(text) {
     }
 
     panel.innerHTML = `
-      <button class="checkout-back-btn" onclick="window.hideCheckoutDetails()">â† Terug naar verzameldoos</button>
+      <button class="checkout-back-btn" onclick="window.hideCheckoutDetails()">← Terug naar verzameldoos</button>
       <div class="checkout-fields">
-        <h3>ðŸ“¦ Jouw gegevens <span class="cd-optional">optioneel</span></h3>
-        <p class="cd-hint">Vul in voor een kant-en-klaar bericht â€” of stuur het leeg en typ je adres zelf in WhatsApp.</p>
+        <h3>📦 Jouw gegevens <span class="cd-optional">optioneel</span></h3>
+        <p class="cd-hint">Vul in voor een kant-en-klaar bericht — of stuur het leeg en typ je adres zelf in WhatsApp.</p>
         <div class="cd-field">
           <input id="cd-naam" type="text" placeholder="Jouw naam" autocomplete="name" oninput="window.updatePreview()">
         </div>
@@ -273,15 +273,15 @@ window.orderUrl = function(text) {
         </div>
         <div class="cd-field">
           <input id="cd-bron" type="text" placeholder="Hoe ken je Hooked by Pleun? (optioneel)" oninput="window.updatePreview()">
-          <span class="cd-field-hint">Vind ik leuk om te weten ðŸŒ¸</span>
+          <span class="cd-field-hint">Vind ik leuk om te weten 🌸</span>
         </div>
       </div>
       <div class="checkout-preview">
-        <h3>ðŸ’¬ Voorbeeldbericht</h3>
+        <h3>💬 Voorbeeldbericht</h3>
         <p class="cd-hint">Je kunt het bericht hieronder nog aanpassen voordat je het verstuurt.</p>
         <textarea id="cd-message" rows="14" spellcheck="false"></textarea>
       </div>
-      <button class="btn full" id="cd-send">ðŸ’¬ Stuur naar WhatsApp</button>
+      <button class="btn full" id="cd-send">💬 Stuur naar WhatsApp</button>
     `;
 
     panel.style.display = 'block';
@@ -318,15 +318,15 @@ window.orderUrl = function(text) {
     ].join('\n') + (notitie ? `\nWensen: ${notitie}` : '') + (bron ? `\nVia: ${bron}` : '');
 
     const bericht =
-`Hoi Pleun! ðŸ’
+`Hoi Pleun! 💝
 
 Ik wil graag bestellen:
 
 ${lijn}
 
-Subtotaal: â‚¬${total.toFixed(2).replace('.', ',')}
-Verzending: ${gratisVerzending ? 'gratis ðŸ’š' : 'â‚¬' + verzending.toFixed(2).replace('.', ',') + (_checkout?.verzendInfo ? ' (' + _checkout.verzendInfo.label.toLowerCase() + ')' : '')}
-Totaal: â‚¬${eindTotaal.toFixed(2).replace('.', ',')}
+Subtotaal: €${total.toFixed(2).replace('.', ',')}
+Verzending: ${gratisVerzending ? 'gratis 💚' : '€' + verzending.toFixed(2).replace('.', ',') + (_checkout?.verzendInfo ? ' (' + _checkout.verzendInfo.label.toLowerCase() + ')' : '')}
+Totaal: €${eindTotaal.toFixed(2).replace('.', ',')}
 
 ---
 ${adresBlok}`;
