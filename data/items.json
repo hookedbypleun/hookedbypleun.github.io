@@ -66,7 +66,7 @@
       "status": "beschikbaar",
       "voorraad": 1,
       "nieuw": true,
-      "uitgelicht": false,
+      "uitgelicht": true,
       "datumToegevoegd": "2026-05-09",
       "foto": "img/items/dit-is-de-summer-party-collect-v1-1.jpg",
       "varianten": [
