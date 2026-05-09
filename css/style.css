@@ -46,7 +46,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; color-scheme: light dark; }
 body {
   margin: 0;
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
