@@ -60,24 +60,18 @@ h3[id],
 section[id] {
   scroll-margin-top: 90px;
 }
+html {
+  background: var(--c-cream) url('../img/branding/patroon.png') repeat fixed;
+  background-size: 240px;
+}
 body {
   margin: 0;
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  background: var(--c-cream) url('../img/branding/patroon.png') repeat;
-  background-size: 240px;
+  background: transparent;
   color: var(--c-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: rgba(250, 246, 238, 0.82);
-  pointer-events: none;
-  z-index: 0;
-}
-body > * { position: relative; z-index: 1; }
 
 img { max-width: 100%; display: block; }
 a { color: var(--c-lavender-dark); text-decoration: none; }
@@ -197,11 +191,20 @@ nav .cart-count.empty { display: none; }
 }
 .hero-banner {
   display: block;
-  max-width: 100%;
   width: 100%;
+  max-width: 680px;
   height: auto;
   margin: 0 auto var(--gap-xs);
   filter: drop-shadow(0 4px 14px rgba(232, 168, 142, 0.2));
+}
+@media (max-width: 600px) {
+  .hero-banner {
+    max-width: none;
+    width: calc(100% + 2 * var(--content-pad));
+    margin-left: calc(-1 * var(--content-pad));
+    margin-right: calc(-1 * var(--content-pad));
+    border-radius: 0;
+  }
 }
 .visually-hidden {
   position: absolute !important;
