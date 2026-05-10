@@ -978,7 +978,24 @@ footer .links {
   margin: var(--gap-md) 0;
   font-size: 0.9rem;
 }
-footer .links a { color: var(--c-cream); opacity: 0.9; }
+footer .links a {
+  color: var(--c-cream);
+  opacity: 1;
+  display: inline-block;
+  padding: 0.45em 1em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  transition: all 0.15s;
+  font-weight: 700;
+}
+footer .links a:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
 footer p { max-width: 20em; margin-left: auto; margin-right: auto; text-wrap: balance; }
 footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md); max-width: 30em; margin-left: auto; margin-right: auto; text-wrap: balance; }
 
@@ -1464,12 +1481,24 @@ footer .extra-links {
   font-size: 0.85rem;
 }
 footer .extra-links a {
-  color: var(--c-muted);
-  opacity: 0.8;
+  color: var(--c-cream);
+  opacity: 0.95;
+  display: inline-block;
+  padding: 0.35em 0.9em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-pill);
+  transition: all 0.15s;
   cursor: pointer;
   text-decoration: none;
 }
-footer .extra-links a:hover { opacity: 1; text-decoration: underline; }
+footer .extra-links a:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
 
 /* Archief tag (eerder gemaakt) */
 .tag.archief {
