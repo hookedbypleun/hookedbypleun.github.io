@@ -1,4 +1,4 @@
-// Hooked by Pleun — privacy-first event tracker (sinds v3.2.2)
+// Hooked by Pleun — privacy-first event tracker (sinds v3.2.3)
 // Stuurt anonieme events naar Worker /track. Geen cookies, geen IP-opslag,
 // geen UA-strings — alleen mobile/desktop classificatie.
 //
@@ -43,19 +43,17 @@
   let _sent = false;
   async function send(payload) {
     try {
-      // sendBeacon werkt ook bij page-unload, fire-and-forget
       const body = JSON.stringify(payload);
-      if (navigator.sendBeacon) {
-        const blob = new Blob([body], { type: 'application/json' });
-        navigator.sendBeacon(workerUrl + '/track', blob);
-      } else {
-        fetch(workerUrl + '/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body,
-          keepalive: true,
-        }).catch(() => {});
-      }
+      // fetch + keepalive werkt ook bij unload én correct met CORS-preflight
+      // (sendBeacon met application/json triggert preflight die door browsers
+      //  niet altijd correct wordt afgehandeld — POST volgt dan niet)
+      fetch(workerUrl + '/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        keepalive: true,
+        mode: 'cors',
+      }).catch(() => {});
     } catch { /* ignore — analytics never crashes the page */ }
   }
 
