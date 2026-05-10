@@ -321,6 +321,7 @@
       wrap.innerHTML = '<p class="leeg">Dit haakwerk konden we niet vinden 🧶 <a href="galerij.html">Terug naar de galerij</a></p>';
       return;
     }
+    window.Track?.product(id);
 
     const cfg = window.SHOP_CONFIG;
     const sold = item.status === 'uitverkocht';
@@ -742,4 +743,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown verwijderd in v3.1.3 — Eerder gemaakt is nu directe tab.
+// Nav-meer dropdown verwijderd in v3.2.0 — Eerder gemaakt is nu directe tab.

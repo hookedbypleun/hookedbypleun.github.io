@@ -41,6 +41,7 @@ window.orderUrl = function(text) {
     count: () => read().reduce((s, i) => s + (i.aantal || 1), 0),
     total: () => read().reduce((s, i) => s + (i.prijs || 0) * (i.aantal || 1), 0),
     add(item) {
+      window.Track?.cartAdd(item.baseId || item.id, item.kleur || '');
       const arr = read();
       const existing = arr.find(i => i.id === item.id);
       if (existing) {
@@ -214,6 +215,7 @@ window.orderUrl = function(text) {
   document.addEventListener('click', e => {
     if (e.target.closest('[data-cart-open]')) {
       e.preventDefault();
+      window.Track?.cartOpen();
       const overlay = document.querySelector('#cart-overlay');
       if (overlay) { overlay.classList.add('open'); renderCartModal(); }
       return;
@@ -299,6 +301,7 @@ window.orderUrl = function(text) {
     panel.style.display = 'block';
 
     document.getElementById('cd-send').addEventListener('click', function() {
+      window.Track?.whatsappClick();
       const msg = document.getElementById('cd-message').value;
       if (target === 'backup' && cfg.whatsappBackup) {
         window.open(`https://wa.me/${cfg.whatsappBackup}?text=${encodeURIComponent(msg)}`, '_blank');

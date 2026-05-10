@@ -14,8 +14,10 @@ window.checkPostcode = function(input, resultEl) {
   if (lokaal) {
     resultEl.className = 'postcode-result lokaal';
     resultEl.innerHTML = `🚲 <strong>Pleun Express!</strong> Je woont in ${lokaal.dorp} — gratis bezorgd op ${cfg.expressDay}.`;
+    window.Track?.postcode(pc, 'lokaal');
   } else {
     resultEl.className = 'postcode-result verzending';
     resultEl.innerHTML = `📮 <strong>Per post</strong> — vanaf €${(cfg.shipping?.brief?.prijs || 2.95).toFixed(2).replace('.', ',')} (gratis vanaf €${cfg.freeShippingThreshold || 25}).`;
+    window.Track?.postcode(pc, 'extern');
   }
 };

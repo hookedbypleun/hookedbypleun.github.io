@@ -96,6 +96,189 @@ function detectImageMime(base64) {
   return null;
 }
 
+// ================================================================
+// Privacy-first analytics — KV-binding STATS (fallback: in-memory)
+// ================================================================
+const _memStats = new Map(); // fallback als KV-binding niet bestaat
+
+async function _statsRead(env, key) {
+  if (env && env.STATS) {
+    const v = await env.STATS.get(key);
+    return parseInt(v) || 0;
+  }
+  return _memStats.get(key) || 0;
+}
+async function _statsWrite(env, key, val) {
+  if (env && env.STATS) {
+    await env.STATS.put(key, String(val), { expirationTtl: 60 * 60 * 24 * 400 });
+  } else {
+    _memStats.set(key, val);
+  }
+}
+async function statsIncrement(env, key, delta = 1) {
+  const cur = await _statsRead(env, key);
+  await _statsWrite(env, key, cur + delta);
+}
+async function statsListByPrefix(env, prefix) {
+  if (env && env.STATS) {
+    const result = [];
+    let cursor;
+    do {
+      const page = await env.STATS.list({ prefix, cursor });
+      for (const k of page.keys) {
+        const v = await env.STATS.get(k.name);
+        result.push([k.name, parseInt(v) || 0]);
+      }
+      cursor = page.cursor;
+      if (page.list_complete) break;
+    } while (cursor);
+    return result;
+  }
+  return [...(_memStats.entries())].filter(([k]) => k.startsWith(prefix));
+}
+
+// SHA256 hash voor anonieme daily-visitor-id (geen IP opslaan)
+async function sha256Hex(text) {
+  const data = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function todayUTC() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Bewaar laatste 30 dagen aan stats; oudere wordt door TTL automatisch opgeruimd
+const STATS_RETENTION_DAYS = 30;
+
+// Track-event verwerking. Eén event mag meerdere counters bumpen.
+async function trackEvent({ type, path, productId, kleur, ref, country, device, postcode, postcodeType, visitorId }, env) {
+  const day = todayUTC();
+  const tasks = [];
+  const safe = s => String(s || '').slice(0, 80).replace(/[\r\n\t]/g, ' ').replace(/[:|]/g, '_');
+
+  if (type === 'pageview') {
+    tasks.push(statsIncrement(env, `pv:${day}:${safe(path) || '/'}`));
+    tasks.push(statsIncrement(env, `total:pv:${day}`));
+    if (visitorId) {
+      // Set member: incr alleen als nieuw
+      const visitorKey = `visitor:${day}:${visitorId}`;
+      const exists = await _statsRead(env, visitorKey);
+      if (!exists) {
+        tasks.push(_statsWrite(env, visitorKey, 1));
+        tasks.push(statsIncrement(env, `total:unique:${day}`));
+      }
+    }
+    if (country) tasks.push(statsIncrement(env, `geo:${day}:${safe(country)}`));
+    if (device) tasks.push(statsIncrement(env, `dev:${day}:${safe(device)}`));
+    if (ref) tasks.push(statsIncrement(env, `ref:${day}:${safe(ref)}`));
+  } else if (type === 'product_view') {
+    if (productId) tasks.push(statsIncrement(env, `prod:${day}:${safe(productId)}`));
+  } else if (type === 'cart_add') {
+    if (productId) {
+      const k = kleur ? `${safe(productId)}|${safe(kleur)}` : safe(productId);
+      tasks.push(statsIncrement(env, `cart:${day}:${k}`));
+      tasks.push(statsIncrement(env, `total:cart:${day}`));
+    }
+  } else if (type === 'cart_open') {
+    tasks.push(statsIncrement(env, `total:cart_open:${day}`));
+  } else if (type === 'whatsapp_click') {
+    tasks.push(statsIncrement(env, `total:wa:${day}`));
+  } else if (type === 'review_submit') {
+    tasks.push(statsIncrement(env, `total:review:${day}`));
+  } else if (type === 'postcode_check') {
+    tasks.push(statsIncrement(env, `pc:${day}:${safe(postcode || '?')}`));
+    if (postcodeType) tasks.push(statsIncrement(env, `pc-type:${day}:${safe(postcodeType)}`));
+  }
+  await Promise.all(tasks);
+}
+
+// Stats query — geeft alle counters voor laatste N dagen
+async function getStatsSummary(env, days = 30) {
+  const today = todayUTC();
+  const dates = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - i);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+
+  // Aggregeer per categorie
+  const sumByPrefix = async (prefix) => {
+    const items = await statsListByPrefix(env, prefix);
+    return items.reduce((s, [, v]) => s + v, 0);
+  };
+  const groupByPrefix = async (prefix) => {
+    const items = await statsListByPrefix(env, prefix);
+    const groups = {};
+    for (const [k, v] of items) {
+      // k = "prefix:date:value" — pak waarde-deel
+      const parts = k.split(':');
+      const value = parts.slice(2).join(':');
+      groups[value] = (groups[value] || 0) + v;
+    }
+    return Object.entries(groups).sort((a, b) => b[1] - a[1]);
+  };
+
+  // Daily series
+  const dailySeries = async (totalKeyPrefix) => {
+    const items = await statsListByPrefix(env, totalKeyPrefix);
+    const byDate = {};
+    for (const [k, v] of items) {
+      const date = k.replace(totalKeyPrefix, '');
+      byDate[date] = v;
+    }
+    return dates.slice().reverse().map(d => ({ date: d, value: byDate[d] || 0 }));
+  };
+
+  const [
+    pageviewsTotal, uniquesTotal, cartTotal, cartOpenTotal, waTotal, reviewTotal,
+    pageviewsByDay, uniquesByDay, cartByDay, waByDay,
+    topPages, topProducts, topCart, topRefs, topGeo, topDevice, topPostcode,
+  ] = await Promise.all([
+    sumByPrefix('total:pv:'),
+    sumByPrefix('total:unique:'),
+    sumByPrefix('total:cart:'),
+    sumByPrefix('total:cart_open:'),
+    sumByPrefix('total:wa:'),
+    sumByPrefix('total:review:'),
+    dailySeries('total:pv:'),
+    dailySeries('total:unique:'),
+    dailySeries('total:cart:'),
+    dailySeries('total:wa:'),
+    groupByPrefix('pv:').then(r => r.slice(0, 10)),
+    groupByPrefix('prod:').then(r => r.slice(0, 10)),
+    groupByPrefix('cart:').then(r => r.slice(0, 10)),
+    groupByPrefix('ref:').then(r => r.slice(0, 10)),
+    groupByPrefix('geo:').then(r => r.slice(0, 10)),
+    groupByPrefix('dev:').then(r => r.slice(0, 5)),
+    groupByPrefix('pc:').then(r => r.slice(0, 10)),
+  ]);
+
+  return {
+    backed_by: env && env.STATS ? 'kv' : 'memory',
+    days,
+    totals: {
+      pageviews: pageviewsTotal,
+      unique_visitors: uniquesTotal,
+      cart_adds: cartTotal,
+      cart_opens: cartOpenTotal,
+      whatsapp_clicks: waTotal,
+      reviews: reviewTotal,
+    },
+    timeseries: { pageviews: pageviewsByDay, unique_visitors: uniquesByDay, cart_adds: cartByDay, whatsapp_clicks: waByDay },
+    top: {
+      pages: topPages,
+      products: topProducts,
+      cart_items: topCart,
+      referrers: topRefs,
+      countries: topGeo,
+      devices: topDevice,
+      postcodes: topPostcode,
+    },
+  };
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -112,6 +295,34 @@ export default {
       const clientIp = request.headers.get('CF-Connecting-IP') ||
                        request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
                        'unknown';
+
+      // === /track POST — analytics event (publiek, MET rate limit) ===
+      if (url.pathname === '/track' && request.method === 'POST') {
+        // Max 60 events per 60 seconden per IP — losse pageviews + paar acties
+        if (!checkRateLimit(clientIp, 'track', 60, 60 * 1000)) {
+          return jsonResponse({ ok: false, error: 'rate_limit' }, 429, cors);
+        }
+        const body = await request.json().catch(() => ({}));
+        // Anonieme daily-visitor-id: hash IP+day+salt — niet terug-traceable
+        const salt = (env && env.ADMIN_PASSWORD) || 'static-salt';
+        const visitorId = clientIp ? (await sha256Hex(clientIp + ':' + todayUTC() + ':' + salt)).slice(0, 16) : null;
+        const country = (request.cf && request.cf.country) || null;
+        try {
+          await trackEvent({
+            type: body.type,
+            path: body.path,
+            productId: body.productId,
+            kleur: body.kleur,
+            ref: body.ref,
+            country,
+            device: body.device,
+            postcode: body.postcode,
+            postcodeType: body.postcodeType,
+            visitorId,
+          }, env);
+        } catch { /* nooit fail tegenover client — analytics is optioneel */ }
+        return jsonResponse({ ok: true }, 200, cors);
+      }
 
       // === /review POST — publieke review-inzending (GEEN auth, MET rate limit) ===
       if (url.pathname === '/review' && request.method === 'POST') {
@@ -204,6 +415,13 @@ export default {
         const body = await request.json();
         const result = await updateSiteConfigInGitHub(body, env);
         return jsonResponse(result, 200, cors);
+      }
+
+      // === /stats GET — analytics summary (auth-protected) ===
+      if (url.pathname === '/stats' && request.method === 'GET') {
+        const days = Math.min(90, Math.max(1, parseInt(url.searchParams.get('days')) || 30));
+        const summary = await getStatsSummary(env, days);
+        return jsonResponse(summary, 200, cors);
       }
 
       if (url.pathname === '/auth') {
