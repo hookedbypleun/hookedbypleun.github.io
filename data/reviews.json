@@ -22,7 +22,7 @@
       "datum": "2026-05-10",
       "status": "approved",
       "cadeau": false,
-      "uitgelicht": false
+      "uitgelicht": true
     }
   ]
 }
