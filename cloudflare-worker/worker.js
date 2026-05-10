@@ -152,6 +152,18 @@ function todayUTC() {
 const STATS_RETENTION_DAYS = 30;
 
 // Track-event verwerking. Eén event mag meerdere counters bumpen.
+// In-memory unique-visitor set per isolate (geen KV-PUT per visitor)
+const _visitorSet = new Map(); // day → Set<visitorHash>
+function _markVisitor(day, hash) {
+  let s = _visitorSet.get(day);
+  if (!s) { s = new Set(); _visitorSet.set(day, s); }
+  if (s.has(hash)) return false;
+  s.add(hash);
+  return true;
+}
+// In-memory feed (recent 20) per isolate — geen KV-PUT
+const _liveFeed = [];
+
 async function trackEvent({ type, path, productId, kleur, ref, country, device, postcode, postcodeType, visitorId }, env) {
   const day = todayUTC();
   const tasks = [];
@@ -160,18 +172,17 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
   if (type === 'pageview') {
     tasks.push(statsIncrement(env, `pv:${day}:${safe(path) || '/'}`));
     tasks.push(statsIncrement(env, `total:pv:${day}`));
-    if (visitorId) {
-      // Set member: incr alleen als nieuw
-      const visitorKey = `visitor:${day}:${visitorId}`;
-      const exists = await _statsRead(env, visitorKey);
-      if (!exists) {
-        tasks.push(_statsWrite(env, visitorKey, 1));
-        tasks.push(statsIncrement(env, `total:unique:${day}`));
-      }
+    // Unique-visitor: gebruik in-memory dedup binnen isolate (gratis)
+    // Bij eerste visitor in isolate → schrijf 1 PUT naar total:unique:{day}
+    if (visitorId && _markVisitor(day, visitorId)) {
+      tasks.push(statsIncrement(env, `total:unique:${day}`));
     }
-    if (country) tasks.push(statsIncrement(env, `geo:${day}:${safe(country)}`));
-    if (device) tasks.push(statsIncrement(env, `dev:${day}:${safe(device)}`));
-    if (ref) tasks.push(statsIncrement(env, `ref:${day}:${safe(ref)}`));
+    // OPGEMERKT: geo/dev/ref counters zijn uitgeschakeld om binnen 1000 PUT/dag
+    // budget van Cloudflare KV gratis tier te blijven. Bij upgrade naar D1 of
+    // Workers Paid kunnen ze terug aangezet worden.
+    // if (country) tasks.push(statsIncrement(env, `geo:${day}:${safe(country)}`));
+    // if (device) tasks.push(statsIncrement(env, `dev:${day}:${safe(device)}`));
+    // if (ref) tasks.push(statsIncrement(env, `ref:${day}:${safe(ref)}`));
   } else if (type === 'product_view') {
     if (productId) tasks.push(statsIncrement(env, `prod:${day}:${safe(productId)}`));
   } else if (type === 'cart_add') {
@@ -192,36 +203,22 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
   }
   await Promise.all(tasks);
 
-  // Live event-feed (laatste 20 events) — voor live admin diagnose
-  if (env && env.STATS) {
-    try {
-      const feedRaw = await env.STATS.get('feed:recent');
-      const feed = feedRaw ? JSON.parse(feedRaw) : [];
-      const evRecord = {
-        ts: Date.now(),
-        type,
-        path: path || null,
-        productId: productId || null,
-        kleur: kleur || null,
-        device: device || null,
-        country: country || null,
-        ref: ref || null,
-        postcode: postcode || null,
-      };
-      feed.unshift(evRecord);
-      const trimmed = feed.slice(0, 20);
-      await env.STATS.put('feed:recent', JSON.stringify(trimmed), { expirationTtl: 60 * 60 * 24 * 7 });
-
-      // Persistente historie — per event een aparte key met sortable timestamp
-      // Format: event:YYYY-MM-DD:HH:MM:SS.mmm-rnd → kan via prefix gefilterd op datum/uur
-      const now = new Date();
-      const dayPart = now.toISOString().slice(0, 10);          // 2026-05-10
-      const timePart = now.toISOString().slice(11, 23);        // 14:23:45.123
-      const rnd = Math.random().toString(36).slice(2, 7);
-      const histKey = `event:${dayPart}:${timePart}-${rnd}`;
-      await env.STATS.put(histKey, JSON.stringify(evRecord), { expirationTtl: 60 * 60 * 24 * 60 });
-    } catch { /* ignore */ }
-  }
+  // Live event-feed in-memory (per Worker isolate, geen KV-PUT)
+  // Beperkt zichtbaar — verschillende admin-requests kunnen andere isolate raken
+  // maar gratis tier KV PUT-limit (1000/dag) maakt persistent feed onhaalbaar.
+  const evRecord = {
+    ts: Date.now(),
+    type,
+    path: path || null,
+    productId: productId || null,
+    kleur: kleur || null,
+    device: device || null,
+    country: country || null,
+    ref: ref || null,
+    postcode: postcode || null,
+  };
+  _liveFeed.unshift(evRecord);
+  if (_liveFeed.length > 20) _liveFeed.length = 20;
 }
 
 // Stats query — geeft alle counters voor laatste N dagen
@@ -461,6 +458,9 @@ export default {
       }
 
       // === /stats/history GET — events tussen 2 datums, optionele type-filter ===
+      // Persistente event-history is uitgeschakeld om binnen Cloudflare KV
+      // gratis tier limiet (1000 PUTs/dag) te blijven. Pas weer beschikbaar
+      // bij migratie naar D1 of upgrade naar Workers Paid plan.
       if (url.pathname === '/stats/history' && request.method === 'GET') {
         if (!env.STATS) return jsonResponse({ events: [], total: 0, reason: 'no_kv' }, 200, cors);
         const from = url.searchParams.get('from') || todayUTC();    // YYYY-MM-DD
@@ -504,14 +504,12 @@ export default {
         return jsonResponse({ events, total: events.length, from, to, hour, type: filterType, limit }, 200, cors);
       }
 
-      // === /stats/feed GET — laatste 20 events live (auth-protected) ===
+      // === /stats/feed GET — laatste 20 events in-memory (per isolate) ===
       if (url.pathname === '/stats/feed' && request.method === 'GET') {
-        if (!env.STATS) return jsonResponse({ feed: [], reason: 'no_kv' }, 200, cors);
-        const feedRaw = await env.STATS.get('feed:recent');
-        const feed = feedRaw ? JSON.parse(feedRaw) : [];
+        const feed = _liveFeed.slice(0, 20);
         const lastTs = feed[0]?.ts || 0;
         const secondsAgo = lastTs ? Math.floor((Date.now() - lastTs) / 1000) : null;
-        return jsonResponse({ feed, secondsAgo }, 200, cors);
+        return jsonResponse({ feed, secondsAgo, source: 'memory' }, 200, cors);
       }
 
       if (url.pathname === '/auth') {
