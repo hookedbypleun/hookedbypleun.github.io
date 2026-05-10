@@ -9,13 +9,7 @@ compatibility_date = "2026-01-01"
 # Of via dashboard: Workers & Pages → crochet-by-pleun → Settings → Variables
 
 # === Stats KV — privacy-first analytics (sinds v3.2.0) ===
-# SETUP éénmalig (Dave):
-#   1. wrangler login
-#   2. npx wrangler kv namespace create STATS
-#   3. Plak de id van de output hieronder en uncomment het blok
-#   4. npx wrangler deploy
-#
-# Tot KV gebonden is werkt /track in-memory (verloren bij isolate-restart).
-# [[kv_namespaces]]
-# binding = "STATS"
-# id = "PLAK_HIER_DE_ID"
+# Aangemaakt op 2026-05-10 via: npx wrangler kv namespace create STATS
+[[kv_namespaces]]
+binding = "STATS"
+id = "57b9abd7aa0b4cd2b79ad69a6102eea3"
