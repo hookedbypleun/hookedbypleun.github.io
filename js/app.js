@@ -518,20 +518,59 @@ Lokaal afhalen of versturen?`;
 
     function huidigeVariant() { return varianten[huidigeVariantIdx]; }
 
-    function toonKleurHint() {
-      const hint = document.getElementById('kleur-hint');
-      if (!hint) return;
-      hint.classList.remove('zichtbaar');
-      void hint.offsetWidth; // reset animatie
-      hint.classList.add('zichtbaar');
-      // Scroll het hele varianten-blok naar boven met buffer voor sticky-nav,
-      // zodat hint én kleur-knoppen tegelijk in beeld komen.
-      const target = document.getElementById('varianten-keuze') || hint;
-      const rect = target.getBoundingClientRect();
-      const buffer = 110; // sticky nav (~70px) + extra ademruimte
-      const top = Math.max(0, window.scrollY + rect.top - buffer);
-      window.scrollTo({ top, behavior: 'smooth' });
-      setTimeout(() => hint.classList.remove('zichtbaar'), 4500);
+    // Vervolg-actie nadat kleur gekozen is via de modal — bv. "voeg toe aan cart"
+    let _pendingActionAfterColor = null;
+
+    function toonKleurModal(vervolgActie) {
+      _pendingActionAfterColor = vervolgActie || null;
+      let modal = document.getElementById('kleur-keuze-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kleur-keuze-modal';
+        modal.className = 'kleur-modal-overlay';
+        document.body.appendChild(modal);
+      }
+      const knoppen = varianten.map((v, i) => `
+        <button class="kleur-modal-knop" data-vi="${i}" type="button">
+          <span class="kleur-dot-groot" style="background:${KLEUR_HEX[String(v.kleur || '').toLowerCase().trim()] || '#D9C5A8'}"></span>
+          <span class="kleur-naam">${escapeHtml(v.kleur || '— geen naam —')}</span>
+        </button>
+      `).join('');
+      modal.innerHTML = `
+        <div class="kleur-modal-card" role="dialog" aria-modal="true">
+          <button class="kleur-modal-close" aria-label="Sluiten" type="button">&times;</button>
+          <h3>🎨 Welke kleur wil je?</h3>
+          <p>Klik op een kleur om door te gaan met je bestelling.</p>
+          <div class="kleur-modal-grid">${knoppen}</div>
+        </div>
+      `;
+      modal.classList.add('open');
+      // Listener: kleur-knop in modal
+      modal.querySelectorAll('.kleur-modal-knop').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.vi);
+          // Markeer ook de hoofd-kleur-knop op de pagina als actief
+          document.querySelectorAll('.kleur-knop').forEach((b, i) => b.classList.toggle('actief', i === idx));
+          selectVariant(idx);
+          modal.classList.remove('open');
+          if (typeof _pendingActionAfterColor === 'function') {
+            const fn = _pendingActionAfterColor;
+            _pendingActionAfterColor = null;
+            fn();
+          }
+        });
+      });
+      // Sluitknop + klik op overlay
+      modal.querySelector('.kleur-modal-close').addEventListener('click', () => {
+        modal.classList.remove('open');
+        _pendingActionAfterColor = null;
+      });
+      modal.addEventListener('click', e => {
+        if (e.target === modal) {
+          modal.classList.remove('open');
+          _pendingActionAfterColor = null;
+        }
+      });
     }
 
     // Kleur selecteren = bestel-keuze registreren + hoofdfoto springen; thumbs blijven compleet
@@ -587,11 +626,20 @@ Lokaal afhalen of versturen?`;
       };
     }
     document.getElementById('btn-bestel-direct')?.addEventListener('click', () => {
-      if (!kleurGekozen) { toonKleurHint(); return; }
+      if (!kleurGekozen) {
+        toonKleurModal(() => window.openCheckout(huidigeCartItem()));
+        return;
+      }
       window.openCheckout(huidigeCartItem());
     });
     document.getElementById('btn-cart-add')?.addEventListener('click', () => {
-      if (!kleurGekozen) { toonKleurHint(); return; }
+      if (!kleurGekozen) {
+        toonKleurModal(() => {
+          Cart.add(huidigeCartItem());
+          document.querySelector("#cart-overlay")?.classList.add("open");
+        });
+        return;
+      }
       Cart.add(huidigeCartItem());
       document.querySelector("#cart-overlay")?.classList.add("open");
     });
@@ -743,4 +791,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown verwijderd in v3.2.5 — Eerder gemaakt is nu directe tab.
+// Nav-meer dropdown verwijderd in v3.2.6 — Eerder gemaakt is nu directe tab.

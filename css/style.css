@@ -1560,6 +1560,92 @@ footer .extra-links a:hover { opacity: 1; text-decoration: underline; }
   color: var(--c-text);
 }
 .varianten-label strong { color: var(--c-ink); }
+
+/* Kleur-keuze modal — vervangt subtiele schud-hint met duidelijke popup */
+.kleur-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(62, 52, 71, 0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.kleur-modal-overlay.open { display: flex; animation: fade-in 0.2s ease; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.kleur-modal-card {
+  background: white;
+  border-radius: var(--r-lg);
+  padding: 1.4rem 1.4rem 1.2rem;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: var(--shadow-medium);
+  position: relative;
+  text-align: center;
+  animation: pop-in 0.25s ease;
+}
+@keyframes pop-in { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.kleur-modal-card h3 {
+  margin: 0.2em 0 0.4em;
+  font-size: 1.4rem;
+  color: var(--c-ink);
+}
+.kleur-modal-card p {
+  margin: 0 0 1rem;
+  color: var(--c-text);
+  font-size: 0.95rem;
+}
+.kleur-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  background: var(--c-cream);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--c-muted);
+  line-height: 1;
+}
+.kleur-modal-close:hover { background: var(--c-cream-dark); color: var(--c-ink); }
+.kleur-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+.kleur-modal-knop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.8rem 0.5rem;
+  border: 2px solid var(--c-cream-dark);
+  background: white;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--c-text);
+  transition: all 0.15s;
+}
+.kleur-modal-knop:hover {
+  border-color: var(--c-lavender);
+  background: var(--c-cream);
+  transform: translateY(-2px);
+}
+.kleur-modal-knop .kleur-dot-groot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--c-cream-dark);
+}
+.kleur-modal-knop .kleur-naam {
+  text-transform: capitalize;
+}
 .kleur-knoppen {
   display: flex;
   flex-wrap: wrap;
