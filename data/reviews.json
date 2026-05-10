@@ -11,6 +11,18 @@
       "status": "approved",
       "cadeau": false,
       "uitgelicht": false
+    },
+    {
+      "id": "86a42fc9-3a34-41d7-b82a-fe85920f7f14",
+      "productId": "",
+      "productNaam": "",
+      "naam": "Mama",
+      "tekst": "Pleun heeft al kei veel leuke spulletjes gehaakt die ik met veel plezier draag zoals scrunchies en een mooie customized tas. Ze heeft veel aandacht voor detail en werkt super netjes 🧡",
+      "rating": 5,
+      "datum": "2026-05-10",
+      "status": "pending",
+      "cadeau": false,
+      "uitgelicht": false
     }
   ]
 }
