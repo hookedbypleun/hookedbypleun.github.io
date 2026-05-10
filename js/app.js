@@ -795,4 +795,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown verwijderd in v3.3.0 — Eerder gemaakt is nu directe tab.
+// Nav-meer dropdown verwijderd in v3.3.1 — Eerder gemaakt is nu directe tab.

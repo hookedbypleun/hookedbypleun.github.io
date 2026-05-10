@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.3.0">
+  <link rel="stylesheet" href="../css/style.css?v=3.3.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -296,6 +296,20 @@
   </style>
 </head>
 <body>
+
+  <!-- Login-modal — verschijnt bij pagina-open als geen geldige sessie -->
+  <div id="login-modal" style="display:none; position:fixed; inset:0; background:rgba(62,52,71,0.75); z-index:2000; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:white; border-radius:var(--r-lg); padding:1.6rem 1.4rem; max-width:380px; width:100%; box-shadow:var(--shadow-medium); text-align:center;">
+      <p style="font-size:2.4rem; margin:0">🔒</p>
+      <h2 style="margin:0.2em 0 0.4em; font-family:'Caveat', cursive; color:var(--c-lavender-dark); font-size:1.8rem">Welkom Pleun</h2>
+      <p style="color:var(--c-muted); margin:0 0 1rem; font-size:0.9rem">Vul je wachtwoord in om in te loggen.</p>
+      <input type="password" id="login-pw" placeholder="Wachtwoord" autofocus
+             style="width:100%; padding:0.7em 0.9em; border:2px solid var(--c-cream-dark); border-radius:var(--r-md); font-family:inherit; font-size:1.05rem; margin-bottom:0.7rem; box-sizing:border-box">
+      <button type="button" id="login-submit" class="btn full" style="font-size:1.05rem">🔓 Inloggen</button>
+      <p id="login-msg" style="display:none; margin:0.6rem 0 0; font-size:0.85rem; color:#B71C1C"></p>
+      <p style="font-size:0.78rem; color:var(--c-muted); margin:0.8rem 0 0">10 uur ingelogd op dit apparaat — geen wachtwoord meer nodig vandaag.</p>
+    </div>
+  </div>
 
   <nav>
     <a href="../index.html" class="logo"><span class="icon">🔧</span> Admin · Hooked by Pleun</a>
@@ -610,7 +624,7 @@
     </div>
     </details>
 
-    <details open style="margin-top:1.5rem" class="admin-section">
+    <details style="margin-top:1.5rem" class="admin-section">
       <summary>📋 Huidige items <span id="huidige-count-badge" class="section-count"></span></summary>
       <div id="item-list" style="margin-top:0.8rem"></div>
     </details>
@@ -1072,8 +1086,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.3.0"></script>
-  <script src="../js/sw-register.js?v=3.3.0"></script>
+  <script src="../js/config.js?v=3.3.1"></script>
+  <script src="../js/sw-register.js?v=3.3.1"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1564,7 +1578,7 @@
     // ✨ AI SMART MODE — voor Pleun
     // ================================================
     const AI_PW_KEY = 'pleun_ai_pw_v2';
-    const AI_PW_TTL_MS = 2 * 60 * 60 * 1000;  // 2 uur — korter = veiliger
+    const AI_PW_TTL_MS = 10 * 60 * 60 * 1000;  // 10 uur — werkdag-vriendelijk voor Pleun
     function aiLogout() {
       localStorage.removeItem(AI_PW_KEY);
       AI_PASSWORD = '';
@@ -1662,6 +1676,48 @@
         document.getElementById('ai-gate-msg').textContent = '❌ Worker niet bereikbaar: ' + err.message;
       }
     }
+
+    // === Login-modal — popup bij pagina-open ===
+    async function loginModalSubmit() {
+      const pwInput = document.getElementById('login-pw');
+      const msg = document.getElementById('login-msg');
+      const url = workerUrl();
+      if (!url) { msg.textContent = '⚠️ workerUrl niet ingesteld in config.'; msg.style.display = 'block'; return; }
+      const pw = (pwInput.value || '').trim();
+      if (!pw) { msg.textContent = 'Vul je wachtwoord in.'; msg.style.display = 'block'; return; }
+      msg.style.display = 'none';
+      try {
+        const res = await fetch(url + '/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
+          body: JSON.stringify({ password: pw }),
+        });
+        if (!res.ok) { msg.textContent = '❌ Verkeerd wachtwoord.'; msg.style.display = 'block'; return; }
+        AI_PASSWORD = pw;
+        writeStoredPw(pw);
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('ai-gate').style.display = 'none';
+        document.getElementById('ai-main').style.display = 'block';
+        try { loadAdminReviews?.(); } catch {}
+      } catch (err) {
+        msg.textContent = '❌ Worker niet bereikbaar: ' + err.message;
+        msg.style.display = 'block';
+      }
+    }
+    function showLoginModal() {
+      const m = document.getElementById('login-modal');
+      if (!m) return;
+      m.style.display = 'flex';
+      setTimeout(() => document.getElementById('login-pw')?.focus(), 100);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const submitBtn = document.getElementById('login-submit');
+      const pwInput = document.getElementById('login-pw');
+      submitBtn?.addEventListener('click', loginModalSubmit);
+      pwInput?.addEventListener('keydown', e => { if (e.key === 'Enter') loginModalSubmit(); });
+      // Toon modal als geen geldige sessie
+      if (!AI_PASSWORD) showLoginModal();
+    });
 
     if (AI_PASSWORD && workerUrl()) {
       document.getElementById('ai-gate').style.display = 'none';
