@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.4.0">
+  <link rel="stylesheet" href="../css/style.css?v=3.4.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -388,6 +388,7 @@
       <button type="button" class="tab-btn actief" data-tab="items" role="tab">📋 Items</button>
       <button type="button" class="tab-btn" data-tab="reviews" role="tab">💬 Reviews <span id="tab-reviews-badge" class="tab-badge" style="display:none">0</span></button>
       <button type="button" class="tab-btn" data-tab="stats" role="tab">📊 Stats</button>
+      <button type="button" class="tab-btn" data-tab="site" role="tab">🌸 Site</button>
     </nav>
 
     <!-- Modus-switcher (verstopt, alleen actief in Geavanceerd) -->
@@ -855,7 +856,7 @@
 
     </section><!-- /tab-items -->
 
-    <details class="footer-detail" style="margin-top:3rem; opacity:0.6">
+    <details class="footer-detail" id="geavanceerd-block" style="margin-top:3rem; opacity:0.6">
       <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🛠️ Geavanceerd — alleen voor noodgeval</summary>
       <div style="padding:1rem 0">
         <h3 style="margin-top:1rem">📤 Export naar items.json</h3>
@@ -875,7 +876,7 @@
     <!-- =============================== -->
     <!-- AUTO-CHANGELOG                  -->
     <!-- =============================== -->
-    <details style="margin-top:1rem" class="admin-section">
+    <details id="recent-toegevoegd-block" style="margin-top:1rem" class="admin-section">
       <summary>📝 Recent toegevoegd</summary>
       <p style="color:var(--c-muted); margin-top:0.6rem">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
       <div id="auto-changelog" style="margin-bottom:1rem"></div>
@@ -950,11 +951,16 @@
     <!-- Reviews-details staat verderop in originele structuur — JS verplaatst hem hierin -->
     </section><!-- /tab-reviews -->
 
+    <!-- ====== TAB: SITE — instellingen ====== -->
+    <section class="tab-panel" id="tab-site" data-tab="site" hidden>
+    <!-- Site-instellingen-block wordt door JS hierin verplaatst -->
+    </section><!-- /tab-site -->
+
     <!-- =============================== -->
-    <!-- SITE INSTELLINGEN (footer)      -->
+    <!-- SITE INSTELLINGEN — naar tab-site -->
     <!-- =============================== -->
-    <details class="footer-detail" style="margin-top:1.5rem; opacity:0.6">
-      <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🌸 Site-instellingen</summary>
+    <details open id="site-instellingen-block" style="margin-top:0.6rem" class="admin-section">
+      <summary>🌸 Site-instellingen</summary>
       <p style="color:var(--c-muted); margin:0.6rem 0 0.5rem">Aanpasbare gegevens die op de homepage staan.</p>
       <div style="background:white; padding:0.7rem 0.9rem; border-radius:var(--r-sm); margin-top:0.4rem">
         <label for="cfg-volgers" style="font-weight:700; font-size:0.9rem; display:block; margin-bottom:0.3em">
@@ -1009,6 +1015,9 @@
       <div style="margin-top:0.4em; font-size:0.78rem">Sleep omlaag op telefoon voor pull-to-refresh ↓</div>
     </div>
   </div>
+
+  <!-- Extra footer-zone — Geavanceerd komt hier via JS uit admin-form -->
+  <aside id="admin-extras" style="max-width:720px; margin:1rem auto 2rem; padding:0 1.2rem"></aside>
 
   <!-- Foto-tweak modal (display gestuurd via JS — geen hidden-attr i.v.m. inline-style conflict) -->
   <div id="photo-tweak-modal" style="position:fixed; inset:0; background:rgba(62,52,71,0.65); z-index:1000; display:none; align-items:center; justify-content:center; padding:1rem">
@@ -1172,8 +1181,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.4.0"></script>
-  <script src="../js/sw-register.js?v=3.4.0"></script>
+  <script src="../js/config.js?v=3.4.1"></script>
+  <script src="../js/sw-register.js?v=3.4.1"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1772,8 +1781,9 @@
         if (match) p.classList.add('actief'); else p.classList.remove('actief');
       });
       try { localStorage.setItem('pleun_admin_tab', name); } catch {}
-      // Reload reviews als reviews-tab actief wordt
+      // Reload data als tab actief wordt
       if (name === 'reviews') { try { loadAdminReviews?.(); } catch {} }
+      if (name === 'site') { try { loadSiteConfig?.(); } catch {} }
       if (name === 'stats') {
         const det = document.getElementById('stats-details');
         if (det && det.open) try { loadStats?.(); loadFeed?.(); } catch {}
@@ -1793,10 +1803,18 @@
     window.openHeroWizard = openHeroWizard;
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Verplaats reviews-modereer-block naar tab-reviews panel (origineel staat onderaan in admin-form)
-      const rvBlock = document.getElementById('reviews-modereer-block');
-      const rvTab = document.getElementById('tab-reviews');
-      if (rvBlock && rvTab) rvTab.appendChild(rvBlock);
+      // Verplaats blocks naar hun juiste tab/footer
+      const moves = [
+        // bron-id -> doel-element
+        ['reviews-modereer-block',   document.getElementById('tab-reviews')],
+        ['site-instellingen-block',  document.getElementById('tab-site')],
+        ['recent-toegevoegd-block',  document.getElementById('tab-items')],   // onderaan Items-tab
+        ['geavanceerd-block',        document.getElementById('admin-extras')], // helemaal onderaan body
+      ];
+      for (const [srcId, dst] of moves) {
+        const src = document.getElementById(srcId);
+        if (src && dst) dst.appendChild(src);
+      }
 
       // Tab-knoppen bind
       document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
@@ -1806,7 +1824,7 @@
       // Herstel laatst geselecteerde tab
       try {
         const last = localStorage.getItem('pleun_admin_tab');
-        if (last && ['items', 'reviews', 'stats'].includes(last)) switchTab(last);
+        if (last && ['items', 'reviews', 'stats', 'site'].includes(last)) switchTab(last);
       } catch {}
     });
 
