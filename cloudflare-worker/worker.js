@@ -192,12 +192,12 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
   }
   await Promise.all(tasks);
 
-  // Live event-feed (laatste 20 events) — voor admin diagnose
+  // Live event-feed (laatste 20 events) — voor live admin diagnose
   if (env && env.STATS) {
     try {
       const feedRaw = await env.STATS.get('feed:recent');
       const feed = feedRaw ? JSON.parse(feedRaw) : [];
-      feed.unshift({
+      const evRecord = {
         ts: Date.now(),
         type,
         path: path || null,
@@ -207,9 +207,19 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
         country: country || null,
         ref: ref || null,
         postcode: postcode || null,
-      });
+      };
+      feed.unshift(evRecord);
       const trimmed = feed.slice(0, 20);
       await env.STATS.put('feed:recent', JSON.stringify(trimmed), { expirationTtl: 60 * 60 * 24 * 7 });
+
+      // Persistente historie — per event een aparte key met sortable timestamp
+      // Format: event:YYYY-MM-DD:HH:MM:SS.mmm-rnd → kan via prefix gefilterd op datum/uur
+      const now = new Date();
+      const dayPart = now.toISOString().slice(0, 10);          // 2026-05-10
+      const timePart = now.toISOString().slice(11, 23);        // 14:23:45.123
+      const rnd = Math.random().toString(36).slice(2, 7);
+      const histKey = `event:${dayPart}:${timePart}-${rnd}`;
+      await env.STATS.put(histKey, JSON.stringify(evRecord), { expirationTtl: 60 * 60 * 24 * 60 });
     } catch { /* ignore */ }
   }
 }
@@ -448,6 +458,50 @@ export default {
         const days = Math.min(90, Math.max(1, parseInt(url.searchParams.get('days')) || 30));
         const summary = await getStatsSummary(env, days);
         return jsonResponse(summary, 200, cors);
+      }
+
+      // === /stats/history GET — events tussen 2 datums, optionele type-filter ===
+      if (url.pathname === '/stats/history' && request.method === 'GET') {
+        if (!env.STATS) return jsonResponse({ events: [], total: 0, reason: 'no_kv' }, 200, cors);
+        const from = url.searchParams.get('from') || todayUTC();    // YYYY-MM-DD
+        const to = url.searchParams.get('to') || from;
+        const hour = url.searchParams.get('hour');                  // optional 'HH'
+        const filterType = url.searchParams.get('type') || '';
+        const limit = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('limit')) || 500));
+
+        // Bouw datum-range
+        const days = [];
+        const fromDate = new Date(from + 'T00:00:00Z');
+        const toDate = new Date(to + 'T00:00:00Z');
+        for (let d = new Date(fromDate); d <= toDate; d.setUTCDate(d.getUTCDate() + 1)) {
+          days.push(d.toISOString().slice(0, 10));
+        }
+
+        const events = [];
+        for (const day of days) {
+          if (events.length >= limit) break;
+          const prefix = hour ? `event:${day}:${hour}` : `event:${day}`;
+          let cursor;
+          do {
+            const page = await env.STATS.list({ prefix, cursor, limit: 1000 });
+            for (const k of page.keys) {
+              if (events.length >= limit) break;
+              const v = await env.STATS.get(k.name);
+              if (!v) continue;
+              try {
+                const ev = JSON.parse(v);
+                if (filterType && ev.type !== filterType) continue;
+                ev.key = k.name;
+                events.push(ev);
+              } catch {}
+            }
+            cursor = page.cursor;
+            if (page.list_complete) break;
+          } while (cursor && events.length < limit);
+        }
+        // Nieuwste eerst
+        events.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+        return jsonResponse({ events, total: events.length, from, to, hour, type: filterType, limit }, 200, cors);
       }
 
       // === /stats/feed GET — laatste 20 events live (auth-protected) ===

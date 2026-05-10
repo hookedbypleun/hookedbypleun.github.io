@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.2.4">
+  <link rel="stylesheet" href="../css/style.css?v=3.2.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -811,6 +811,43 @@
         <div id="feed-status" style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--c-muted)"></div>
         <div id="feed-list" style="font-size:0.82rem; line-height:1.4"></div>
       </div>
+
+      <div style="background:white; border-radius:var(--r-md); padding:0.7rem 0.9rem; margin-top:0.9rem; box-shadow:var(--shadow-soft)">
+        <h4 style="margin:0 0 0.4rem; font-size:0.95rem">📜 Volledige geschiedenis</h4>
+        <p style="font-size:0.78rem; color:var(--c-muted); margin:0 0 0.5rem">Bekijk alle events terug per datum, uur of type. Gegevens worden 60 dagen bewaard.</p>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem; align-items:center; font-size:0.85rem">
+          <label>Van: <input type="date" id="hist-from" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></label>
+          <label>Tot: <input type="date" id="hist-to" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></label>
+          <label>Uur:
+            <select id="hist-hour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+              <option value="">— alle —</option>
+            </select>
+          </label>
+          <label>Type:
+            <select id="hist-type" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+              <option value="">— alle —</option>
+              <option value="pageview">👀 pageview</option>
+              <option value="product_view">🌸 product_view</option>
+              <option value="cart_add">🛒 cart_add</option>
+              <option value="cart_open">🎁 cart_open</option>
+              <option value="whatsapp_click">💬 whatsapp_click</option>
+              <option value="review_submit">⭐ review_submit</option>
+              <option value="postcode_check">📍 postcode_check</option>
+            </select>
+          </label>
+        </div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem">
+          <button type="button" class="btn" onclick="loadHistory()">🔍 Toon</button>
+          <button type="button" class="btn secondary" onclick="histPreset('today')">📅 Vandaag</button>
+          <button type="button" class="btn secondary" onclick="histPreset('yesterday')">📅 Gisteren</button>
+          <button type="button" class="btn secondary" onclick="histPreset('7d')">📅 7 dagen</button>
+          <button type="button" class="btn secondary" onclick="histPreset('30d')">📅 30 dagen</button>
+          <button type="button" class="btn mustard" onclick="exportHistoryCSV()" style="margin-left:auto">⬇️ CSV</button>
+        </div>
+        <div id="hist-status" style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--c-muted)"></div>
+        <div id="hist-summary" style="font-size:0.82rem; margin-bottom:0.5rem"></div>
+        <div id="hist-list" style="font-size:0.82rem; line-height:1.5; max-height:500px; overflow-y:auto; border:1px solid var(--c-cream-dark); border-radius:var(--r-sm); padding:0.4rem"></div>
+      </div>
     </details>
 
     <!-- =============================== -->
@@ -1035,8 +1072,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.2.4"></script>
-  <script src="../js/sw-register.js?v=3.2.4"></script>
+  <script src="../js/config.js?v=3.2.5"></script>
+  <script src="../js/sw-register.js?v=3.2.5"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3471,6 +3508,139 @@
       }
     }
     window.loadFeed = loadFeed;
+
+    // === Historische events met filters ===
+    function _todayISO() { return new Date().toISOString().slice(0, 10); }
+    function _daysAgoISO(n) {
+      const d = new Date(); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10);
+    }
+
+    function histInit() {
+      const from = document.getElementById('hist-from');
+      const to = document.getElementById('hist-to');
+      const hour = document.getElementById('hist-hour');
+      if (from && !from.value) from.value = _todayISO();
+      if (to && !to.value) to.value = _todayISO();
+      if (hour && hour.options.length <= 1) {
+        for (let h = 0; h < 24; h++) {
+          const opt = document.createElement('option');
+          opt.value = String(h).padStart(2, '0');
+          opt.textContent = `${String(h).padStart(2, '0')}:00 – ${String(h).padStart(2, '0')}:59`;
+          hour.appendChild(opt);
+        }
+      }
+    }
+
+    function histPreset(preset) {
+      const from = document.getElementById('hist-from');
+      const to = document.getElementById('hist-to');
+      if (preset === 'today') { from.value = _todayISO(); to.value = _todayISO(); }
+      if (preset === 'yesterday') { from.value = _daysAgoISO(1); to.value = _daysAgoISO(1); }
+      if (preset === '7d') { from.value = _daysAgoISO(6); to.value = _todayISO(); }
+      if (preset === '30d') { from.value = _daysAgoISO(29); to.value = _todayISO(); }
+      loadHistory();
+    }
+    window.histPreset = histPreset;
+
+    let _lastHistEvents = [];
+
+    async function loadHistory() {
+      histInit();
+      const from = document.getElementById('hist-from').value;
+      const to = document.getElementById('hist-to').value;
+      const hour = document.getElementById('hist-hour').value;
+      const type = document.getElementById('hist-type').value;
+      const status = document.getElementById('hist-status');
+      const summary = document.getElementById('hist-summary');
+      const list = document.getElementById('hist-list');
+      if (!AI_PASSWORD || !workerUrl()) {
+        status.textContent = '🔒 Log eerst in.';
+        return;
+      }
+      status.textContent = '⏳ Geschiedenis laden…';
+      list.innerHTML = '';
+      summary.innerHTML = '';
+      try {
+        const params = new URLSearchParams({ from, to });
+        if (hour) params.set('hour', hour);
+        if (type) params.set('type', type);
+        params.set('limit', '2000');
+        const res = await fetch(`${workerUrl()}/stats/history?${params}`, {
+          headers: { 'Authorization': 'Bearer ' + AI_PASSWORD },
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const events = data.events || [];
+        _lastHistEvents = events;
+        // Group by hour for summary
+        const byType = {};
+        const byHour = {};
+        const byDay = {};
+        for (const e of events) {
+          byType[e.type] = (byType[e.type] || 0) + 1;
+          if (e.ts) {
+            const d = new Date(e.ts);
+            const dayLabel = d.toISOString().slice(0, 10);
+            const hourLabel = String(d.getHours()).padStart(2, '0');
+            byHour[hourLabel] = (byHour[hourLabel] || 0) + 1;
+            byDay[dayLabel] = (byDay[dayLabel] || 0) + 1;
+          }
+        }
+        const period = hour ? `${from}${from !== to ? '–' + to : ''} · ${hour}u` : (from === to ? from : `${from} – ${to}`);
+        status.textContent = events.length === 0
+          ? `Geen events in ${period}${type ? ' (' + type + ')' : ''}.`
+          : `✅ ${events.length} events in ${period}${type ? ' (' + type + ')' : ''}.`;
+        summary.innerHTML = `
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.4rem 0">
+            ${Object.entries(byType).sort((a,b) => b[1]-a[1]).map(([t, n]) =>
+              `<span style="background:var(--c-lavender); color:white; padding:0.2em 0.6em; border-radius:var(--r-pill); font-size:0.78rem">${escapeHtmlAdmin(t)} (${n})</span>`
+            ).join('')}
+          </div>`;
+        list.innerHTML = events.map(e => {
+          const tijd = e.ts ? new Date(e.ts).toLocaleString('nl-NL') : '?';
+          const ic = _evIcon[e.type] || '•';
+          const detail = [
+            e.path && `pad: <strong>${escapeHtmlAdmin(e.path)}</strong>`,
+            e.productId && `item: <strong>${escapeHtmlAdmin(e.productId)}</strong>`,
+            e.kleur && `kleur: ${escapeHtmlAdmin(e.kleur)}`,
+            e.device && `${escapeHtmlAdmin(e.device)}`,
+            e.country && `${escapeHtmlAdmin(e.country)}`,
+            e.ref && `via ${escapeHtmlAdmin(e.ref)}`,
+            e.postcode && `pc ${escapeHtmlAdmin(e.postcode)}`,
+          ].filter(Boolean).join(' · ');
+          return `<div style="padding:0.25rem 0; border-bottom:1px solid var(--c-cream-dark)">
+            <span style="color:var(--c-muted); font-size:0.74rem; min-width:130px; display:inline-block">${tijd}</span>
+            ${ic} <strong>${escapeHtmlAdmin(e.type)}</strong>
+            ${detail ? `<span style="color:var(--c-muted)"> — ${detail}</span>` : ''}
+          </div>`;
+        }).join('') || '<p style="color:var(--c-muted)">Geen resultaten.</p>';
+      } catch (err) {
+        status.innerHTML = `<span style="color:#B71C1C">⚠️ ${escapeHtmlAdmin(err.message || err)}</span>`;
+      }
+    }
+    window.loadHistory = loadHistory;
+
+    function exportHistoryCSV() {
+      if (!_lastHistEvents.length) { alert('Eerst geschiedenis laden.'); return; }
+      const headers = ['tijd', 'type', 'pad', 'product_id', 'kleur', 'apparaat', 'land', 'verwijzer', 'postcode'];
+      const rows = [headers.join(',')];
+      for (const e of _lastHistEvents) {
+        const tijd = e.ts ? new Date(e.ts).toISOString() : '';
+        const row = [tijd, e.type || '', e.path || '', e.productId || '', e.kleur || '', e.device || '', e.country || '', e.ref || '', e.postcode || ''];
+        rows.push(row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+      }
+      const csv = '﻿' + rows.join('\n'); // BOM voor Excel
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const today = new Date().toISOString().slice(0, 10);
+      a.download = `hooked-events-${today}.csv`;
+      a.click();
+    }
+    window.exportHistoryCSV = exportHistoryCSV;
+
+    // Init datums bij DOMReady
+    document.addEventListener('DOMContentLoaded', () => setTimeout(histInit, 100));
 
     async function sendTestEvent() {
       try {
