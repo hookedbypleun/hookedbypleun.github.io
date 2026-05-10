@@ -191,6 +191,27 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
     if (postcodeType) tasks.push(statsIncrement(env, `pc-type:${day}:${safe(postcodeType)}`));
   }
   await Promise.all(tasks);
+
+  // Live event-feed (laatste 20 events) — voor admin diagnose
+  if (env && env.STATS) {
+    try {
+      const feedRaw = await env.STATS.get('feed:recent');
+      const feed = feedRaw ? JSON.parse(feedRaw) : [];
+      feed.unshift({
+        ts: Date.now(),
+        type,
+        path: path || null,
+        productId: productId || null,
+        kleur: kleur || null,
+        device: device || null,
+        country: country || null,
+        ref: ref || null,
+        postcode: postcode || null,
+      });
+      const trimmed = feed.slice(0, 20);
+      await env.STATS.put('feed:recent', JSON.stringify(trimmed), { expirationTtl: 60 * 60 * 24 * 7 });
+    } catch { /* ignore */ }
+  }
 }
 
 // Stats query — geeft alle counters voor laatste N dagen
@@ -422,6 +443,16 @@ export default {
         const days = Math.min(90, Math.max(1, parseInt(url.searchParams.get('days')) || 30));
         const summary = await getStatsSummary(env, days);
         return jsonResponse(summary, 200, cors);
+      }
+
+      // === /stats/feed GET — laatste 20 events live (auth-protected) ===
+      if (url.pathname === '/stats/feed' && request.method === 'GET') {
+        if (!env.STATS) return jsonResponse({ feed: [], reason: 'no_kv' }, 200, cors);
+        const feedRaw = await env.STATS.get('feed:recent');
+        const feed = feedRaw ? JSON.parse(feedRaw) : [];
+        const lastTs = feed[0]?.ts || 0;
+        const secondsAgo = lastTs ? Math.floor((Date.now() - lastTs) / 1000) : null;
+        return jsonResponse({ feed, secondsAgo }, 200, cors);
       }
 
       if (url.pathname === '/auth') {

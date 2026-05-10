@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.2.0">
+  <link rel="stylesheet" href="../css/style.css?v=3.2.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -800,6 +800,17 @@
         <button type="button" class="btn secondary" onclick="loadStats(true)" style="margin-left:auto">↻ Refresh</button>
       </div>
       <div id="stats-content"><p style="color:var(--c-muted)">Klap open om te laden…</p></div>
+
+      <div style="background:white; border-radius:var(--r-md); padding:0.7rem 0.9rem; margin-top:0.9rem; box-shadow:var(--shadow-soft)">
+        <h4 style="margin:0 0 0.4rem; font-size:0.95rem">🔬 Live event-feed</h4>
+        <p style="font-size:0.78rem; color:var(--c-muted); margin:0 0 0.5rem">Laatste 20 events. Komt er niets binnen? Bezoekers gebruiken nog de oude site uit hun browser-cache (refresh op hun kant lost dat op).</p>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem">
+          <button type="button" class="btn secondary" onclick="loadFeed()">↻ Ververs feed</button>
+          <button type="button" class="btn mustard" onclick="sendTestEvent()">🧪 Stuur test-event</button>
+        </div>
+        <div id="feed-status" style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--c-muted)"></div>
+        <div id="feed-list" style="font-size:0.82rem; line-height:1.4"></div>
+      </div>
     </details>
 
     <!-- =============================== -->
@@ -1024,8 +1035,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.2.0"></script>
-  <script src="../js/sw-register.js?v=3.2.0"></script>
+  <script src="../js/config.js?v=3.2.2"></script>
+  <script src="../js/sw-register.js?v=3.2.2"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3406,6 +3417,81 @@
       }
     }
     window.loadStats = loadStats;
+
+    // === Live event-feed ===
+    function fmtAgo(secs) {
+      if (secs == null) return 'nooit';
+      if (secs < 60) return `${secs}s geleden`;
+      if (secs < 3600) return `${Math.floor(secs/60)}m geleden`;
+      if (secs < 86400) return `${Math.floor(secs/3600)}u geleden`;
+      return `${Math.floor(secs/86400)}d geleden`;
+    }
+    const _evIcon = { pageview: '👀', product_view: '🌸', cart_add: '🛒', cart_open: '🎁', whatsapp_click: '💬', review_submit: '⭐', postcode_check: '📍' };
+
+    async function loadFeed() {
+      const list = document.getElementById('feed-list');
+      const status = document.getElementById('feed-status');
+      if (!AI_PASSWORD || !workerUrl()) {
+        if (status) status.textContent = '🔒 Log eerst in.';
+        return;
+      }
+      try {
+        const res = await fetch(workerUrl() + '/stats/feed', {
+          headers: { 'Authorization': 'Bearer ' + AI_PASSWORD },
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const feed = data.feed || [];
+        const ago = data.secondsAgo;
+        status.innerHTML = feed.length === 0
+          ? '<span style="color:var(--c-mustard-dark)">⚠️ Nog geen events binnen</span>'
+          : `✅ Laatste event: <strong>${fmtAgo(ago)}</strong> · totaal ${feed.length} recent`;
+        list.innerHTML = feed.length === 0
+          ? '<p style="color:var(--c-muted); font-size:0.85rem">Stuur een test-event om te bevestigen dat de pijplijn werkt.</p>'
+          : feed.map(e => {
+              const tijd = new Date(e.ts).toLocaleTimeString('nl-NL');
+              const ic = _evIcon[e.type] || '•';
+              const detail = [
+                e.path && `pad: <strong>${escapeHtmlAdmin(e.path)}</strong>`,
+                e.productId && `item: <strong>${escapeHtmlAdmin(e.productId)}</strong>`,
+                e.kleur && `kleur: ${escapeHtmlAdmin(e.kleur)}`,
+                e.device && `${escapeHtmlAdmin(e.device)}`,
+                e.country && `${escapeHtmlAdmin(e.country)}`,
+                e.ref && `via ${escapeHtmlAdmin(e.ref)}`,
+                e.postcode && `postcode ${escapeHtmlAdmin(e.postcode)}`,
+              ].filter(Boolean).join(' · ');
+              return `<div style="padding:0.3rem 0; border-bottom:1px solid var(--c-cream-dark)">
+                <span style="color:var(--c-muted); font-size:0.75rem; min-width:70px; display:inline-block">${tijd}</span>
+                ${ic} <strong>${escapeHtmlAdmin(e.type)}</strong>
+                ${detail ? `<span style="color:var(--c-muted)"> — ${detail}</span>` : ''}
+              </div>`;
+            }).join('');
+      } catch (err) {
+        status.innerHTML = `<span style="color:#B71C1C">⚠️ ${escapeHtmlAdmin(err.message || err)}</span>`;
+      }
+    }
+    window.loadFeed = loadFeed;
+
+    async function sendTestEvent() {
+      try {
+        const res = await fetch(workerUrl() + '/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'pageview', path: '/admin-test', device: 'desktop', ref: 'admin' }),
+        });
+        await res.json();
+        setTimeout(loadFeed, 800);
+      } catch (err) {
+        alert('Test-event mislukt: ' + (err.message || err));
+      }
+    }
+    window.sendTestEvent = sendTestEvent;
+
+    // Auto-poll feed elke 10s zolang stats-details open is
+    setInterval(() => {
+      const det = document.getElementById('stats-details');
+      if (det && det.open && AI_PASSWORD && workerUrl()) loadFeed();
+    }, 10000);
 
     // Auto-load bij open klikken + period-toggle
     document.addEventListener('DOMContentLoaded', () => {
