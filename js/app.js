@@ -742,26 +742,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown — werkt op alle pagina's
-document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.getElementById('nav-meer-toggle');
-  const drop = document.getElementById('nav-meer-drop');
-  if (!toggle || !drop) return;
-
-  toggle.addEventListener('click', e => {
-    e.stopPropagation();
-    const rect = toggle.getBoundingClientRect();
-    drop.style.top = (rect.bottom + 8) + 'px';
-    drop.style.right = (window.innerWidth - rect.right) + 'px';
-    drop.style.left = 'auto';
-    const open = drop.classList.toggle('open');
-    toggle.classList.toggle('open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-  });
-
-  document.addEventListener('click', () => {
-    drop.classList.remove('open');
-    toggle.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
-  });
-});
+// Nav-meer dropdown verwijderd in v3.1.1 — Eerder gemaakt is nu directe tab.

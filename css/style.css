@@ -621,47 +621,9 @@ section.section {
 .sort-select:hover { border-color: var(--c-mustard); }
 
 /* Nav-meer dropdown */
-.nav-meer { position: relative; flex-shrink: 0; }
-.nav-meer-btn {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 800;
-  padding: 0.3rem 0.55rem;
-  border-radius: var(--r-pill);
-  cursor: pointer;
-  color: var(--c-text);
-  font-family: inherit;
-  transition: all 0.2s;
-  line-height: 1;
-  letter-spacing: 0.05em;
-}
-.nav-meer-btn:hover, .nav-meer-btn.open { background: var(--c-lavender); color: white; }
-.nav-meer-btn.actief { background: var(--c-lavender); color: white; }
-.nav-meer-drop {
-  display: none;
-  position: fixed;
-  background: white;
-  border: 1.5px solid var(--c-cream-dark);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-medium);
-  min-width: 170px;
-  z-index: 500;
-  padding: 0.3rem;
-}
-.nav-meer-drop.open { display: block; }
-.nav-meer-drop a {
-  display: block;
-  padding: 0.6rem 0.9rem;
-  border-radius: var(--r-sm);
-  color: var(--c-text);
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.nav-meer-drop a:hover { background: var(--c-cream); text-decoration: none; }
-.nav-meer-drop a.actief { color: var(--c-lavender-dark); }
+/* Responsive nav-label: korter op mobiel */
+nav .links .hide-mobile { display: inline; }
+nav .links .only-mobile { display: none; }
 
 /* ============================================
    Productpagina
@@ -1149,20 +1111,20 @@ footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md);
     width: 100%;
     display: flex;
     gap: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    font-size: 0.88rem;
+    justify-content: space-around;
+    font-size: 0.78rem;
     padding: 0.45rem 0 0.5rem;
     border-top: 1px solid var(--c-cream-dark);
     margin-top: 0.45rem;
   }
-  nav .links::-webkit-scrollbar { display: none; }
   nav .links a {
     white-space: nowrap;
-    flex-shrink: 0;
-    padding: 0.3rem 0.7rem;
+    flex: 0 1 auto;
+    padding: 0.3rem 0.45rem;
   }
+  /* Mobiel: korter label voor "Eerder gemaakt" */
+  nav .links .hide-mobile { display: none; }
+  nav .links .only-mobile { display: inline; }
   .hero { padding: var(--gap-lg) var(--content-pad); }
   .galerij-grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
   .item-kaart .info { padding: 0.6rem 0.8rem 0.8rem; }
