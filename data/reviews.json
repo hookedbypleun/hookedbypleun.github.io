@@ -1,3 +1,16 @@
 {
-  "reviews": []
+  "reviews": [
+    {
+      "id": "cd0844d9-4b44-4f06-9406-b33fbf358023",
+      "productId": "",
+      "productNaam": "",
+      "naam": "Puma",
+      "tekst": "Er staan superveel leuke dingen op de website, helemaal hooked 🤩",
+      "rating": 5,
+      "datum": "2026-05-10",
+      "status": "pending",
+      "cadeau": false,
+      "uitgelicht": false
+    }
+  ]
 }
