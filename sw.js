@@ -12,6 +12,7 @@ const PRECACHE = [
   '/product.html',
   '/over.html',
   '/bestellen.html',
+  '/reviews.html',
   '/admin/',
   '/admin/index.html',
   '/css/style.css',
