@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="img/branding/app-icon.png?v=4">
   <link rel="apple-touch-icon" href="img/branding/app-icon.png?v=4">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css?v=3.4.6">
+  <link rel="stylesheet" href="css/style.css?v=3.4.7">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -85,15 +85,15 @@
       <a onclick="openIdeeenbus(); return false;" href="#">💡 Idee of foutje?</a>
       <a onclick="openDisclaimer(); return false;" href="#">📜 Goed om te weten</a>
     </div>
-    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> <span class="version-tag">v3.4.6</span></small>
+    <small>© 2026 Hooked by Pleun · <em>crochet by Pleun</em> <span class="version-tag">v3.4.7</span></small>
   </footer>
 
-  <script src="js/config.js?v=3.4.6"></script>
-  <script src="js/cart.js?v=3.4.6"></script>
-  <script src="js/app.js?v=3.4.6"></script>
-  <script src="js/modals.js?v=3.4.6"></script>
-  <script src="js/sw-register.js?v=3.4.6"></script>
-  <script src="js/tracker.js?v=3.4.6"></script>
+  <script src="js/config.js?v=3.4.7"></script>
+  <script src="js/cart.js?v=3.4.7"></script>
+  <script src="js/app.js?v=3.4.7"></script>
+  <script src="js/modals.js?v=3.4.7"></script>
+  <script src="js/sw-register.js?v=3.4.7"></script>
+  <script src="js/tracker.js?v=3.4.7"></script>
   <script>
     // Render alle approved reviews
     (async function renderAlleReviews() {
@@ -102,19 +102,28 @@
       try {
         const res = await fetch('data/reviews.json?cb=' + Date.now());
         const data = await res.json();
-        const reviews = (data.reviews || [])
-          .filter(r => r.status === 'approved')
-          .sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+        const approved = (data.reviews || []).filter(r => r.status === 'approved');
+        // Sortering binnen elk blok: sterren hoog → laag, dan datum nieuw → oud
+        const sortFn = (a, b) => {
+          const sd = (b.rating || 0) - (a.rating || 0);
+          if (sd !== 0) return sd;
+          return (b.datum || '').localeCompare(a.datum || '');
+        };
+        // Bovenaan: alle door Pleun uitgelichte (homepage-waardig); daaronder de rest
+        const uitgelicht = approved.filter(r =>  r.uitgelicht).sort(sortFn);
+        const overige   = approved.filter(r => !r.uitgelicht).sort(sortFn);
+        const reviews   = [...uitgelicht, ...overige];
         if (reviews.length === 0) {
           grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:var(--c-muted)">Nog geen reviews — wees de eerste 🌸</p>';
           stats.textContent = '';
           return;
         }
         const avg = reviews.reduce((s, r) => s + (r.rating || 5), 0) / reviews.length;
-        stats.innerHTML = `<strong style="color:var(--c-ink)">${reviews.length}</strong> review${reviews.length === 1 ? '' : 's'} · gemiddeld <strong style="color:var(--c-mustard-dark)">${avg.toFixed(1)} ★</strong>`;
+        stats.innerHTML = `<strong style="color:var(--c-ink)">${reviews.length}</strong> review${reviews.length === 1 ? '' : 's'} · gemiddeld <strong style="color:var(--c-mustard-dark)">${avg.toFixed(1)} ★</strong>${uitgelicht.length ? ` · <strong style="color:var(--c-lavender-dark)">${uitgelicht.length} ⭐ uitgelicht</strong>` : ''}`;
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         grid.innerHTML = reviews.map(r => `
-          <div class="review-kaart">
+          <div class="review-kaart${r.uitgelicht ? ' uitgelicht' : ''}">
+            ${r.uitgelicht ? '<span class="rv-pleun-favoriet">⭐ Favoriet van Pleun</span>' : ''}
             <div class="rv-sterren">${'★'.repeat(r.rating || 5)}</div>
             <p class="rv-tekst">"${esc(r.tekst)}"</p>
             <p class="rv-naam">— ${esc(r.naam || 'Anoniem')}${r.datum ? ` · ${esc(r.datum)}` : ''}</p>

@@ -1340,6 +1340,23 @@ footer small { color: var(--c-muted); display: block; margin-top: var(--gap-md);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-soft);
   margin-bottom: var(--gap-md);
+  position: relative;
+}
+.review-kaart.uitgelicht {
+  background: linear-gradient(135deg, #fff8ec 0%, #faf2ff 100%);
+  border: 1.5px solid var(--c-lavender);
+  box-shadow: var(--shadow-warm);
+}
+.rv-pleun-favoriet {
+  display: inline-block;
+  background: var(--c-lavender);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15em 0.7em;
+  border-radius: var(--r-pill);
+  margin-bottom: 0.5em;
+  letter-spacing: 0.02em;
 }
 .rv-sterren { color: var(--c-mustard); font-size: 1.1rem; letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .rv-tekst { font-style: italic; color: var(--c-ink); margin: 0 0 0.4em; line-height: 1.5; }

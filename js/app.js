@@ -131,10 +131,12 @@
         const rvRes = await fetch('data/reviews.json?v=' + Date.now());
         const rvData = await rvRes.json();
         const approved = (rvData.reviews || []).filter(r => r.status === 'approved');
-        // Pleun bepaalt zelf welke reviews op de homepage komen via ⭐ Homepage in admin
-        const uitgelicht = approved.filter(r => r.uitgelicht);
-        // Fallback: als nog niets uitgelicht is, toon laatste approved (max 4)
-        const tonen = (uitgelicht.length > 0 ? uitgelicht : approved).slice(0, 6);
+        // Pleun bepaalt welke reviews op de homepage komen via ⭐ Homepage in admin
+        // Bij meer dan 6 uitgelichte: pak de 6 NIEUWSTE. Oudere uitgelichte blijven
+        // in de data gemarkeerd en springen terug als Pleun een andere uitschakelt.
+        const sortDatum = (a, b) => (b.datum || '').localeCompare(a.datum || '');
+        const uitgelicht = approved.filter(r => r.uitgelicht).sort(sortDatum);
+        const tonen = (uitgelicht.length > 0 ? uitgelicht : approved.slice().sort(sortDatum)).slice(0, 6);
         if (tonen.length > 0) {
           reviewsGrid.innerHTML = tonen.map(r => `
             <div class="review-kaart">
@@ -795,4 +797,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown verwijderd in v3.4.6 — Eerder gemaakt is nu directe tab.
+// Nav-meer dropdown verwijderd in v3.4.7 — Eerder gemaakt is nu directe tab.
