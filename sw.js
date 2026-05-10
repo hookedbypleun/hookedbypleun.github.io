@@ -20,6 +20,7 @@ const PRECACHE = [
   '/js/cart.js',
   '/js/postcode.js',
   '/js/sw-register.js',
+  '/js/tracker.js',
   '/js/modals.js',
   '/data/items.json',
   '/data/reviews.json',
