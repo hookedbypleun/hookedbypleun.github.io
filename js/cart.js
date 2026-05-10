@@ -282,6 +282,7 @@ window.orderUrl = function(text) {
           <input id="cd-postcode" type="text" placeholder="Postcode" maxlength="7" autocomplete="postal-code" oninput="window.updatePreview()">
           <input id="cd-woonplaats" type="text" placeholder="Woonplaats" autocomplete="address-level2" oninput="window.updatePreview()">
         </div>
+        <div id="cd-postcode-feedback" class="cd-field-hint" style="display:none; padding:0.4rem 0.6rem; background:#EDF7EE; border-radius:var(--r-sm); font-size:0.85rem; margin-top:-0.4rem"></div>
         <div class="cd-field">
           <input id="cd-notitie" type="text" placeholder="Wensen? (kleur, naam erop, cadeau...)" oninput="window.updatePreview()">
         </div>
@@ -315,7 +316,7 @@ window.orderUrl = function(text) {
 
   window.updatePreview = function() {
     if (!_checkout) return;
-    const { lijn, total, gratisVerzending, verzending, eindTotaal } = _checkout;
+    let { lijn, total, gratisVerzending, verzending, eindTotaal, verzendInfo, cfg } = _checkout;
 
     const naam      = document.getElementById('cd-naam')?.value.trim() || '';
     const adres     = document.getElementById('cd-adres')?.value.trim() || '';
@@ -323,6 +324,39 @@ window.orderUrl = function(text) {
     const woonplaats= document.getElementById('cd-woonplaats')?.value.trim() || '';
     const notitie   = document.getElementById('cd-notitie')?.value.trim() || '';
     const bron      = document.getElementById('cd-bron')?.value.trim() || '';
+
+    // Pleun Express: detecteer lokale postcode voor gratis bezorging
+    const pcCijfers = (postcode || '').replace(/\s/g, '').toUpperCase().match(/^(\d{4})/);
+    const cfgEff = cfg || (window.SHOP_CONFIG || {});
+    const lokaal = pcCijfers && (cfgEff.localPostcodes || []).find(p => p.range.includes(pcCijfers[1]));
+
+    let verzendRegel;
+    let totaalEff = eindTotaal;
+    if (lokaal) {
+      verzending = 0;
+      totaalEff = total;
+      verzendRegel = `gratis 🚲 Pleun Express in ${lokaal.dorp} (${cfgEff.expressDay || 'zaterdag'})`;
+    } else if (gratisVerzending) {
+      verzendRegel = 'gratis 💚';
+    } else {
+      verzendRegel = '€' + verzending.toFixed(2).replace('.', ',') + (verzendInfo ? ' (' + verzendInfo.label.toLowerCase() + ')' : '');
+    }
+
+    // Toon bevestiging onder de postcode-input
+    const pcFeedback = document.getElementById('cd-postcode-feedback');
+    if (pcFeedback) {
+      if (lokaal) {
+        pcFeedback.innerHTML = `🚲 <strong>Pleun Express!</strong> Gratis bezorgd op ${cfgEff.expressDay || 'zaterdag'} in ${lokaal.dorp}.`;
+        pcFeedback.style.color = 'var(--c-success-text)';
+        pcFeedback.style.display = 'block';
+      } else if (pcCijfers) {
+        pcFeedback.innerHTML = `📮 Per post — ${verzendRegel}.`;
+        pcFeedback.style.color = 'var(--c-muted)';
+        pcFeedback.style.display = 'block';
+      } else {
+        pcFeedback.style.display = 'none';
+      }
+    }
 
     const pcWoonplaats = [postcode, woonplaats].filter(Boolean).join(' ');
 
@@ -340,8 +374,8 @@ Ik wil graag bestellen:
 ${lijn}
 
 Subtotaal: €${total.toFixed(2).replace('.', ',')}
-Verzending: ${gratisVerzending ? 'gratis 💚' : '€' + verzending.toFixed(2).replace('.', ',') + (_checkout?.verzendInfo ? ' (' + _checkout.verzendInfo.label.toLowerCase() + ')' : '')}
-Totaal: €${eindTotaal.toFixed(2).replace('.', ',')}
+Verzending: ${verzendRegel}
+Totaal: €${totaalEff.toFixed(2).replace('.', ',')}
 
 ---
 ${adresBlok}`;
