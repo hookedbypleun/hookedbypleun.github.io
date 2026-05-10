@@ -12,6 +12,32 @@
     });
   });
 
+  // ===== Force-update check tegen server-versie =====
+  // Bij elke pageload: vergelijk lokale APP_VERSION met data/version.json.
+  // Als de server een nieuwere versie meldt → wis caches + unregister SW + reload.
+  // Lost het probleem op dat oude SW oude HTML/JS blijft serveren bij bestaande bezoekers.
+  (async function versionCheck() {
+    try {
+      const res = await fetch('/data/version.json?cb=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      const v = await res.json();
+      if (!v?.version || v.version === APP_VERSION) return;
+      // Mismatch — bezoeker draait nog op oude versie.
+      // Niet onderbreken bij actieve checkout
+      const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
+      const inCheckout = document.getElementById('cart-overlay')?.classList.contains('open') && cartItems.length > 0;
+      if (inCheckout) return;
+      // Hard reset: wis caches + unregister SW + reload
+      try {
+        const names = await caches.keys();
+        await Promise.all(names.map(n => caches.delete(n)));
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+      } catch {}
+      location.reload();
+    } catch { /* offline of fout — geen probleem */ }
+  })();
+
   // ===== Service Worker registratie =====
   if (!('serviceWorker' in navigator)) return;
 
@@ -34,7 +60,7 @@
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
           // Niet onderbreken als checkout bezig is
           const cartOverlay = document.getElementById('cart-overlay');
-          const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
+          const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
           const inCheckout = cartOverlay?.classList.contains('open') && cartItems.length > 0;
           if (inCheckout) {
             // Toon banner zodat klant zelf kan kiezen
@@ -54,7 +80,7 @@
   // Nieuwe controller = update al toegepast → auto-reload
   // Uitzondering: niet herladen als iemand midden in een checkout zit
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
+    const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
     const inCheckout = document.getElementById('cart-overlay')?.classList.contains('open') && cartItems.length > 0;
     if (!inCheckout) window.location.reload();
   });
@@ -94,7 +120,7 @@
   window.__applyUpdate = function () {
     // Niet onderbreken als checkout bezig is
     const cartOverlay = document.getElementById('cart-overlay');
-    const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v1') || '[]');
+    const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
     const inCheckout = cartOverlay?.classList.contains('open') && cartItems.length > 0;
 
     if (inCheckout) {

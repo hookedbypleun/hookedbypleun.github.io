@@ -305,11 +305,14 @@ export default {
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin);
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: cors });
-    }
-
     const url = new URL(request.url);
+
+    // OPTIONS preflight — /track krijgt open CORS (publiek, anoniem)
+    if (request.method === 'OPTIONS') {
+      const isTrack = url.pathname === '/track';
+      const optCors = isTrack ? { ...cors, 'Access-Control-Allow-Origin': '*' } : cors;
+      return new Response(null, { headers: optCors });
+    }
 
     try {
       // IP voor rate-limiting (Cloudflare zet deze headers)
@@ -317,14 +320,16 @@ export default {
                        request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
                        'unknown';
 
-      // === /track POST — analytics event (publiek, MET rate limit) ===
+      // === /track POST — analytics event (publiek, open CORS, MET rate limit) ===
+      // Open CORS noodzakelijk: oude tab-cache, in-app browsers (WhatsApp/Instagram),
+      // edge-cases met afwijkende of ontbrekende Origin-header werden eerder
+      // geblokkeerd door de strikte whitelist. Track-payload is anoniem.
       if (url.pathname === '/track' && request.method === 'POST') {
-        // Max 60 events per 60 seconden per IP — losse pageviews + paar acties
+        const trackCors = { ...cors, 'Access-Control-Allow-Origin': '*' };
         if (!checkRateLimit(clientIp, 'track', 60, 60 * 1000)) {
-          return jsonResponse({ ok: false, error: 'rate_limit' }, 429, cors);
+          return jsonResponse({ ok: false, error: 'rate_limit' }, 429, trackCors);
         }
         const body = await request.json().catch(() => ({}));
-        // Anonieme daily-visitor-id: hash IP+day+salt — niet terug-traceable
         const salt = (env && env.ADMIN_PASSWORD) || 'static-salt';
         const visitorId = clientIp ? (await sha256Hex(clientIp + ':' + todayUTC() + ':' + salt)).slice(0, 16) : null;
         const country = (request.cf && request.cf.country) || null;
@@ -342,7 +347,7 @@ export default {
             visitorId,
           }, env);
         } catch { /* nooit fail tegenover client — analytics is optioneel */ }
-        return jsonResponse({ ok: true }, 200, cors);
+        return jsonResponse({ ok: true }, 200, trackCors);
       }
 
       // === /review POST — publieke review-inzending (GEEN auth, MET rate limit) ===
