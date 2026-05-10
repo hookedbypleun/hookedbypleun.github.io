@@ -325,10 +325,13 @@ window.orderUrl = function(text) {
     const notitie   = document.getElementById('cd-notitie')?.value.trim() || '';
     const bron      = document.getElementById('cd-bron')?.value.trim() || '';
 
-    // Pleun Express: detecteer lokale postcode voor gratis bezorging
-    const pcCijfers = (postcode || '').replace(/\s/g, '').toUpperCase().match(/^(\d{4})/);
+    // Pleun Express: detecteer 4-cijferige NL postcode in elk format:
+    //   "5074", "5074pv", "5074PV", "5074 pv", "5074 PV", " 5074 PV ", "5074-PV"
+    // Pakt de EERSTE groep van 4 opeenvolgende cijfers in de string.
+    const pcMatch = String(postcode || '').match(/(\d{4})/);
+    const pc4 = pcMatch ? pcMatch[1] : null;
     const cfgEff = cfg || (window.SHOP_CONFIG || {});
-    const lokaal = pcCijfers && (cfgEff.localPostcodes || []).find(p => p.range.includes(pcCijfers[1]));
+    const lokaal = pc4 && (cfgEff.localPostcodes || []).find(p => p.range.includes(pc4));
 
     let verzendRegel;
     let totaalEff = eindTotaal;
@@ -349,7 +352,7 @@ window.orderUrl = function(text) {
         pcFeedback.innerHTML = `🚲 <strong>Pleun Express!</strong> Gratis bezorgd op ${cfgEff.expressDay || 'zaterdag'} in ${lokaal.dorp}.`;
         pcFeedback.style.color = 'var(--c-success-text)';
         pcFeedback.style.display = 'block';
-      } else if (pcCijfers) {
+      } else if (pc4) {
         pcFeedback.innerHTML = `📮 Per post — ${verzendRegel}.`;
         pcFeedback.style.color = 'var(--c-muted)';
         pcFeedback.style.display = 'block';

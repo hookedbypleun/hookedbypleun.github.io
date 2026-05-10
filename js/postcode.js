@@ -2,8 +2,9 @@
 
 window.checkPostcode = function(input, resultEl) {
   const cfg = window.SHOP_CONFIG;
-  const raw = (input.value || '').trim().replace(/\s/g, '').toUpperCase();
-  const cijfers = raw.match(/^(\d{4})/);
+  // Pakt de EERSTE 4 opeenvolgende cijfers — werkt voor "5074", "5074pv",
+  // "5074 PV", " 5074 ", "5074-PV", etc.
+  const cijfers = String(input.value || '').match(/(\d{4})/);
   if (!cijfers) {
     resultEl.className = 'postcode-result';
     resultEl.textContent = '';
