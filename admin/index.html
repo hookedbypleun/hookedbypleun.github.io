@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.3.1">
+  <link rel="stylesheet" href="../css/style.css?v=3.4.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -24,6 +24,61 @@
     .admin-form input:focus, .admin-form textarea:focus { outline:2px solid var(--c-lavender); outline-offset:2px; border-color: var(--c-lavender); }
     .admin-form textarea { min-height: 80px; resize: vertical; }
     .admin-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* === Hero-actie + tab-bar (Dana redesign v3.4) === */
+    .hero-action {
+      display: flex; align-items: center; gap: 1rem;
+      width: 100%; padding: 1.2rem 1.4rem;
+      background: linear-gradient(135deg, var(--c-lavender) 0%, var(--c-pink) 100%);
+      border: none; border-radius: var(--r-lg);
+      color: white; cursor: pointer; text-align: left;
+      box-shadow: var(--shadow-warm);
+      margin: 0.6rem 0 1rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .hero-action:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(181, 161, 214, 0.35); }
+    .hero-action .hero-emoji { font-size: 2.4rem; flex-shrink: 0; }
+    .hero-action .hero-titel { display: block; font-family: 'Caveat', cursive; font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+    .hero-action .hero-sub { display: block; font-size: 0.85rem; opacity: 0.92; margin-top: 0.2em; font-weight: 400; }
+
+    .admin-tabs {
+      display: flex; gap: 0.3rem;
+      border-bottom: 2px solid var(--c-cream-dark);
+      margin-bottom: 1.2rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .admin-tabs::-webkit-scrollbar { display: none; }
+    .admin-tabs .tab-btn {
+      flex: 1 0 auto;
+      background: transparent; border: none;
+      padding: 0.7em 1em;
+      font-family: inherit; font-weight: 700; font-size: 1rem;
+      color: var(--c-muted); cursor: pointer;
+      border-radius: 0;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .admin-tabs .tab-btn:hover { color: var(--c-ink); }
+    .admin-tabs .tab-btn.actief {
+      color: var(--c-lavender-dark);
+      border-bottom-color: var(--c-lavender);
+    }
+    .tab-badge {
+      background: var(--c-mustard); color: white;
+      padding: 0.05em 0.5em; border-radius: var(--r-pill);
+      font-size: 0.72rem; font-weight: 700; margin-left: 0.2em;
+    }
+    .tab-panel { animation: fade-tab 0.2s ease; }
+    .tab-panel[hidden] { display: none; }
+    @keyframes fade-tab { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .footer-detail { margin-top: 1.5rem; opacity: 0.6; }
+    .footer-detail:hover { opacity: 0.9; }
+    .footer-detail > summary { color: var(--c-muted); font-size: 0.9rem; cursor: pointer; }
     .item-row {
       display:flex; align-items:center; gap: 1rem;
       background: white; padding: 0.6rem; border-radius: var(--r-md);
@@ -319,8 +374,24 @@
   <div class="admin-form">
     <h1>🔧 Admin paneel</h1>
 
-    <!-- Modus-switcher -->
-    <div class="modus-switcher">
+    <!-- Hero: primaire actie — nieuw item toevoegen via AI wizard -->
+    <button type="button" id="hero-new-item" class="hero-action" onclick="openHeroWizard()">
+      <span class="hero-emoji">✨</span>
+      <span>
+        <span class="hero-titel">Nieuw item toevoegen</span>
+        <span class="hero-sub">Foto kiezen — AI doet de rest 💝</span>
+      </span>
+    </button>
+
+    <!-- Tab-bar — Pleun klikt naar wat ze nu wil doen -->
+    <nav class="admin-tabs" role="tablist">
+      <button type="button" class="tab-btn actief" data-tab="items" role="tab">📋 Items</button>
+      <button type="button" class="tab-btn" data-tab="reviews" role="tab">💬 Reviews <span id="tab-reviews-badge" class="tab-badge" style="display:none">0</span></button>
+      <button type="button" class="tab-btn" data-tab="stats" role="tab">📊 Stats</button>
+    </nav>
+
+    <!-- Modus-switcher (verstopt, alleen actief in Geavanceerd) -->
+    <div class="modus-switcher" hidden>
       <button class="ms-btn actief" data-modus="single">✨ Eén item</button>
       <button class="ms-btn ms-btn-small" data-modus="bulk" title="Alleen samen met papa!">📦 Bulk</button>
     </div>
@@ -375,6 +446,9 @@
         </div>
       </div>
     </div>
+
+    <!-- ====== TAB: ITEMS — alles rond items toevoegen/bewerken ====== -->
+    <section class="tab-panel actief" id="tab-items" data-tab="items">
 
     <!-- ================================================ -->
     <!-- ✨ AI Wizard — voor Pleun                          -->
@@ -779,7 +853,9 @@
     </form>
     </details>
 
-    <details style="margin-top:3rem; opacity:0.6">
+    </section><!-- /tab-items -->
+
+    <details class="footer-detail" style="margin-top:3rem; opacity:0.6">
       <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🛠️ Geavanceerd — alleen voor noodgeval</summary>
       <div style="padding:1rem 0">
         <h3 style="margin-top:1rem">📤 Export naar items.json</h3>
@@ -793,10 +869,13 @@
       </div>
     </details>
 
+    <!-- ====== TAB: STATS — analytics + recent ====== -->
+    <section class="tab-panel" id="tab-stats" data-tab="stats" hidden>
+
     <!-- =============================== -->
     <!-- AUTO-CHANGELOG                  -->
     <!-- =============================== -->
-    <details style="margin-top:3rem" class="admin-section">
+    <details style="margin-top:1rem" class="admin-section">
       <summary>📝 Recent toegevoegd</summary>
       <p style="color:var(--c-muted); margin-top:0.6rem">Automatisch bijgehouden vanuit items.json. Nieuwste bovenaan.</p>
       <div id="auto-changelog" style="margin-bottom:1rem"></div>
@@ -864,11 +943,18 @@
       </div>
     </details>
 
+    </section><!-- /tab-stats -->
+
+    <!-- ====== TAB: REVIEWS — modereren ====== -->
+    <section class="tab-panel" id="tab-reviews" data-tab="reviews" hidden>
+    <!-- Reviews-details staat verderop in originele structuur — JS verplaatst hem hierin -->
+    </section><!-- /tab-reviews -->
+
     <!-- =============================== -->
-    <!-- SITE INSTELLINGEN              -->
+    <!-- SITE INSTELLINGEN (footer)      -->
     <!-- =============================== -->
-    <details class="admin-section" style="margin-top:1.5rem">
-      <summary>🌸 Site-instellingen</summary>
+    <details class="footer-detail" style="margin-top:1.5rem; opacity:0.6">
+      <summary style="cursor:pointer; color:var(--c-muted); font-size:0.9rem">🌸 Site-instellingen</summary>
       <p style="color:var(--c-muted); margin:0.6rem 0 0.5rem">Aanpasbare gegevens die op de homepage staan.</p>
       <div style="background:white; padding:0.7rem 0.9rem; border-radius:var(--r-sm); margin-top:0.4rem">
         <label for="cfg-volgers" style="font-weight:700; font-size:0.9rem; display:block; margin-bottom:0.3em">
@@ -884,7 +970,7 @@
       </div>
     </details>
 
-    <details style="margin-top:1.5rem" class="admin-section">
+    <details open id="reviews-modereer-block" style="margin-top:0.6rem" class="admin-section">
       <summary>💬 Reviews modereren</summary>
       <p style="color:var(--c-muted); margin-top:0.6rem">Reviews die bezoekers hebben achtergelaten. Keur goed om ze zichtbaar te maken op de productpagina. Zet ⭐ om ze op de homepage te tonen. Zet 🎁 als je bij de volgende bestelling van deze persoon een mini-cadeautje wil meesturen.</p>
       <div id="reviews-admin-list"><p style="color:var(--c-muted)">🔒 Log eerst in (boven aan de pagina) om reviews te zien.</p></div>
@@ -1086,8 +1172,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.3.1"></script>
-  <script src="../js/sw-register.js?v=3.3.1"></script>
+  <script src="../js/config.js?v=3.4.0"></script>
+  <script src="../js/sw-register.js?v=3.4.0"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -1676,6 +1762,53 @@
         document.getElementById('ai-gate-msg').textContent = '❌ Worker niet bereikbaar: ' + err.message;
       }
     }
+
+    // === Tab-controller (Dana redesign v3.4) ===
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('actief', b.dataset.tab === name));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        const match = p.dataset.tab === name;
+        p.hidden = !match;
+        if (match) p.classList.add('actief'); else p.classList.remove('actief');
+      });
+      try { localStorage.setItem('pleun_admin_tab', name); } catch {}
+      // Reload reviews als reviews-tab actief wordt
+      if (name === 'reviews') { try { loadAdminReviews?.(); } catch {} }
+      if (name === 'stats') {
+        const det = document.getElementById('stats-details');
+        if (det && det.open) try { loadStats?.(); loadFeed?.(); } catch {}
+      }
+    }
+    window.switchTab = switchTab;
+
+    // Hero-knop: AI wizard openen + scroll
+    function openHeroWizard() {
+      switchTab('items');
+      const wiz = document.getElementById('ai-wizard-details');
+      if (wiz) {
+        wiz.open = true;
+        setTimeout(() => wiz.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      }
+    }
+    window.openHeroWizard = openHeroWizard;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Verplaats reviews-modereer-block naar tab-reviews panel (origineel staat onderaan in admin-form)
+      const rvBlock = document.getElementById('reviews-modereer-block');
+      const rvTab = document.getElementById('tab-reviews');
+      if (rvBlock && rvTab) rvTab.appendChild(rvBlock);
+
+      // Tab-knoppen bind
+      document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // Herstel laatst geselecteerde tab
+      try {
+        const last = localStorage.getItem('pleun_admin_tab');
+        if (last && ['items', 'reviews', 'stats'].includes(last)) switchTab(last);
+      } catch {}
+    });
 
     // === Login-modal — popup bij pagina-open ===
     async function loginModalSubmit() {
