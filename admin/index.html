@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.5.2">
+  <link rel="stylesheet" href="../css/style.css?v=3.5.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1220,8 +1220,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.5.2"></script>
-  <script src="../js/sw-register.js?v=3.5.2"></script>
+  <script src="../js/config.js?v=3.5.3"></script>
+  <script src="../js/sw-register.js?v=3.5.3"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3706,35 +3706,53 @@
     // ====================================================================
     const _evIcon = { pageview: '👀', product_view: '🌸', cart_add: '🛒', cart_open: '🎁', whatsapp_click: '💬', review_submit: '⭐', postcode_check: '📍' };
 
-    // Pad naar menselijke beschrijving
+    // Pad naar menselijke beschrijving — normaliseer hash/trailing slash
     function prettyPath(path) {
       if (!path) return '';
-      if (path === '/' || path === '/index.html') return 'homepage';
-      if (path === '/galerij.html') return 'galerij';
-      if (path === '/over.html') return 'over-pagina';
-      if (path === '/bestellen.html') return 'bestel-pagina';
-      if (path === '/reviews.html') return 'reviews-pagina';
-      if (path === '/eerder.html') return 'eerder-gemaakt';
-      if (path.startsWith('/product.html')) {
-        const m = path.match(/id=([^&]+)/);
-        return m ? `item ${decodeURIComponent(m[1])}` : 'product';
+      let p = String(path).split('#')[0];
+      if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
+      if (p.startsWith('/product.html')) {
+        const m = p.match(/id=([^&]+)/);
+        return m ? `item "${decodeURIComponent(m[1])}"` : 'product-pagina';
       }
-      if (path === '/admin-test') return 'test-event';
-      return path.replace(/^\//, '').replace(/\.html$/, '');
+      const noQ = p.split('?')[0];
+      if (noQ === '/' || noQ === '/index.html') return 'homepage';
+      if (noQ === '/galerij.html')   return 'galerij';
+      if (noQ === '/over.html')      return 'over-pagina';
+      if (noQ === '/bestellen.html') return 'bestel-pagina';
+      if (noQ === '/reviews.html')   return 'reviews-pagina';
+      if (noQ === '/eerder.html')    return 'eerder-gemaakt';
+      if (noQ === '/admin-test')     return 'test-event';
+      return noQ.replace(/^\//, '').replace(/\.html$/, '') || 'homepage';
     }
 
-    // Menselijke beschrijving van een event
+    // Beschrijving van een event in menselijke taal
     function prettyAction(e) {
-      const what = prettyPath(e.path);
+      const waar = prettyPath(e.path);
+      const opPagina = waar ? ` <span style="color:var(--c-muted); font-size:0.85em">(op ${escapeHtmlAdmin(waar)})</span>` : '';
       switch (e.type) {
-        case 'pageview':       return `bekeek de ${what || 'pagina'}`;
-        case 'product_view':   return e.productId ? `bekeek <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' (' + escapeHtmlAdmin(e.kleur) + ')' : ''}` : 'bekeek een item';
-        case 'cart_add':       return e.productId ? `legde <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' (' + escapeHtmlAdmin(e.kleur) + ')' : ''} in het mandje` : 'voegde toe aan mandje';
-        case 'cart_open':      return 'opende het mandje';
-        case 'whatsapp_click': return 'klikte door naar WhatsApp 💌';
-        case 'review_submit':  return 'liet een review achter ⭐';
-        case 'postcode_check': return e.postcode ? `vulde postcode <strong>${escapeHtmlAdmin(e.postcode)}</strong> in` : 'vulde postcode in';
-        default: return escapeHtmlAdmin(e.type);
+        case 'pageview':
+          return `bekeek de <strong>${escapeHtmlAdmin(waar || 'pagina')}</strong>`;
+        case 'product_view':
+          return e.productId
+            ? `bekeek <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' ('+escapeHtmlAdmin(e.kleur)+')' : ''}`
+            : `bekeek een item${opPagina}`;
+        case 'cart_add':
+          return e.productId
+            ? `legde <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' ('+escapeHtmlAdmin(e.kleur)+')' : ''} in het mandje${opPagina}`
+            : `voegde iets toe aan het mandje${opPagina}`;
+        case 'cart_open':
+          return `opende het mandje${opPagina}`;
+        case 'whatsapp_click':
+          return `klikte door naar WhatsApp 💌${opPagina}`;
+        case 'review_submit':
+          return `liet een review achter ⭐${opPagina}`;
+        case 'postcode_check':
+          return e.postcode
+            ? `vulde postcode <strong>${escapeHtmlAdmin(e.postcode)}</strong> in${opPagina}`
+            : `vulde een postcode in${opPagina}`;
+        default:
+          return `${escapeHtmlAdmin(e.type)}${opPagina}`;
       }
     }
 

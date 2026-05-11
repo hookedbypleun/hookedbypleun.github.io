@@ -1,4 +1,4 @@
-// Hooked by Pleun — privacy-first event tracker (sinds v3.5.2)
+// Hooked by Pleun — privacy-first event tracker (sinds v3.5.3)
 // Stuurt anonieme events naar Worker /track. Geen cookies, geen IP-opslag,
 // geen UA-strings — alleen mobile/desktop classificatie.
 //
@@ -57,25 +57,37 @@
     } catch { /* ignore — analytics never crashes the page */ }
   }
 
+  // Path normaliseren: altijd leading slash, geen hash, met optioneel ?id=X bewaard
+  function curPath() {
+    let p = location.pathname || '/';
+    if (p === '') p = '/';
+    // Bewaar alleen ?id= voor product-pages — rest is ruis
+    const q = location.search;
+    if (q && /[?&]id=/.test(q)) {
+      const m = q.match(/[?&](id=[^&]+)/);
+      if (m) p += '?' + m[1];
+    }
+    return p;
+  }
+
   window.Track = {
     pageview() {
       if (_sent) return;
       _sent = true;
-      const path = location.pathname || '/';
       send({
         type: 'pageview',
-        path: path === '' ? '/' : path,
+        path: curPath(),
         ref: getReferrer(),
         device: classifyDevice(),
       });
     },
-    event(type, payload) { send({ type, ...payload }); },
-    product(id) { if (id) send({ type: 'product_view', productId: id }); },
-    cartAdd(id, kleur) { if (id) send({ type: 'cart_add', productId: id, kleur: kleur || '' }); },
-    cartOpen() { send({ type: 'cart_open' }); },
-    whatsappClick() { send({ type: 'whatsapp_click' }); },
-    review() { send({ type: 'review_submit' }); },
-    postcode(pc, type) { send({ type: 'postcode_check', postcode: String(pc || '').slice(0, 4), postcodeType: type || '' }); },
+    event(type, payload) { send({ type, path: curPath(), ...payload }); },
+    product(id) { if (id) send({ type: 'product_view', path: curPath(), productId: id }); },
+    cartAdd(id, kleur) { if (id) send({ type: 'cart_add', path: curPath(), productId: id, kleur: kleur || '' }); },
+    cartOpen() { send({ type: 'cart_open', path: curPath() }); },
+    whatsappClick() { send({ type: 'whatsapp_click', path: curPath() }); },
+    review() { send({ type: 'review_submit', path: curPath() }); },
+    postcode(pc, type) { send({ type: 'postcode_check', path: curPath(), postcode: String(pc || '').slice(0, 4), postcodeType: type || '' }); },
   };
 
   // Auto pageview bij init (na config)
