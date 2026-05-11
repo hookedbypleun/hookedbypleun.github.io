@@ -203,9 +203,7 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
   }
   await Promise.all(tasks);
 
-  // Live event-feed in-memory (per Worker isolate, geen KV-PUT)
-  // Beperkt zichtbaar — verschillende admin-requests kunnen andere isolate raken
-  // maar gratis tier KV PUT-limit (1000/dag) maakt persistent feed onhaalbaar.
+  // Event record (gedeeld door in-memory feed, KV-feed en KV-history)
   const evRecord = {
     ts: Date.now(),
     type,
@@ -217,8 +215,32 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
     ref: ref || null,
     postcode: postcode || null,
   };
+
+  // In-memory feed (per Worker isolate) — fallback als KV-PUT faalt of niet werkt
   _liveFeed.unshift(evRecord);
   if (_liveFeed.length > 20) _liveFeed.length = 20;
+
+  // Persistente feed:recent in KV + event:YYYY-MM-DD:HH:MM:SS keys voor history
+  // KV PUT-limiet (gratis tier) = 1000/dag — bij overschrijding silent fail,
+  // dan blijven we leunen op de in-memory _liveFeed.
+  if (env && env.STATS) {
+    try {
+      // Live feed (cross-isolate zichtbaar)
+      const feedRaw = await env.STATS.get('feed:recent');
+      const feed = feedRaw ? JSON.parse(feedRaw) : [];
+      feed.unshift(evRecord);
+      const trimmed = feed.slice(0, 20);
+      await env.STATS.put('feed:recent', JSON.stringify(trimmed), { expirationTtl: 60 * 60 * 24 * 7 });
+
+      // Per-event key voor history-search (datum/uur/type filter)
+      const now = new Date();
+      const dayPart = now.toISOString().slice(0, 10);
+      const timePart = now.toISOString().slice(11, 23);
+      const rnd = Math.random().toString(36).slice(2, 7);
+      const histKey = `event:${dayPart}:${timePart}-${rnd}`;
+      await env.STATS.put(histKey, JSON.stringify(evRecord), { expirationTtl: 60 * 60 * 24 * 60 });
+    } catch { /* KV fail — in-memory feed neemt het over */ }
+  }
 }
 
 // Stats query — geeft alle counters voor laatste N dagen
@@ -504,12 +526,23 @@ export default {
         return jsonResponse({ events, total: events.length, from, to, hour, type: filterType, limit }, 200, cors);
       }
 
-      // === /stats/feed GET — laatste 20 events in-memory (per isolate) ===
+      // === /stats/feed GET — KV-feed (cross-isolate), fallback in-memory ===
       if (url.pathname === '/stats/feed' && request.method === 'GET') {
-        const feed = _liveFeed.slice(0, 20);
+        let feed = [];
+        let source = 'memory';
+        if (env.STATS) {
+          try {
+            const raw = await env.STATS.get('feed:recent');
+            if (raw) {
+              feed = JSON.parse(raw);
+              source = 'kv';
+            }
+          } catch { /* fallback in-memory */ }
+        }
+        if (feed.length === 0) feed = _liveFeed.slice(0, 20);
         const lastTs = feed[0]?.ts || 0;
         const secondsAgo = lastTs ? Math.floor((Date.now() - lastTs) / 1000) : null;
-        return jsonResponse({ feed, secondsAgo, source: 'memory' }, 200, cors);
+        return jsonResponse({ feed, secondsAgo, source }, 200, cors);
       }
 
       if (url.pathname === '/auth') {
