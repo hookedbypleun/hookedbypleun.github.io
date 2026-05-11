@@ -193,14 +193,12 @@
       "varianten": [
         {
           "kleur": "",
-          "voorraad": 1,
           "fotos": [
             "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg"
           ]
         },
         {
-          "kleur": "donkerroze",
-          "voorraad": 1,
+          "kleur": "",
           "fotos": [
             "img/items/dit-is-een-aarbei-octopus-sleu-donkerroze-1.jpg"
           ]
