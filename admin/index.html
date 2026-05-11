@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.5.4">
+  <link rel="stylesheet" href="../css/style.css?v=3.5.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -906,34 +906,44 @@
           <button type="button" class="btn mustard" onclick="sendTestEvent()">🧪 Test-event</button>
         </div>
         <!-- Quick presets — primaire interactie -->
-        <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem">
+        <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem; align-items:center">
           <button type="button" class="btn xp-preset active" data-preset="today">Vandaag</button>
           <button type="button" class="btn secondary xp-preset" data-preset="yesterday">Gisteren</button>
           <button type="button" class="btn secondary xp-preset" data-preset="7d">7 dagen</button>
           <button type="button" class="btn secondary xp-preset" data-preset="30d">30 dagen</button>
-          <button type="button" class="btn secondary xp-preset" data-preset="now" title="Alleen het laatste uur">🕐</button>
+          <button type="button" class="btn secondary xp-preset" data-preset="now" title="Alleen het laatste uur">🕐 Laatste uur</button>
+          <button type="button" class="btn secondary" id="xp-csv" title="Download als CSV">⬇️ CSV</button>
+          <button type="button" class="btn secondary" id="xp-reset" title="Alle filters wissen, terug naar Vandaag">♻️ Reset</button>
         </div>
 
-        <!-- Geavanceerde filters — default ingeklapt -->
+        <!-- Actief-filter chips — alleen zichtbaar als er een filter aan staat -->
+        <div id="xp-active-filters" style="display:none; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem; align-items:center"></div>
+
+        <!-- Datum + uur — altijd zichtbaar, compact -->
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:end; margin-bottom:0.5rem; font-size:0.82rem">
+          <label style="display:flex; flex-direction:column; gap:0.15rem">
+            <span style="color:var(--c-muted)">Van</span>
+            <input type="date" id="xp-from" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+          </label>
+          <label style="display:flex; flex-direction:column; gap:0.15rem">
+            <span style="color:var(--c-muted)">Tot</span>
+            <input type="date" id="xp-to" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+          </label>
+          <label style="display:flex; flex-direction:column; gap:0.15rem">
+            <span style="color:var(--c-muted)">🕐 Uur vanaf</span>
+            <select id="xp-fromhour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
+          </label>
+          <label style="display:flex; flex-direction:column; gap:0.15rem">
+            <span style="color:var(--c-muted)">🕐 Uur t/m</span>
+            <select id="xp-tohour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
+          </label>
+          <button type="button" class="btn" id="xp-apply">🔍 Toon</button>
+        </div>
+
+        <!-- Extra filters — ingeklapt -->
         <details style="margin-bottom:0.6rem">
-          <summary style="cursor:pointer; font-size:0.85rem; color:var(--c-muted); user-select:none">🔧 Geavanceerd filteren (datum + uur + type + land + bezoeker)</summary>
+          <summary style="cursor:pointer; font-size:0.85rem; color:var(--c-muted); user-select:none">🔧 Extra filteren (soort actie, land, specifieke bezoeker)</summary>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end; margin-top:0.5rem; font-size:0.82rem">
-            <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Van datum</span>
-              <input type="date" id="xp-from" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
-            </label>
-            <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Tot datum</span>
-              <input type="date" id="xp-to" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
-            </label>
-            <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Vanaf uur</span>
-              <select id="xp-fromhour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
-            </label>
-            <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Tot uur</span>
-              <select id="xp-tohour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
-            </label>
             <label style="display:flex; flex-direction:column; gap:0.15rem">
               <span style="color:var(--c-muted)">Soort actie</span>
               <select id="xp-type" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
@@ -948,16 +958,13 @@
               </select>
             </label>
             <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Land</span>
+              <span style="color:var(--c-muted)">Land (bv NL, IT)</span>
               <input type="text" id="xp-country" maxlength="2" placeholder="bv NL" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:5em; text-transform:uppercase; font-family:inherit">
             </label>
             <label style="display:flex; flex-direction:column; gap:0.15rem">
-              <span style="color:var(--c-muted)">Bezoeker</span>
+              <span style="color:var(--c-muted)">Bezoeker-code</span>
               <input type="text" id="xp-visitor" placeholder="code 4+ tekens" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:9em; font-family:monospace">
             </label>
-            <button type="button" class="btn" id="xp-apply">🔍 Toon</button>
-            <button type="button" class="btn secondary" id="xp-csv">⬇️ CSV</button>
-            <button type="button" class="btn secondary" id="xp-reset">Reset</button>
           </div>
         </details>
 
@@ -1225,8 +1232,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.5.4"></script>
-  <script src="../js/sw-register.js?v=3.5.4"></script>
+  <script src="../js/config.js?v=3.5.5"></script>
+  <script src="../js/sw-register.js?v=3.5.5"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3675,11 +3682,10 @@
         const t = s.totals || {};
         const series = s.timeseries || {};
         const top = s.top || {};
-        const mode = s.backed_by === 'kv' ? '✅ persistent' : '⚠️ in-memory (KV nog niet ingesteld door Dave)';
         const conv = t.pageviews ? Math.round((t.cart_adds / t.pageviews) * 1000) / 10 : 0;
         const waConv = t.pageviews ? Math.round((t.whatsapp_clicks / t.pageviews) * 1000) / 10 : 0;
         wrap.innerHTML = `
-          <p style="font-size:0.78rem; color:var(--c-muted); margin:0 0 0.5rem">Laatste ${s.days} dagen · opslag: ${mode}</p>
+          <p style="font-size:0.78rem; color:var(--c-muted); margin:0 0 0.5rem">Totalen over de laatste ${s.days} dagen</p>
           <div style="display:flex; flex-wrap:wrap; gap:0.5rem">
             ${statsCard('Pageviews', t.pageviews)}
             ${statsCard('Unieke bezoekers', t.unique_visitors)}
@@ -3851,12 +3857,7 @@
       document.getElementById('xp-apply')?.addEventListener('click', xpLoad);
       document.getElementById('xp-refresh')?.addEventListener('click', xpLoad);
       document.getElementById('xp-csv')?.addEventListener('click', xpExportCSV);
-      document.getElementById('xp-reset')?.addEventListener('click', () => {
-        document.getElementById('xp-type').value = '';
-        document.getElementById('xp-country').value = '';
-        document.getElementById('xp-visitor').value = '';
-        xpApplyPreset('today');
-      });
+      document.getElementById('xp-reset')?.addEventListener('click', () => xpResetAll());
       document.querySelectorAll('.xp-preset').forEach(btn =>
         btn.addEventListener('click', () => {
           document.querySelectorAll('.xp-preset').forEach(b => {
@@ -3886,6 +3887,54 @@
           _xpLiveTimer = null;
         }
       });
+    }
+
+    // Wis één filter (key = 'type' | 'country' | 'visitor') en herlaad
+    function xpClearFilter(key) {
+      const el = document.getElementById('xp-' + key);
+      if (el) el.value = '';
+      xpLoad();
+    }
+    window.xpClearFilter = xpClearFilter;
+
+    // Alles wissen — terug naar Vandaag, geen filters
+    function xpResetAll() {
+      document.getElementById('xp-type').value = '';
+      document.getElementById('xp-country').value = '';
+      document.getElementById('xp-visitor').value = '';
+      const bots = document.getElementById('xp-bots');
+      if (bots) bots.value = 'hide';
+      // Reset preset-knoppen visueel naar "Vandaag"
+      document.querySelectorAll('.xp-preset').forEach(b => {
+        const isToday = b.dataset.preset === 'today';
+        b.classList.toggle('active', isToday);
+        b.classList.toggle('secondary', !isToday);
+      });
+      xpApplyPreset('today');
+    }
+    window.xpResetAll = xpResetAll;
+
+    // Toon actieve filters als chips boven de resultaten
+    function xpRenderActiveFilters() {
+      const bar = document.getElementById('xp-active-filters');
+      if (!bar) return;
+      const chips = [];
+      const type = document.getElementById('xp-type').value;
+      const country = document.getElementById('xp-country').value.trim().toUpperCase();
+      const visitor = document.getElementById('xp-visitor').value.trim();
+      const fh = document.getElementById('xp-fromhour').value;
+      const th = document.getElementById('xp-tohour').value;
+      if (type) chips.push(`<button onclick="xpClearFilter('type')" style="background:var(--c-lavender); color:white; border:none; padding:0.3em 0.7em; border-radius:var(--r-pill); font-size:0.8rem; cursor:pointer">soort: ${escapeHtmlAdmin(type)} ✕</button>`);
+      if (country) chips.push(`<button onclick="xpClearFilter('country')" style="background:var(--c-lavender); color:white; border:none; padding:0.3em 0.7em; border-radius:var(--r-pill); font-size:0.8rem; cursor:pointer">land: ${escapeHtmlAdmin(country)} ✕</button>`);
+      if (visitor) chips.push(`<button onclick="xpClearFilter('visitor')" style="background:var(--c-pink-dark); color:white; border:none; padding:0.3em 0.7em; border-radius:var(--r-pill); font-size:0.8rem; cursor:pointer">🔍 alleen bezoeker ${escapeHtmlAdmin(visitor)} — toon alle ✕</button>`);
+      if (fh !== '0' || th !== '23') chips.push(`<span style="background:var(--c-cream-dark); color:var(--c-ink); padding:0.3em 0.7em; border-radius:var(--r-pill); font-size:0.8rem">🕐 uur ${escapeHtmlAdmin(fh)}–${escapeHtmlAdmin(th)}</span>`);
+      if (chips.length) {
+        bar.innerHTML = '<span style="font-size:0.8rem; color:var(--c-muted); margin-right:0.2rem">Actief:</span>' + chips.join(' ') + ' <button onclick="xpResetAll()" style="background:transparent; border:1.5px solid var(--c-muted); color:var(--c-muted); padding:0.25em 0.7em; border-radius:var(--r-pill); font-size:0.8rem; cursor:pointer">♻️ alles wissen</button>';
+        bar.style.display = 'flex';
+      } else {
+        bar.innerHTML = '';
+        bar.style.display = 'none';
+      }
     }
 
     function xpApplyPreset(p) {
@@ -3973,6 +4022,7 @@
           status.innerHTML = `${visTxt}${visTxt ? ' · ' : ''}${actTxt} ${escapeHtmlAdmin(periodeLabel)}${botSuffix}`;
         }
 
+        xpRenderActiveFilters();
         xpRender();
       } catch (err) {
         status.innerHTML = `<span style="color:#B71C1C">⚠️ ${escapeHtmlAdmin(err.message || err)}</span>`;
