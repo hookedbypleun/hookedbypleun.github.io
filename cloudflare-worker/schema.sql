@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS events (
   country     TEXT,
   ref         TEXT,
   postcode    TEXT,
-  visitor_id  TEXT                        -- anonieme daily-hash voor unique-tracking
+  visitor_id  TEXT,                       -- anonieme daily-hash voor unique-tracking
+  is_bot      INTEGER DEFAULT 0,          -- 1 = User-Agent matchte bekend bot/crawler patroon
+  ua_class    TEXT                        -- bot | browser | unknown (voor debug)
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_day      ON events(day);
@@ -22,6 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_events_type     ON events(type);
 CREATE INDEX IF NOT EXISTS idx_events_day_hour ON events(day, hour);
 CREATE INDEX IF NOT EXISTS idx_events_product  ON events(product_id);
 CREATE INDEX IF NOT EXISTS idx_events_visitor  ON events(day, visitor_id);
+CREATE INDEX IF NOT EXISTS idx_events_bot      ON events(is_bot);
 
 -- Self-check log (voor monitoring)
 CREATE TABLE IF NOT EXISTS health_checks (

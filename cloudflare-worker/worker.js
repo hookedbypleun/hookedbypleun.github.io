@@ -207,33 +207,46 @@ function _markVisitor(day, hash) {
 // In-memory feed (recent 20) per isolate — geen KV-PUT
 const _liveFeed = [];
 
-async function trackEvent({ type, path, productId, kleur, ref, country, device, postcode, postcodeType, visitorId }, env) {
+// Bot-detectie via User-Agent — matched bekende crawlers/scanners.
+// Resultaat: { isBot: 0|1, uaClass: 'bot'|'browser'|'unknown' }
+const BOT_UA_RE = /bot|crawler|spider|crawling|slurp|bingpreview|baiduspider|yandex|sogou|exabot|facebot|ia_archiver|duckduckgo|petalbot|semrush|ahrefs|mj12bot|seznambot|googleother|google-extended|chatgpt|gptbot|claude-?web|anthropic|amazonbot|bytespider|applebot|yeti|teoma|curl|wget|python|java|httpclient|okhttp|axios|node-fetch|libwww|monitoring|uptimerobot|pingdom|statuscake|datadog|newrelic|prerender|headless|phantomjs|puppeteer|playwright/i;
+function classifyUA(ua) {
+  if (!ua) return { isBot: 1, uaClass: 'unknown' }; // geen UA = vrijwel altijd bot/script
+  if (BOT_UA_RE.test(ua)) return { isBot: 1, uaClass: 'bot' };
+  // Echte browsers bevatten typisch "Mozilla/5.0" + "Safari" of "Chrome" of "Firefox"
+  if (/Mozilla\/[\d.]+ \(/.test(ua) && /(Chrome|Safari|Firefox|Edge|OPR|SamsungBrowser)/.test(ua)) {
+    return { isBot: 0, uaClass: 'browser' };
+  }
+  return { isBot: 1, uaClass: 'unknown' };
+}
+
+async function trackEvent({ type, path, productId, kleur, ref, country, device, postcode, postcodeType, visitorId, userAgent }, env) {
   const now = new Date();
   const ts = now.getTime();
   const day = now.toISOString().slice(0, 10);
   const hour = now.getUTCHours();
+  const { isBot, uaClass } = classifyUA(userAgent);
 
-  // Event record voor in-memory feed (per Worker isolate)
-  const evRecord = {
-    ts, type,
-    path: path || null,
-    productId: productId || null,
-    kleur: kleur || null,
-    device: device || null,
-    country: country || null,
-    ref: ref || null,
-    postcode: postcode || null,
-  };
-  _liveFeed.unshift(evRecord);
-  if (_liveFeed.length > 20) _liveFeed.length = 20;
+  // In-memory feed (per Worker isolate) — alleen non-bot voor snel "wie is er nu"
+  if (!isBot) {
+    _liveFeed.unshift({
+      ts, type,
+      path: path || null,
+      productId: productId || null,
+      kleur: kleur || null,
+      device: device || null,
+      country: country || null,
+      ref: ref || null,
+      postcode: postcode || null,
+    });
+    if (_liveFeed.length > 20) _liveFeed.length = 20;
+  }
 
-  // Persistente write naar D1 — gratis tier 100k writes/dag.
-  // Alle stats worden hieruit ge-querid via SQL. Geen KV-writes meer per event.
   if (env && env.DB) {
     try {
       await env.DB.prepare(
-        `INSERT INTO events (ts, day, hour, type, path, product_id, kleur, device, country, ref, postcode, visitor_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO events (ts, day, hour, type, path, product_id, kleur, device, country, ref, postcode, visitor_id, is_bot, ua_class)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
         ts, day, hour, type,
         path || null,
@@ -243,7 +256,9 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
         country || null,
         ref || null,
         postcode || null,
-        visitorId || null
+        visitorId || null,
+        isBot,
+        uaClass
       ).run();
     } catch { /* D1 fail — events verloren maar tracker blijft werken */ }
   }
@@ -391,10 +406,10 @@ export default {
 
     const url = new URL(request.url);
 
-    // OPTIONS preflight — /track krijgt open CORS (publiek, anoniem)
+    // OPTIONS preflight — /track + /px.gif krijgen open CORS (publiek, anoniem)
     if (request.method === 'OPTIONS') {
-      const isTrack = url.pathname === '/track';
-      const optCors = isTrack ? { ...cors, 'Access-Control-Allow-Origin': '*' } : cors;
+      const isPublic = url.pathname === '/track' || url.pathname === '/px.gif';
+      const optCors = isPublic ? { ...cors, 'Access-Control-Allow-Origin': '*' } : cors;
       return new Response(null, { headers: optCors });
     }
 
@@ -417,6 +432,7 @@ export default {
         const salt = (env && env.ADMIN_PASSWORD) || 'static-salt';
         const visitorId = clientIp ? (await sha256Hex(clientIp + ':' + todayUTC() + ':' + salt)).slice(0, 16) : null;
         const country = (request.cf && request.cf.country) || null;
+        const userAgent = request.headers.get('User-Agent') || '';
         try {
           await trackEvent({
             type: body.type,
@@ -429,9 +445,61 @@ export default {
             postcode: body.postcode,
             postcodeType: body.postcodeType,
             visitorId,
+            userAgent,
           }, env);
         } catch { /* nooit fail tegenover client — analytics is optioneel */ }
         return jsonResponse({ ok: true }, 200, trackCors);
+      }
+
+      // === /px.gif GET — server-side beacon (publiek, geen JS nodig) ===
+      // Wordt geladen vanuit <noscript><img src="..."> in elke HTML-pagina.
+      // Vangt bezoekers die JavaScript uit hebben + bots die images laden.
+      // Geeft 1x1 transparante GIF terug met no-cache, registreert event D1.
+      if (url.pathname === '/px.gif' && request.method === 'GET') {
+        const pxCors = { 'Access-Control-Allow-Origin': '*' };
+        // Rate limit ruimer dan /track want crawlers triggeren dit vaker
+        if (checkRateLimit(clientIp, 'px', 120, 60 * 1000)) {
+          const salt = (env && env.ADMIN_PASSWORD) || 'static-salt';
+          const visitorId = clientIp ? (await sha256Hex(clientIp + ':' + todayUTC() + ':' + salt)).slice(0, 16) : null;
+          const country = (request.cf && request.cf.country) || null;
+          const userAgent = request.headers.get('User-Agent') || '';
+          const ref = request.headers.get('Referer') || null;
+          // Probeer device af te leiden uit UA als de query 'm niet meegaf
+          const uaLow = userAgent.toLowerCase();
+          const device = url.searchParams.get('d') ||
+            (uaLow.includes('mobile') ? 'mobile' : uaLow.includes('tablet') ? 'tablet' : 'desktop');
+          try {
+            await trackEvent({
+              type: url.searchParams.get('t') || 'pageview',
+              path: url.searchParams.get('p') || '/',
+              productId: url.searchParams.get('id') || null,
+              kleur: url.searchParams.get('k') || null,
+              ref,
+              country,
+              device,
+              postcode: null,
+              postcodeType: null,
+              visitorId,
+              userAgent,
+            }, env);
+          } catch { /* swallow — beacon must never block */ }
+        }
+        // 1x1 transparante GIF (43 bytes)
+        const gif = new Uint8Array([
+          0x47,0x49,0x46,0x38,0x39,0x61,0x01,0x00,0x01,0x00,0x80,0x00,0x00,0xff,0xff,0xff,
+          0x00,0x00,0x00,0x21,0xf9,0x04,0x01,0x00,0x00,0x00,0x00,0x2c,0x00,0x00,0x00,0x00,
+          0x01,0x00,0x01,0x00,0x00,0x02,0x02,0x44,0x01,0x00,0x3b
+        ]);
+        return new Response(gif, {
+          status: 200,
+          headers: {
+            ...pxCors,
+            'Content-Type': 'image/gif',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        });
       }
 
       // === /review POST — publieke review-inzending (GEEN auth, MET rate limit) ===
@@ -553,6 +621,8 @@ export default {
         const filterType = url.searchParams.get('type') || '';
         const filterCountry = url.searchParams.get('country') || '';
         const filterVisitor = url.searchParams.get('visitor') || '';
+        const includeBots = url.searchParams.get('bots') === '1';   // default: bots verbergen
+        const onlyBots = url.searchParams.get('bots') === 'only';
         const limit = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('limit')) || 500));
 
         // NL-lokale grenzen → UTC ms range
@@ -565,13 +635,15 @@ export default {
         const utcDayLow = utcMsToNlDate(startUtcMs - 12 * 3600 * 1000); // ruim
         const utcDayHigh = utcMsToNlDate(endUtcMs + 12 * 3600 * 1000);
 
-        let sql = `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode, visitor_id
+        let sql = `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode, visitor_id, is_bot, ua_class
                    FROM events
                    WHERE day >= ? AND day <= ?
                      AND ts >= ? AND ts <= ?`;
         const params = [utcDayLow, utcDayHigh, startUtcMs, endUtcMs];
-        if (filterType)    { sql += ` AND type = ?`;      params.push(filterType); }
-        if (filterCountry) { sql += ` AND country = ?`;   params.push(filterCountry); }
+        if (!includeBots && !onlyBots) sql += ` AND (is_bot = 0 OR is_bot IS NULL)`;
+        if (onlyBots) sql += ` AND is_bot = 1`;
+        if (filterType)    { sql += ` AND type = ?`;          params.push(filterType); }
+        if (filterCountry) { sql += ` AND country = ?`;       params.push(filterCountry); }
         if (filterVisitor) { sql += ` AND visitor_id LIKE ?`; params.push(filterVisitor + '%'); }
         sql += ` ORDER BY ts DESC LIMIT ?`;
         params.push(limit);
@@ -588,11 +660,28 @@ export default {
           ref: r.ref,
           postcode: r.postcode,
           visitorId: r.visitor_id,
+          isBot: !!r.is_bot,
+          uaClass: r.ua_class,
         }));
+
+        // Tel bots in dezelfde range (voor "X mensen + Y bots" weergave)
+        let botCount = 0;
+        if (!includeBots && !onlyBots) {
+          try {
+            const botRow = await env.DB.prepare(
+              `SELECT COUNT(*) AS n FROM events
+               WHERE day >= ? AND day <= ? AND ts >= ? AND ts <= ? AND is_bot = 1`
+            ).bind(utcDayLow, utcDayHigh, startUtcMs, endUtcMs).first();
+            botCount = botRow?.n || 0;
+          } catch {}
+        }
+
         return jsonResponse({
           events, total: events.length,
+          botCount,
           from: fromDate, to: toDate, fromHour, toHour,
           type: filterType, country: filterCountry, visitor: filterVisitor,
+          includeBots, onlyBots,
           limit,
           range: { startUtcMs, endUtcMs },
           tz: 'Europe/Amsterdam',
