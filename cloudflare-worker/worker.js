@@ -148,6 +148,49 @@ function todayUTC() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// === NL-timezone helpers (Europe/Amsterdam, DST-aware) ============
+// We slaan ts op als UTC ms. Pleun denkt in NL-tijd. Deze helpers
+// vertalen NL wall-clock → UTC ms, en UTC ms → NL YYYY-MM-DD,
+// rekening houdend met zomertijd/wintertijd.
+
+function _nlOffsetMs(utcMs) {
+  // Bepaal NL-offset (in ms) op een gegeven UTC-moment door
+  // datzelfde moment te formatten in Europe/Amsterdam en het
+  // verschil met UTC te lezen. DST-safe.
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Amsterdam', hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(new Date(utcMs)).map(p => [p.type, p.value]));
+  const localAsUtc = Date.UTC(
+    +parts.year, +parts.month - 1, +parts.day,
+    parts.hour === '24' ? 0 : +parts.hour, +parts.minute, +parts.second
+  );
+  return localAsUtc - utcMs;
+}
+
+function nlLocalToUtcMs(y, m, d, h = 0, min = 0, s = 0) {
+  // Behandel (y,m,d,h,min,s) als NL wall-clock. Iteratief afstemmen
+  // omdat de offset zelf afhangt van het echte UTC-moment (DST-rand).
+  let guess = Date.UTC(y, m - 1, d, h, min, s);
+  guess -= _nlOffsetMs(guess);
+  guess -= _nlOffsetMs(guess) - _nlOffsetMs(Date.UTC(y, m - 1, d, h, min, s));
+  return guess;
+}
+
+function utcMsToNlDate(ms) {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Amsterdam',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  });
+  return fmt.format(new Date(ms)); // YYYY-MM-DD
+}
+
+function todayNL() {
+  return utcMsToNlDate(Date.now());
+}
+
 // Bewaar laatste 30 dagen aan stats; oudere wordt door TTL automatisch opgeruimd
 const STATS_RETENTION_DAYS = 30;
 
@@ -491,20 +534,45 @@ export default {
         return jsonResponse(summary, 200, cors);
       }
 
-      // === /stats/history GET — D1 SQL: events tussen 2 datums + filters ===
+      // === /stats/history GET — D1 SQL: events tussen 2 NL-datums + filters ===
+      // Query params (alle optioneel):
+      //   from, to              YYYY-MM-DD in NL-lokale tijd (default = vandaag NL)
+      //   fromHour, toHour      0..23 NL-lokaal uur, inclusief beide grenzen
+      //   type                  pageview | product_view | cart_add | ...
+      //   country               ISO-2 country code
+      //   visitor               visitor-hash (start-match, min 4 tekens)
+      //   limit                 max 2000, default 500
       if (url.pathname === '/stats/history' && request.method === 'GET') {
         if (!env.DB) return jsonResponse({ events: [], total: 0, reason: 'no_d1' }, 200, cors);
-        const from = url.searchParams.get('from') || todayUTC();
-        const to = url.searchParams.get('to') || from;
-        const hourParam = url.searchParams.get('hour');
+        const fromDate = url.searchParams.get('from') || todayNL();
+        const toDate = url.searchParams.get('to') || fromDate;
+        const fromHourRaw = url.searchParams.get('fromHour');
+        const toHourRaw = url.searchParams.get('toHour');
+        const fromHour = fromHourRaw === null || fromHourRaw === '' ? 0 : Math.max(0, Math.min(23, parseInt(fromHourRaw) || 0));
+        const toHour = toHourRaw === null || toHourRaw === '' ? 23 : Math.max(0, Math.min(23, parseInt(toHourRaw) || 23));
         const filterType = url.searchParams.get('type') || '';
+        const filterCountry = url.searchParams.get('country') || '';
+        const filterVisitor = url.searchParams.get('visitor') || '';
         const limit = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('limit')) || 500));
 
-        let sql = `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode
-                   FROM events WHERE day >= ? AND day <= ?`;
-        const params = [from, to];
-        if (hourParam) { sql += ` AND hour = ?`; params.push(parseInt(hourParam)); }
-        if (filterType) { sql += ` AND type = ?`; params.push(filterType); }
+        // NL-lokale grenzen → UTC ms range
+        const [fy, fm, fd] = fromDate.split('-').map(Number);
+        const [ty, tm, td] = toDate.split('-').map(Number);
+        const startUtcMs = nlLocalToUtcMs(fy, fm, fd, fromHour, 0, 0);
+        const endUtcMs = nlLocalToUtcMs(ty, tm, td, toHour, 59, 59) + 999;
+
+        // Day-index pre-filter (UTC days die NL-range overlappen)
+        const utcDayLow = utcMsToNlDate(startUtcMs - 12 * 3600 * 1000); // ruim
+        const utcDayHigh = utcMsToNlDate(endUtcMs + 12 * 3600 * 1000);
+
+        let sql = `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode, visitor_id
+                   FROM events
+                   WHERE day >= ? AND day <= ?
+                     AND ts >= ? AND ts <= ?`;
+        const params = [utcDayLow, utcDayHigh, startUtcMs, endUtcMs];
+        if (filterType)    { sql += ` AND type = ?`;      params.push(filterType); }
+        if (filterCountry) { sql += ` AND country = ?`;   params.push(filterCountry); }
+        if (filterVisitor) { sql += ` AND visitor_id LIKE ?`; params.push(filterVisitor + '%'); }
         sql += ` ORDER BY ts DESC LIMIT ?`;
         params.push(limit);
 
@@ -519,20 +587,29 @@ export default {
           country: r.country,
           ref: r.ref,
           postcode: r.postcode,
+          visitorId: r.visitor_id,
         }));
-        return jsonResponse({ events, total: events.length, from, to, hour: hourParam, type: filterType, limit }, 200, cors);
+        return jsonResponse({
+          events, total: events.length,
+          from: fromDate, to: toDate, fromHour, toHour,
+          type: filterType, country: filterCountry, visitor: filterVisitor,
+          limit,
+          range: { startUtcMs, endUtcMs },
+          tz: 'Europe/Amsterdam',
+        }, 200, cors);
       }
 
-      // === /stats/feed GET — D1 SQL: laatste 20 events cross-isolate ===
+      // === /stats/feed GET — D1 SQL: laatste N events cross-isolate ===
       if (url.pathname === '/stats/feed' && request.method === 'GET') {
+        const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit')) || 30));
         let feed = [];
         let source = 'memory';
         if (env.DB) {
           try {
             const result = await env.DB.prepare(
-              `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode
-               FROM events ORDER BY ts DESC LIMIT 20`
-            ).all();
+              `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode, visitor_id
+               FROM events ORDER BY ts DESC LIMIT ?`
+            ).bind(limit).all();
             feed = (result.results || []).map(r => ({
               ts: r.ts,
               type: r.type,
@@ -543,14 +620,15 @@ export default {
               country: r.country,
               ref: r.ref,
               postcode: r.postcode,
+              visitorId: r.visitor_id,
             }));
             source = 'd1';
           } catch { /* fallback in-memory */ }
         }
-        if (feed.length === 0) feed = _liveFeed.slice(0, 20);
+        if (feed.length === 0) feed = _liveFeed.slice(0, limit);
         const lastTs = feed[0]?.ts || 0;
         const secondsAgo = lastTs ? Math.floor((Date.now() - lastTs) / 1000) : null;
-        return jsonResponse({ feed, secondsAgo, source }, 200, cors);
+        return jsonResponse({ feed, secondsAgo, source, tz: 'Europe/Amsterdam' }, 200, cors);
       }
 
       // === /health GET — self-check status (publiek) ===

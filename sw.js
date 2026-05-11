@@ -1,7 +1,7 @@
-// Crochet by Pleun — Service Worker
+// Crochet by Pleun â€” Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
-const CACHE_VERSION = '3.5.0';
+const CACHE_VERSION = '3.5.1';
 const CACHE_NAME = `crochet-v${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -92,7 +92,7 @@ async function networkFirst(request) {
     return response;
   } catch {
     const cached = await caches.match(request);
-    return cached || new Response('Offline — geen verbinding 🧶', {
+    return cached || new Response('Offline â€” geen verbinding ðŸ§¶', {
       status: 503,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
