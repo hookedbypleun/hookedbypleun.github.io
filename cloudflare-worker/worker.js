@@ -595,6 +595,50 @@ export default {
         return jsonResponse(result, 200, cors);
       }
 
+      // === /admin/import-kv POST — eenmalige migratie van oude KV-events naar D1 ===
+      // Auth-protected. Walkt door alle event:* keys, parsed JSON, INSERT in D1.
+      // Idempotent: skip als ts al bestaat. Loopt batchgewijs (KV limiet 1000/list).
+      if (url.pathname === '/admin/import-kv' && request.method === 'POST') {
+        if (!env.STATS || !env.DB) return jsonResponse({ error: 'no_stores' }, 500, cors);
+        let imported = 0, skipped = 0, errors = 0;
+        let cursor;
+        const dryRun = url.searchParams.get('dry') === '1';
+        do {
+          const page = await env.STATS.list({ prefix: 'event:', cursor });
+          for (const k of page.keys) {
+            try {
+              const raw = await env.STATS.get(k.name);
+              if (!raw) continue;
+              const e = JSON.parse(raw);
+              if (!e.ts || !e.type) continue;
+              // Duplicate-check: zelfde ts + type al in D1?
+              const exists = await env.DB.prepare(
+                `SELECT id FROM events WHERE ts = ? AND type = ? LIMIT 1`
+              ).bind(e.ts, e.type).first();
+              if (exists) { skipped++; continue; }
+              if (!dryRun) {
+                const d = new Date(e.ts);
+                const day = d.toISOString().slice(0, 10);
+                const hour = d.getUTCHours();
+                await env.DB.prepare(
+                  `INSERT INTO events (ts, day, hour, type, path, product_id, kleur, device, country, ref, postcode, visitor_id, is_bot, ua_class)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'imported')`
+                ).bind(
+                  e.ts, day, hour, e.type,
+                  e.path || null, e.productId || null, e.kleur || null,
+                  e.device || null, e.country || null, e.ref || null,
+                  e.postcode || null, null
+                ).run();
+              }
+              imported++;
+            } catch { errors++; }
+          }
+          cursor = page.cursor;
+          if (page.list_complete) break;
+        } while (cursor);
+        return jsonResponse({ ok: true, imported, skipped, errors, dryRun }, 200, cors);
+      }
+
       // === /stats GET — analytics summary (auth-protected) ===
       if (url.pathname === '/stats' && request.method === 'GET') {
         const days = Math.min(90, Math.max(1, parseInt(url.searchParams.get('days')) || 30));

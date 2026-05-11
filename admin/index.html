@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.5.5">
+  <link rel="stylesheet" href="../css/style.css?v=3.5.6">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -985,6 +985,18 @@
         <div id="xp-status" style="font-size:0.88rem; margin-bottom:0.5rem; color:var(--c-muted); font-weight:600"></div>
         <div id="xp-output" style="font-size:0.9rem; line-height:1.5; max-height:65vh; overflow-y:auto; border:1px solid var(--c-cream-dark); border-radius:var(--r-sm); padding:0.4rem; background:var(--c-cream)"></div>
       </div>
+
+      <!-- Eenmalige migratie van oude KV-stats naar D1 -->
+      <div style="background:white; border-radius:var(--r-md); padding:0.7rem 0.9rem; margin-top:0.9rem; box-shadow:var(--shadow-soft)">
+        <h4 style="margin:0 0 0.3rem; font-size:0.95rem">📥 Oude stats van vóór de migratie ophalen</h4>
+        <p style="font-size:0.82rem; color:var(--c-muted); margin:0 0 0.5rem">
+          De allereerste statistieken zaten in een ander opslagsysteem (KV). Klik hier om ze
+          toe te voegen aan de huidige database. Je kunt deze knop veilig meerdere keren klikken —
+          dubbel-importeren wordt voorkomen.
+        </p>
+        <button type="button" class="btn" id="xp-import-kv">📥 Importeer oude stats</button>
+        <span id="xp-import-status" style="margin-left:0.6rem; font-size:0.85rem"></span>
+      </div>
     </details>
 
     </section><!-- /tab-stats -->
@@ -1232,8 +1244,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.5.5"></script>
-  <script src="../js/sw-register.js?v=3.5.5"></script>
+  <script src="../js/config.js?v=3.5.6"></script>
+  <script src="../js/sw-register.js?v=3.5.6"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -4249,8 +4261,35 @@
     }
     window.sendTestEvent = sendTestEvent;
 
+    // Eenmalige import van oude KV-stats naar D1
+    async function importOldStats() {
+      const btn = document.getElementById('xp-import-kv');
+      const st = document.getElementById('xp-import-status');
+      if (!AI_PASSWORD || !workerUrl()) { st.textContent = '🔒 Log eerst in.'; return; }
+      btn.disabled = true;
+      st.textContent = '⏳ Bezig met importeren…';
+      try {
+        const res = await fetch(workerUrl() + '/admin/import-kv', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + AI_PASSWORD },
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'HTTP ' + res.status);
+        st.innerHTML = `✅ <strong>${data.imported}</strong> events toegevoegd · ${data.skipped} al aanwezig${data.errors ? ' · ' + data.errors + ' fouten' : ''}`;
+        if (data.imported > 0) setTimeout(xpLoad, 800);
+      } catch (err) {
+        st.innerHTML = `<span style="color:#B71C1C">⚠️ ${escapeHtmlAdmin(err.message || err)}</span>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+    window.importOldStats = importOldStats;
+
     // Init explorer bij DOMReady + auto-load wanneer stats-details opent
-    document.addEventListener('DOMContentLoaded', () => setTimeout(xpInit, 100));
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(xpInit, 100);
+      document.getElementById('xp-import-kv')?.addEventListener('click', importOldStats);
+    });
 
     // Auto-load bij open klikken + period-toggle
     document.addEventListener('DOMContentLoaded', () => {
