@@ -165,48 +165,14 @@ function _markVisitor(day, hash) {
 const _liveFeed = [];
 
 async function trackEvent({ type, path, productId, kleur, ref, country, device, postcode, postcodeType, visitorId }, env) {
-  const day = todayUTC();
-  const tasks = [];
-  const safe = s => String(s || '').slice(0, 80).replace(/[\r\n\t]/g, ' ').replace(/[:|]/g, '_');
+  const now = new Date();
+  const ts = now.getTime();
+  const day = now.toISOString().slice(0, 10);
+  const hour = now.getUTCHours();
 
-  if (type === 'pageview') {
-    tasks.push(statsIncrement(env, `pv:${day}:${safe(path) || '/'}`));
-    tasks.push(statsIncrement(env, `total:pv:${day}`));
-    // Unique-visitor: gebruik in-memory dedup binnen isolate (gratis)
-    // Bij eerste visitor in isolate → schrijf 1 PUT naar total:unique:{day}
-    if (visitorId && _markVisitor(day, visitorId)) {
-      tasks.push(statsIncrement(env, `total:unique:${day}`));
-    }
-    // OPGEMERKT: geo/dev/ref counters zijn uitgeschakeld om binnen 1000 PUT/dag
-    // budget van Cloudflare KV gratis tier te blijven. Bij upgrade naar D1 of
-    // Workers Paid kunnen ze terug aangezet worden.
-    // if (country) tasks.push(statsIncrement(env, `geo:${day}:${safe(country)}`));
-    // if (device) tasks.push(statsIncrement(env, `dev:${day}:${safe(device)}`));
-    // if (ref) tasks.push(statsIncrement(env, `ref:${day}:${safe(ref)}`));
-  } else if (type === 'product_view') {
-    if (productId) tasks.push(statsIncrement(env, `prod:${day}:${safe(productId)}`));
-  } else if (type === 'cart_add') {
-    if (productId) {
-      const k = kleur ? `${safe(productId)}|${safe(kleur)}` : safe(productId);
-      tasks.push(statsIncrement(env, `cart:${day}:${k}`));
-      tasks.push(statsIncrement(env, `total:cart:${day}`));
-    }
-  } else if (type === 'cart_open') {
-    tasks.push(statsIncrement(env, `total:cart_open:${day}`));
-  } else if (type === 'whatsapp_click') {
-    tasks.push(statsIncrement(env, `total:wa:${day}`));
-  } else if (type === 'review_submit') {
-    tasks.push(statsIncrement(env, `total:review:${day}`));
-  } else if (type === 'postcode_check') {
-    tasks.push(statsIncrement(env, `pc:${day}:${safe(postcode || '?')}`));
-    if (postcodeType) tasks.push(statsIncrement(env, `pc-type:${day}:${safe(postcodeType)}`));
-  }
-  await Promise.all(tasks);
-
-  // Event record (gedeeld door in-memory feed, KV-feed en KV-history)
+  // Event record voor in-memory feed (per Worker isolate)
   const evRecord = {
-    ts: Date.now(),
-    type,
+    ts, type,
     path: path || null,
     productId: productId || null,
     kleur: kleur || null,
@@ -215,107 +181,118 @@ async function trackEvent({ type, path, productId, kleur, ref, country, device, 
     ref: ref || null,
     postcode: postcode || null,
   };
-
-  // In-memory feed (per Worker isolate) — fallback als KV-PUT faalt of niet werkt
   _liveFeed.unshift(evRecord);
   if (_liveFeed.length > 20) _liveFeed.length = 20;
 
-  // Persistente feed:recent in KV + event:YYYY-MM-DD:HH:MM:SS keys voor history
-  // KV PUT-limiet (gratis tier) = 1000/dag — bij overschrijding silent fail,
-  // dan blijven we leunen op de in-memory _liveFeed.
-  if (env && env.STATS) {
+  // Persistente write naar D1 — gratis tier 100k writes/dag.
+  // Alle stats worden hieruit ge-querid via SQL. Geen KV-writes meer per event.
+  if (env && env.DB) {
     try {
-      // Live feed (cross-isolate zichtbaar)
-      const feedRaw = await env.STATS.get('feed:recent');
-      const feed = feedRaw ? JSON.parse(feedRaw) : [];
-      feed.unshift(evRecord);
-      const trimmed = feed.slice(0, 20);
-      await env.STATS.put('feed:recent', JSON.stringify(trimmed), { expirationTtl: 60 * 60 * 24 * 7 });
-
-      // Per-event key voor history-search (datum/uur/type filter)
-      const now = new Date();
-      const dayPart = now.toISOString().slice(0, 10);
-      const timePart = now.toISOString().slice(11, 23);
-      const rnd = Math.random().toString(36).slice(2, 7);
-      const histKey = `event:${dayPart}:${timePart}-${rnd}`;
-      await env.STATS.put(histKey, JSON.stringify(evRecord), { expirationTtl: 60 * 60 * 24 * 60 });
-    } catch { /* KV fail — in-memory feed neemt het over */ }
+      await env.DB.prepare(
+        `INSERT INTO events (ts, day, hour, type, path, product_id, kleur, device, country, ref, postcode, visitor_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        ts, day, hour, type,
+        path || null,
+        productId || null,
+        kleur || null,
+        device || null,
+        country || null,
+        ref || null,
+        postcode || null,
+        visitorId || null
+      ).run();
+    } catch { /* D1 fail — events verloren maar tracker blijft werken */ }
   }
 }
 
-// Stats query — geeft alle counters voor laatste N dagen
+// Stats query — D1 SQL-aggregations voor de laatste N dagen
 async function getStatsSummary(env, days = 30) {
-  const today = todayUTC();
+  if (!env.DB) return { backed_by: 'none', days, totals: {}, timeseries: {}, top: {} };
+  const sinceDate = new Date();
+  sinceDate.setUTCDate(sinceDate.getUTCDate() - (days - 1));
+  const since = sinceDate.toISOString().slice(0, 10);
+
+  // Bouw datum-reeks
   const dates = [];
-  for (let i = 0; i < days; i++) {
+  for (let i = days - 1; i >= 0; i--) {
     const d = new Date();
     d.setUTCDate(d.getUTCDate() - i);
     dates.push(d.toISOString().slice(0, 10));
   }
+  const emptySeries = () => dates.map(d => ({ date: d, value: 0 }));
 
-  // Aggregeer per categorie
-  const sumByPrefix = async (prefix) => {
-    const items = await statsListByPrefix(env, prefix);
-    return items.reduce((s, [, v]) => s + v, 0);
-  };
-  const groupByPrefix = async (prefix) => {
-    const items = await statsListByPrefix(env, prefix);
-    const groups = {};
-    for (const [k, v] of items) {
-      // k = "prefix:date:value" — pak waarde-deel
-      const parts = k.split(':');
-      const value = parts.slice(2).join(':');
-      groups[value] = (groups[value] || 0) + v;
-    }
-    return Object.entries(groups).sort((a, b) => b[1] - a[1]);
-  };
+  // Eén grote SQL-query voor totalen per type
+  const totalsByType = await env.DB.prepare(
+    `SELECT type, COUNT(*) AS n FROM events WHERE day >= ? GROUP BY type`
+  ).bind(since).all();
+  const totals = { pageviews: 0, cart_adds: 0, cart_opens: 0, whatsapp_clicks: 0, reviews: 0 };
+  for (const row of (totalsByType.results || [])) {
+    if (row.type === 'pageview') totals.pageviews = row.n;
+    else if (row.type === 'cart_add') totals.cart_adds = row.n;
+    else if (row.type === 'cart_open') totals.cart_opens = row.n;
+    else if (row.type === 'whatsapp_click') totals.whatsapp_clicks = row.n;
+    else if (row.type === 'review_submit') totals.reviews = row.n;
+  }
+  const uniqueRow = await env.DB.prepare(
+    `SELECT COUNT(DISTINCT visitor_id) AS n FROM events WHERE day >= ? AND visitor_id IS NOT NULL AND type='pageview'`
+  ).bind(since).first();
+  totals.unique_visitors = uniqueRow?.n || 0;
 
-  // Daily series
-  const dailySeries = async (totalKeyPrefix) => {
-    const items = await statsListByPrefix(env, totalKeyPrefix);
+  // Time-series per dag voor 4 hoofdmetrics
+  const seriesFor = async (whereType) => {
+    const rows = await env.DB.prepare(
+      `SELECT day, COUNT(*) AS n FROM events WHERE day >= ? AND type = ? GROUP BY day`
+    ).bind(since, whereType).all();
     const byDate = {};
-    for (const [k, v] of items) {
-      const date = k.replace(totalKeyPrefix, '');
-      byDate[date] = v;
-    }
-    return dates.slice().reverse().map(d => ({ date: d, value: byDate[d] || 0 }));
+    for (const r of (rows.results || [])) byDate[r.day] = r.n;
+    return dates.map(d => ({ date: d, value: byDate[d] || 0 }));
+  };
+  const seriesUniques = async () => {
+    const rows = await env.DB.prepare(
+      `SELECT day, COUNT(DISTINCT visitor_id) AS n FROM events WHERE day >= ? AND visitor_id IS NOT NULL AND type='pageview' GROUP BY day`
+    ).bind(since).all();
+    const byDate = {};
+    for (const r of (rows.results || [])) byDate[r.day] = r.n;
+    return dates.map(d => ({ date: d, value: byDate[d] || 0 }));
   };
 
-  const [
-    pageviewsTotal, uniquesTotal, cartTotal, cartOpenTotal, waTotal, reviewTotal,
-    pageviewsByDay, uniquesByDay, cartByDay, waByDay,
-    topPages, topProducts, topCart, topRefs, topGeo, topDevice, topPostcode,
-  ] = await Promise.all([
-    sumByPrefix('total:pv:'),
-    sumByPrefix('total:unique:'),
-    sumByPrefix('total:cart:'),
-    sumByPrefix('total:cart_open:'),
-    sumByPrefix('total:wa:'),
-    sumByPrefix('total:review:'),
-    dailySeries('total:pv:'),
-    dailySeries('total:unique:'),
-    dailySeries('total:cart:'),
-    dailySeries('total:wa:'),
-    groupByPrefix('pv:').then(r => r.slice(0, 10)),
-    groupByPrefix('prod:').then(r => r.slice(0, 10)),
-    groupByPrefix('cart:').then(r => r.slice(0, 10)),
-    groupByPrefix('ref:').then(r => r.slice(0, 10)),
-    groupByPrefix('geo:').then(r => r.slice(0, 10)),
-    groupByPrefix('dev:').then(r => r.slice(0, 5)),
-    groupByPrefix('pc:').then(r => r.slice(0, 10)),
+  // Top-N tabellen
+  const groupTop = async (column, where, limit = 10) => {
+    const sql = `SELECT ${column} AS k, COUNT(*) AS n FROM events
+                 WHERE day >= ? ${where ? 'AND ' + where : ''} AND ${column} IS NOT NULL AND ${column} != ''
+                 GROUP BY ${column} ORDER BY n DESC LIMIT ?`;
+    const rows = await env.DB.prepare(sql).bind(since, limit).all();
+    return (rows.results || []).map(r => [r.k, r.n]);
+  };
+  const groupCart = async (limit = 10) => {
+    const rows = await env.DB.prepare(
+      `SELECT product_id, kleur, COUNT(*) AS n FROM events
+       WHERE day >= ? AND type='cart_add' AND product_id IS NOT NULL
+       GROUP BY product_id, kleur ORDER BY n DESC LIMIT ?`
+    ).bind(since, limit).all();
+    return (rows.results || []).map(r => [r.kleur ? `${r.product_id}|${r.kleur}` : r.product_id, r.n]);
+  };
+
+  const [pageviewsByDay, cartByDay, waByDay, uniquesByDay,
+         topPages, topProducts, topCart, topRefs, topGeo, topDevice, topPostcode] = await Promise.all([
+    seriesFor('pageview'),
+    seriesFor('cart_add'),
+    seriesFor('whatsapp_click'),
+    seriesUniques(),
+    groupTop('path', "type='pageview'", 10),
+    groupTop('product_id', "type='product_view'", 10),
+    groupCart(10),
+    groupTop('ref', "type='pageview'", 10),
+    groupTop('country', "type='pageview'", 10),
+    groupTop('device', "type='pageview'", 5),
+    groupTop('postcode', "type='postcode_check'", 10),
   ]);
 
   return {
-    backed_by: env && env.STATS ? 'kv' : 'memory',
+    backed_by: 'd1',
     days,
-    totals: {
-      pageviews: pageviewsTotal,
-      unique_visitors: uniquesTotal,
-      cart_adds: cartTotal,
-      cart_opens: cartOpenTotal,
-      whatsapp_clicks: waTotal,
-      reviews: reviewTotal,
-    },
+    totals,
     timeseries: { pageviews: pageviewsByDay, unique_visitors: uniquesByDay, cart_adds: cartByDay, whatsapp_clicks: waByDay },
     top: {
       pages: topPages,
@@ -329,7 +306,42 @@ async function getStatsSummary(env, days = 30) {
   };
 }
 
+// === Self-check: ping de live site + Worker en log naar D1 ===
+async function runHealthCheck(env) {
+  if (!env.DB) return;
+  const targets = [
+    { name: 'homepage', url: 'https://hookedbypleun.github.io/index.html' },
+    { name: 'galerij',  url: 'https://hookedbypleun.github.io/galerij.html' },
+    { name: 'items.json', url: 'https://hookedbypleun.github.io/data/items.json' },
+  ];
+  for (const t of targets) {
+    const start = Date.now();
+    let status = 0, ok = 0;
+    try {
+      const r = await fetch(t.url, { cf: { cacheTtl: 0 } });
+      status = r.status;
+      ok = r.ok ? 1 : 0;
+    } catch { /* status blijft 0 */ }
+    const latency = Date.now() - start;
+    try {
+      await env.DB.prepare(
+        `INSERT INTO health_checks (ts, target, status, latency, ok) VALUES (?, ?, ?, ?, ?)`
+      ).bind(Date.now(), t.name, status, latency, ok).run();
+    } catch {}
+  }
+  // Hou alleen laatste 7 dagen aan health-history (1-time cleanup per cron)
+  try {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    await env.DB.prepare(`DELETE FROM health_checks WHERE ts < ?`).bind(cutoff).run();
+  } catch {}
+}
+
 export default {
+  // Cron-trigger (elke 15 min) → self-check
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runHealthCheck(env));
+  },
+
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin);
@@ -479,70 +491,80 @@ export default {
         return jsonResponse(summary, 200, cors);
       }
 
-      // === /stats/history GET — events tussen 2 datums, optionele type-filter ===
-      // Persistente event-history is uitgeschakeld om binnen Cloudflare KV
-      // gratis tier limiet (1000 PUTs/dag) te blijven. Pas weer beschikbaar
-      // bij migratie naar D1 of upgrade naar Workers Paid plan.
+      // === /stats/history GET — D1 SQL: events tussen 2 datums + filters ===
       if (url.pathname === '/stats/history' && request.method === 'GET') {
-        if (!env.STATS) return jsonResponse({ events: [], total: 0, reason: 'no_kv' }, 200, cors);
-        const from = url.searchParams.get('from') || todayUTC();    // YYYY-MM-DD
+        if (!env.DB) return jsonResponse({ events: [], total: 0, reason: 'no_d1' }, 200, cors);
+        const from = url.searchParams.get('from') || todayUTC();
         const to = url.searchParams.get('to') || from;
-        const hour = url.searchParams.get('hour');                  // optional 'HH'
+        const hourParam = url.searchParams.get('hour');
         const filterType = url.searchParams.get('type') || '';
         const limit = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('limit')) || 500));
 
-        // Bouw datum-range
-        const days = [];
-        const fromDate = new Date(from + 'T00:00:00Z');
-        const toDate = new Date(to + 'T00:00:00Z');
-        for (let d = new Date(fromDate); d <= toDate; d.setUTCDate(d.getUTCDate() + 1)) {
-          days.push(d.toISOString().slice(0, 10));
-        }
+        let sql = `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode
+                   FROM events WHERE day >= ? AND day <= ?`;
+        const params = [from, to];
+        if (hourParam) { sql += ` AND hour = ?`; params.push(parseInt(hourParam)); }
+        if (filterType) { sql += ` AND type = ?`; params.push(filterType); }
+        sql += ` ORDER BY ts DESC LIMIT ?`;
+        params.push(limit);
 
-        const events = [];
-        for (const day of days) {
-          if (events.length >= limit) break;
-          const prefix = hour ? `event:${day}:${hour}` : `event:${day}`;
-          let cursor;
-          do {
-            const page = await env.STATS.list({ prefix, cursor, limit: 1000 });
-            for (const k of page.keys) {
-              if (events.length >= limit) break;
-              const v = await env.STATS.get(k.name);
-              if (!v) continue;
-              try {
-                const ev = JSON.parse(v);
-                if (filterType && ev.type !== filterType) continue;
-                ev.key = k.name;
-                events.push(ev);
-              } catch {}
-            }
-            cursor = page.cursor;
-            if (page.list_complete) break;
-          } while (cursor && events.length < limit);
-        }
-        // Nieuwste eerst
-        events.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-        return jsonResponse({ events, total: events.length, from, to, hour, type: filterType, limit }, 200, cors);
+        const result = await env.DB.prepare(sql).bind(...params).all();
+        const events = (result.results || []).map(r => ({
+          ts: r.ts,
+          type: r.type,
+          path: r.path,
+          productId: r.product_id,
+          kleur: r.kleur,
+          device: r.device,
+          country: r.country,
+          ref: r.ref,
+          postcode: r.postcode,
+        }));
+        return jsonResponse({ events, total: events.length, from, to, hour: hourParam, type: filterType, limit }, 200, cors);
       }
 
-      // === /stats/feed GET — KV-feed (cross-isolate), fallback in-memory ===
+      // === /stats/feed GET — D1 SQL: laatste 20 events cross-isolate ===
       if (url.pathname === '/stats/feed' && request.method === 'GET') {
         let feed = [];
         let source = 'memory';
-        if (env.STATS) {
+        if (env.DB) {
           try {
-            const raw = await env.STATS.get('feed:recent');
-            if (raw) {
-              feed = JSON.parse(raw);
-              source = 'kv';
-            }
+            const result = await env.DB.prepare(
+              `SELECT ts, type, path, product_id, kleur, device, country, ref, postcode
+               FROM events ORDER BY ts DESC LIMIT 20`
+            ).all();
+            feed = (result.results || []).map(r => ({
+              ts: r.ts,
+              type: r.type,
+              path: r.path,
+              productId: r.product_id,
+              kleur: r.kleur,
+              device: r.device,
+              country: r.country,
+              ref: r.ref,
+              postcode: r.postcode,
+            }));
+            source = 'd1';
           } catch { /* fallback in-memory */ }
         }
         if (feed.length === 0) feed = _liveFeed.slice(0, 20);
         const lastTs = feed[0]?.ts || 0;
         const secondsAgo = lastTs ? Math.floor((Date.now() - lastTs) / 1000) : null;
         return jsonResponse({ feed, secondsAgo, source }, 200, cors);
+      }
+
+      // === /health GET — self-check status (publiek) ===
+      if (url.pathname === '/health' && request.method === 'GET') {
+        let recent = null;
+        if (env.DB) {
+          try {
+            const r = await env.DB.prepare(
+              `SELECT target, status, latency, ok, ts FROM health_checks ORDER BY ts DESC LIMIT 10`
+            ).all();
+            recent = r.results || [];
+          } catch {}
+        }
+        return jsonResponse({ ok: true, ts: Date.now(), recent }, 200, cors);
       }
 
       if (url.pathname === '/auth') {

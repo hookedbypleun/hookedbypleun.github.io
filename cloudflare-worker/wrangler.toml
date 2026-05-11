@@ -8,8 +8,17 @@ compatibility_date = "2026-01-01"
 #   wrangler secret put GITHUB_TOKEN
 # Of via dashboard: Workers & Pages → crochet-by-pleun → Settings → Variables
 
-# === Stats KV — privacy-first analytics (sinds v3.2.0) ===
-# Aangemaakt op 2026-05-10 via: npx wrangler kv namespace create STATS
+# === Stats KV — visitor-dedup + dag-aggregates (sinds v3.2.0) ===
 [[kv_namespaces]]
 binding = "STATS"
 id = "57b9abd7aa0b4cd2b79ad69a6102eea3"
+
+# === Stats D1 — events-history (sinds v3.5.0, 100k writes/dag) ===
+[[d1_databases]]
+binding = "DB"
+database_name = "hooked-stats"
+database_id = "5cfada4d-40d5-42c9-87ad-b400ae76bb6e"
+
+# === Self-check cron (elke 15 min) — controleert of de site nog leeft ===
+[triggers]
+crons = ["*/15 * * * *"]
