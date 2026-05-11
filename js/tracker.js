@@ -1,11 +1,11 @@
-// Hooked by Pleun â€” privacy-first event tracker (sinds v3.5.1)
+// Hooked by Pleun — privacy-first event tracker (sinds v3.5.1)
 // Stuurt anonieme events naar Worker /track. Geen cookies, geen IP-opslag,
-// geen UA-strings â€” alleen mobile/desktop classificatie.
+// geen UA-strings — alleen mobile/desktop classificatie.
 //
 // Public API:
-//   window.Track.pageview()    â€” auto bij DOMContentLoaded
+//   window.Track.pageview()    — auto bij DOMContentLoaded
 //   window.Track.event(type, payload)
-//   window.Track.product(id)   â€” productpagina view
+//   window.Track.product(id)   — productpagina view
 //   window.Track.cartAdd(id, kleur)
 //   window.Track.cartOpen()
 //   window.Track.whatsappClick()
@@ -16,7 +16,7 @@
   const cfg = window.SHOP_CONFIG || {};
   const workerUrl = (cfg.workerUrl || '').replace(/\/$/, '');
 
-  // Geen tracker zonder Worker URL â€” graceful fallback
+  // Geen tracker zonder Worker URL — graceful fallback
   if (!workerUrl) {
     window.Track = new Proxy({}, { get: () => () => {} });
     return;
@@ -44,9 +44,9 @@
   async function send(payload) {
     try {
       const body = JSON.stringify(payload);
-      // fetch + keepalive werkt ook bij unload Ã©n correct met CORS-preflight
+      // fetch + keepalive werkt ook bij unload én correct met CORS-preflight
       // (sendBeacon met application/json triggert preflight die door browsers
-      //  niet altijd correct wordt afgehandeld â€” POST volgt dan niet)
+      //  niet altijd correct wordt afgehandeld — POST volgt dan niet)
       fetch(workerUrl + '/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,7 @@
         keepalive: true,
         mode: 'cors',
       }).catch(() => {});
-    } catch { /* ignore â€” analytics never crashes the page */ }
+    } catch { /* ignore — analytics never crashes the page */ }
   }
 
   window.Track = {

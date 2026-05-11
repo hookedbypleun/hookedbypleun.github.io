@@ -1,4 +1,4 @@
-// Crochet by Pleun â€” Centrale configuratie
+// Crochet by Pleun — Centrale configuratie
 // Wijzig hier 1 regel om gedrag op de hele site aan te passen.
 
 window.SHOP_CONFIG = {
@@ -26,12 +26,12 @@ window.SHOP_CONFIG = {
   // Optioneel tweede contact (bv. ouder)
   whatsappBackup: "",
   whatsappBackupLabel: "WhatsApp Mama / Papa",
-  // Email-formulier (later in te vullen â€” Web3Forms / Formspree)
+  // Email-formulier (later in te vullen — Web3Forms / Formspree)
   emailFormUrl: "",
   // WhatsApp-kanaal voor VIP updates
   channelInviteUrl: "https://wa.me/channel/0029VbAMt8h0wIikbjZF8H22",
 
-  // === Pleun Express â€” gratis lokale bezorging ===
+  // === Pleun Express — gratis lokale bezorging ===
   localPostcodes: [
     { range: ["5074"], dorp: "Biezenmortel" },
     { range: ["5071"], dorp: "Udenhout" },
@@ -43,9 +43,9 @@ window.SHOP_CONFIG = {
   // 3 tarieven, automatisch het laagste benodigde tarief (op basis van items in cart)
   // Boven freeShippingThreshold euro -> gratis (van het tarief dat anders gerekend zou worden)
   shipping: {
-    brief:      { prijs: 2.95, label: 'Brievenbuspost',  icon: 'âœ‰ï¸' },  // klein/plat: scrunchies, sleutelhangers, onderzetters
-    brievenbus: { prijs: 4.75, label: 'Brievenbuspakje', icon: 'ðŸ“®' },  // gemiddeld: blobs, kleine diertjes, haakpakketten
-    pakket:     { prijs: 6.95, label: 'Pakketpost',      icon: 'ðŸ“¦' },  // groot: mutsen, tassen, grote knuffels
+    brief:      { prijs: 2.95, label: 'Brievenbuspost',  icon: '✉️' },  // klein/plat: scrunchies, sleutelhangers, onderzetters
+    brievenbus: { prijs: 4.75, label: 'Brievenbuspakje', icon: '📮' },  // gemiddeld: blobs, kleine diertjes, haakpakketten
+    pakket:     { prijs: 6.95, label: 'Pakketpost',      icon: '📦' },  // groot: mutsen, tassen, grote knuffels
   },
   // Categorie -> verzendklasse (kan per item worden overschreven via item.verzendklasse)
   verzendklassen: {
