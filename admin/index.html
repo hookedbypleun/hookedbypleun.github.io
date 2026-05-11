@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.5.1">
+  <link rel="stylesheet" href="../css/style.css?v=3.5.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -905,73 +905,73 @@
           <button type="button" class="btn secondary" id="xp-refresh">↻ Ververs</button>
           <button type="button" class="btn mustard" onclick="sendTestEvent()">🧪 Test-event</button>
         </div>
-        <p style="font-size:0.78rem; color:var(--c-muted); margin:0 0 0.6rem">
-          Pleun-modus: zie precies wie wat wanneer heeft gedaan. Filter op datum, uur, type, land of bezoeker — tijden in Europe/Amsterdam.
-        </p>
-
-        <!-- Quick presets -->
-        <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem">
-          <button type="button" class="btn secondary xp-preset" data-preset="now">🕐 Laatste uur</button>
-          <button type="button" class="btn secondary xp-preset" data-preset="today">📅 Vandaag</button>
-          <button type="button" class="btn secondary xp-preset" data-preset="yesterday">📅 Gisteren</button>
-          <button type="button" class="btn secondary xp-preset" data-preset="7d">📅 7 dagen</button>
-          <button type="button" class="btn secondary xp-preset" data-preset="30d">📅 30 dagen</button>
+        <!-- Quick presets — primaire interactie -->
+        <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem">
+          <button type="button" class="btn xp-preset active" data-preset="today">Vandaag</button>
+          <button type="button" class="btn secondary xp-preset" data-preset="yesterday">Gisteren</button>
+          <button type="button" class="btn secondary xp-preset" data-preset="7d">7 dagen</button>
+          <button type="button" class="btn secondary xp-preset" data-preset="30d">30 dagen</button>
+          <button type="button" class="btn secondary xp-preset" data-preset="now" title="Alleen het laatste uur">🕐</button>
         </div>
 
-        <!-- Filters -->
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end; margin-bottom:0.5rem; font-size:0.82rem">
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Van datum</span>
-            <input type="date" id="xp-from" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Tot datum</span>
-            <input type="date" id="xp-to" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Vanaf uur</span>
-            <select id="xp-fromhour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Tot uur</span>
-            <select id="xp-tohour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Type</span>
-            <select id="xp-type" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
-              <option value="">— alle —</option>
-              <option value="pageview">👀 pageview</option>
-              <option value="product_view">🌸 product_view</option>
-              <option value="cart_add">🛒 cart_add</option>
-              <option value="cart_open">🎁 cart_open</option>
-              <option value="whatsapp_click">💬 whatsapp_click</option>
-              <option value="review_submit">⭐ review_submit</option>
-              <option value="postcode_check">📍 postcode_check</option>
-            </select>
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Land</span>
-            <input type="text" id="xp-country" maxlength="2" placeholder="bv NL" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:5em; text-transform:uppercase; font-family:inherit">
-          </label>
-          <label style="display:flex; flex-direction:column; gap:0.15rem">
-            <span style="color:var(--c-muted)">Bezoeker</span>
-            <input type="text" id="xp-visitor" placeholder="hash 4+ tekens" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:9em; font-family:monospace">
-          </label>
-          <button type="button" class="btn" id="xp-apply">🔍 Toon</button>
-          <button type="button" class="btn secondary" id="xp-csv">⬇️ CSV</button>
-        </div>
+        <!-- Geavanceerde filters — default ingeklapt -->
+        <details style="margin-bottom:0.6rem">
+          <summary style="cursor:pointer; font-size:0.85rem; color:var(--c-muted); user-select:none">🔧 Geavanceerd filteren (datum + uur + type + land + bezoeker)</summary>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end; margin-top:0.5rem; font-size:0.82rem">
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Van datum</span>
+              <input type="date" id="xp-from" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Tot datum</span>
+              <input type="date" id="xp-to" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Vanaf uur</span>
+              <select id="xp-fromhour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Tot uur</span>
+              <select id="xp-tohour" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit"></select>
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Soort actie</span>
+              <select id="xp-type" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); font-family:inherit">
+                <option value="">— alle —</option>
+                <option value="pageview">👀 pagina bezocht</option>
+                <option value="product_view">🌸 item bekeken</option>
+                <option value="cart_add">🛒 mandje gevuld</option>
+                <option value="cart_open">🎁 mandje geopend</option>
+                <option value="whatsapp_click">💬 WhatsApp geklikt</option>
+                <option value="review_submit">⭐ review geschreven</option>
+                <option value="postcode_check">📍 postcode-check</option>
+              </select>
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Land</span>
+              <input type="text" id="xp-country" maxlength="2" placeholder="bv NL" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:5em; text-transform:uppercase; font-family:inherit">
+            </label>
+            <label style="display:flex; flex-direction:column; gap:0.15rem">
+              <span style="color:var(--c-muted)">Bezoeker</span>
+              <input type="text" id="xp-visitor" placeholder="code 4+ tekens" style="padding:0.3em 0.5em; border:1.5px solid var(--c-cream-dark); border-radius:var(--r-sm); width:9em; font-family:monospace">
+            </label>
+            <button type="button" class="btn" id="xp-apply">🔍 Toon</button>
+            <button type="button" class="btn secondary" id="xp-csv">⬇️ CSV</button>
+            <button type="button" class="btn secondary" id="xp-reset">Reset</button>
+          </div>
+        </details>
 
-        <!-- View toggle -->
-        <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.5rem">
-          <button type="button" class="btn secondary xp-view active" data-view="sessions">🧑 Sessies</button>
+        <!-- View toggle — alleen 2 hoofd-views, anderen achter "meer" -->
+        <div style="display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.5rem; align-items:center">
+          <span style="font-size:0.8rem; color:var(--c-muted); margin-right:0.2rem">Toon als:</span>
+          <button type="button" class="btn secondary xp-view active" data-view="sessions">👥 Bezoekers</button>
           <button type="button" class="btn secondary xp-view" data-view="timeline">⏱️ Tijdlijn</button>
-          <button type="button" class="btn secondary xp-view" data-view="country">🌍 Per land</button>
-          <button type="button" class="btn secondary xp-view" data-view="types">🏷️ Per type</button>
+          <button type="button" class="btn secondary xp-view" data-view="country">🌍 Land</button>
+          <button type="button" class="btn secondary xp-view" data-view="types">🏷️ Type</button>
         </div>
 
-        <div id="xp-status" style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--c-muted)"></div>
-        <div id="xp-summary" style="font-size:0.82rem; margin-bottom:0.5rem"></div>
-        <div id="xp-output" style="font-size:0.85rem; line-height:1.45; max-height:600px; overflow-y:auto; border:1px solid var(--c-cream-dark); border-radius:var(--r-sm); padding:0.4rem; background:var(--c-cream)"></div>
+        <div id="xp-status" style="font-size:0.88rem; margin-bottom:0.5rem; color:var(--c-muted); font-weight:600"></div>
+        <div id="xp-output" style="font-size:0.9rem; line-height:1.5; max-height:65vh; overflow-y:auto; border:1px solid var(--c-cream-dark); border-radius:var(--r-sm); padding:0.4rem; background:var(--c-cream)"></div>
       </div>
     </details>
 
@@ -1102,7 +1102,11 @@
     .ms-btn.actief { background: var(--c-lavender); color: white; }
     /* Explorer view-toggle */
     .xp-view.active { background: var(--c-lavender); color: white; border-color: var(--c-lavender); }
-    .xp-preset:hover { background: var(--c-cream-dark); }
+    .xp-preset.active { background: var(--c-lavender); color: white; border-color: var(--c-lavender); }
+    .xp-preset:hover, .xp-view:hover { background: var(--c-cream-dark); }
+    @media (max-width: 600px) {
+      .xp-preset, .xp-view { font-size: 0.88rem; padding: 0.4em 0.7em; }
+    }
     .ms-btn-small { flex: 0 0 auto; font-size: 0.78rem; padding: 0.4em 0.8em; opacity: 0.7; }
     .ms-btn-small:hover { opacity: 1; }
 
@@ -1216,8 +1220,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.5.1"></script>
-  <script src="../js/sw-register.js?v=3.5.1"></script>
+  <script src="../js/config.js?v=3.5.2"></script>
+  <script src="../js/sw-register.js?v=3.5.2"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -3698,10 +3702,56 @@
     window.loadStats = loadStats;
 
     // ====================================================================
-    // BEZOEKERS-EXPLORER — NL-tijd, sessies, granulair filteren
+    // BEZOEKERS-EXPLORER — NL-tijd, sessies, menselijke taal
     // ====================================================================
     const _evIcon = { pageview: '👀', product_view: '🌸', cart_add: '🛒', cart_open: '🎁', whatsapp_click: '💬', review_submit: '⭐', postcode_check: '📍' };
-    const _evLabel = { pageview: 'pagina bekeken', product_view: 'item bekeken', cart_add: 'aan mandje toegevoegd', cart_open: 'mandje geopend', whatsapp_click: 'WhatsApp geklikt', review_submit: 'review ingestuurd', postcode_check: 'postcode-check' };
+
+    // Pad naar menselijke beschrijving
+    function prettyPath(path) {
+      if (!path) return '';
+      if (path === '/' || path === '/index.html') return 'homepage';
+      if (path === '/galerij.html') return 'galerij';
+      if (path === '/over.html') return 'over-pagina';
+      if (path === '/bestellen.html') return 'bestel-pagina';
+      if (path === '/reviews.html') return 'reviews-pagina';
+      if (path === '/eerder.html') return 'eerder-gemaakt';
+      if (path.startsWith('/product.html')) {
+        const m = path.match(/id=([^&]+)/);
+        return m ? `item ${decodeURIComponent(m[1])}` : 'product';
+      }
+      if (path === '/admin-test') return 'test-event';
+      return path.replace(/^\//, '').replace(/\.html$/, '');
+    }
+
+    // Menselijke beschrijving van een event
+    function prettyAction(e) {
+      const what = prettyPath(e.path);
+      switch (e.type) {
+        case 'pageview':       return `bekeek de ${what || 'pagina'}`;
+        case 'product_view':   return e.productId ? `bekeek <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' (' + escapeHtmlAdmin(e.kleur) + ')' : ''}` : 'bekeek een item';
+        case 'cart_add':       return e.productId ? `legde <strong>${escapeHtmlAdmin(e.productId)}</strong>${e.kleur ? ' (' + escapeHtmlAdmin(e.kleur) + ')' : ''} in het mandje` : 'voegde toe aan mandje';
+        case 'cart_open':      return 'opende het mandje';
+        case 'whatsapp_click': return 'klikte door naar WhatsApp 💌';
+        case 'review_submit':  return 'liet een review achter ⭐';
+        case 'postcode_check': return e.postcode ? `vulde postcode <strong>${escapeHtmlAdmin(e.postcode)}</strong> in` : 'vulde postcode in';
+        default: return escapeHtmlAdmin(e.type);
+      }
+    }
+
+    function prettyDevice(d) {
+      if (!d) return '';
+      const map = { mobile:'📱 telefoon', desktop:'💻 computer', tablet:'📱 tablet' };
+      return map[d] || `📱 ${escapeHtmlAdmin(d)}`;
+    }
+
+    function prettyDuration(ms) {
+      const s = Math.max(0, Math.round(ms / 1000));
+      if (s < 60) return `${s} sec`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return s % 60 === 0 ? `${m} min` : `${m} min`;
+      const h = Math.floor(m / 60);
+      return `${h}u ${m % 60}m`;
+    }
 
     // NL-tz formatters — onafhankelijk van browser-locale
     const _fmtNlFull = new Intl.DateTimeFormat('nl-NL', {
@@ -3778,8 +3828,20 @@
       document.getElementById('xp-apply')?.addEventListener('click', xpLoad);
       document.getElementById('xp-refresh')?.addEventListener('click', xpLoad);
       document.getElementById('xp-csv')?.addEventListener('click', xpExportCSV);
+      document.getElementById('xp-reset')?.addEventListener('click', () => {
+        document.getElementById('xp-type').value = '';
+        document.getElementById('xp-country').value = '';
+        document.getElementById('xp-visitor').value = '';
+        xpApplyPreset('today');
+      });
       document.querySelectorAll('.xp-preset').forEach(btn =>
-        btn.addEventListener('click', () => xpApplyPreset(btn.dataset.preset)));
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.xp-preset').forEach(b => {
+            b.classList.toggle('active', b === btn);
+            b.classList.toggle('secondary', b !== btn);
+          });
+          xpApplyPreset(btn.dataset.preset);
+        }));
       document.querySelectorAll('.xp-view').forEach(btn =>
         btn.addEventListener('click', () => {
           document.querySelectorAll('.xp-view').forEach(b => b.classList.remove('active'));
@@ -3858,15 +3920,29 @@
         const data = await res.json();
         _xpEvents = data.events || [];
 
-        const period = (from === to)
-          ? `${from} · ${fromHour}u–${toHour}u`
-          : `${from} t/m ${to} · ${fromHour}u–${toHour}u`;
-        const filters = [type && `type=${type}`, country && `land=${country}`, visitor && `bezoeker=${visitor}`].filter(Boolean).join(', ');
-        status.innerHTML = _xpEvents.length === 0
-          ? `Geen events in <strong>${escapeHtmlAdmin(period)}</strong>${filters ? ' ('+escapeHtmlAdmin(filters)+')' : ''}.`
-          : `✅ <strong>${_xpEvents.length}</strong> events in <strong>${escapeHtmlAdmin(period)}</strong>${filters ? ' ('+escapeHtmlAdmin(filters)+')' : ''}.`;
+        // Vriendelijke periode-omschrijving
+        let periodeLabel = '';
+        const today = todayNlISO();
+        const yest = daysAgoNlISO(1);
+        if (from === today && to === today) periodeLabel = 'vandaag';
+        else if (from === yest && to === yest) periodeLabel = 'gisteren';
+        else if (from === to) periodeLabel = from;
+        else periodeLabel = `${from} t/m ${to}`;
+        if (fromHour !== '0' || toHour !== '23') periodeLabel += ` · ${fromHour}u–${toHour}u`;
 
-        xpRenderSummary();
+        // Tel bezoekers
+        const visSet = new Set();
+        for (const e of _xpEvents) if (e.visitorId) visSet.add(e.visitorId);
+        const visN = visSet.size;
+
+        if (_xpEvents.length === 0) {
+          status.innerHTML = `Geen bezoekers ${escapeHtmlAdmin(periodeLabel)} 🌸`;
+        } else {
+          const visTxt = visN === 0 ? '' : (visN === 1 ? '<strong>1 bezoeker</strong>' : `<strong>${visN} bezoekers</strong>`);
+          const actTxt = `<strong>${_xpEvents.length}</strong> ${_xpEvents.length === 1 ? 'actie' : 'acties'}`;
+          status.innerHTML = `${visTxt}${visTxt ? ' · ' : ''}${actTxt} ${escapeHtmlAdmin(periodeLabel)}`;
+        }
+
         xpRender();
       } catch (err) {
         status.innerHTML = `<span style="color:#B71C1C">⚠️ ${escapeHtmlAdmin(err.message || err)}</span>`;
@@ -3930,7 +4006,13 @@
 
     function xpRender() {
       const output = document.getElementById('xp-output');
-      if (!_xpEvents.length) { output.innerHTML = '<p style="color:var(--c-muted); padding:0.6rem">Geen events 🌸</p>'; return; }
+      if (!_xpEvents.length) {
+        output.innerHTML = `<div style="padding:1.5rem; text-align:center; color:var(--c-muted)">
+          <div style="font-size:2rem; margin-bottom:0.4rem">🌸</div>
+          <p style="margin:0">Nog niemand geweest in deze periode.<br>Probeer een andere datum of "Reset" in 🔧 Geavanceerd.</p>
+        </div>`;
+        return;
+      }
       if (_xpView === 'sessions') return xpRenderSessions(output);
       if (_xpView === 'timeline') return xpRenderTimeline(output);
       if (_xpView === 'country')  return xpRenderCountry(output);
@@ -3939,43 +4021,38 @@
 
     function xpRenderSessions(output) {
       const sessions = xpGroupSessions(_xpEvents);
-      output.innerHTML = sessions.map(s => {
+      output.innerHTML = sessions.map((s, idx) => {
         const flag = countryFlag(s.country);
         const land = countryName(s.country);
         const vidShort = s.visitorId.slice(0, 8);
-        const dur = Math.max(0, Math.round((s.lastTs - s.firstTs) / 1000));
-        const durStr = dur < 60 ? `${dur}s` : `${Math.floor(dur/60)}m ${dur%60}s`;
-        const dev = s.device ? `📱 ${escapeHtmlAdmin(s.device)}` : '';
-        const eventsHtml = s.events.map(e => {
-          const detail = [
-            e.path && `<code style="background:var(--c-cream); padding:0 0.3em; border-radius:3px">${escapeHtmlAdmin(e.path)}</code>`,
-            e.productId && `🌸 <strong>${escapeHtmlAdmin(e.productId)}</strong>`,
-            e.kleur && `kleur ${escapeHtmlAdmin(e.kleur)}`,
-            e.ref && `via ${escapeHtmlAdmin(e.ref)}`,
-            e.postcode && `pc ${escapeHtmlAdmin(e.postcode)}`,
-          ].filter(Boolean).join(' · ');
-          return `<div style="display:flex; gap:0.5rem; padding:0.2rem 0.4rem; border-left:2px solid var(--c-lavender); margin-left:0.4rem; font-size:0.85rem">
-            <span style="color:var(--c-muted); min-width:75px; font-variant-numeric:tabular-nums">${nlTime(e.ts)}</span>
-            <span>${_evIcon[e.type] || '•'} ${escapeHtmlAdmin(_evLabel[e.type] || e.type)}</span>
-            ${detail ? `<span style="color:var(--c-muted)">— ${detail}</span>` : ''}
-          </div>`;
-        }).join('');
-        return `<div style="background:white; border-radius:var(--r-sm); margin-bottom:0.5rem; box-shadow:var(--shadow-soft); overflow:hidden">
-          <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; background:var(--c-cream); border-bottom:1px solid var(--c-cream-dark); flex-wrap:wrap">
-            <span style="font-size:1.3rem">${flag}</span>
-            <div style="flex:1; min-width:140px">
-              <div style="font-weight:700; font-size:0.9rem">${escapeHtmlAdmin(land)} · <span style="font-family:monospace; font-size:0.82rem; color:var(--c-muted)">${vidShort}</span></div>
-              <div style="font-size:0.76rem; color:var(--c-muted)">${nlFull(s.firstTs)} → ${nlTime(s.lastTs)} · duur ${durStr} · <strong>${s.events.length}</strong> actie${s.events.length === 1 ? '' : 's'} ${dev ? '· ' + dev : ''}</div>
+        const durStr = prettyDuration(s.lastTs - s.firstTs);
+        const dev = prettyDevice(s.device);
+        const eventsHtml = s.events.map(e =>
+          `<li style="padding:0.25rem 0; display:flex; gap:0.6rem; align-items:baseline">
+            <span style="color:var(--c-muted); min-width:55px; font-variant-numeric:tabular-nums; font-size:0.85rem">${nlTime(e.ts).slice(0,5)}</span>
+            <span style="flex:1">${_evIcon[e.type] || '•'} ${prettyAction(e)}</span>
+          </li>`
+        ).join('');
+        return `<div style="background:white; border-radius:var(--r-md); margin-bottom:0.6rem; box-shadow:var(--shadow-soft); overflow:hidden">
+          <div style="padding:0.65rem 0.85rem; background:linear-gradient(to right, var(--c-cream), white); border-bottom:1px solid var(--c-cream-dark)">
+            <div style="display:flex; align-items:center; gap:0.55rem; margin-bottom:0.15rem">
+              <span style="font-size:1.6rem; line-height:1">${flag}</span>
+              <span style="font-weight:700; font-size:1rem; flex:1">Iemand uit ${escapeHtmlAdmin(land)}</span>
+              <button class="btn secondary" title="Alleen deze bezoeker tonen" style="font-size:1rem; padding:0.15em 0.5em; line-height:1" onclick="document.getElementById('xp-visitor').value='${vidShort}';xpLoad()">🔍</button>
             </div>
-            <button class="btn secondary" style="font-size:0.75rem; padding:0.2em 0.6em" onclick="document.getElementById('xp-visitor').value='${vidShort}';xpLoad()">🔍 Alleen deze</button>
+            <div style="font-size:0.83rem; color:var(--c-muted); padding-left:2.15rem">
+              ${nlFull(s.firstTs)} · gebleven <strong>${durStr}</strong>${dev ? ' · ' + dev : ''}
+            </div>
           </div>
-          <div style="padding:0.4rem 0">${eventsHtml}</div>
+          <ol style="margin:0; padding:0.4rem 0.85rem 0.65rem 0.85rem; list-style:none">
+            ${eventsHtml}
+          </ol>
         </div>`;
       }).join('');
     }
 
     function xpRenderTimeline(output) {
-      // events zijn al DESC; groepeer per dag
+      // Groepeer per dag (events zijn DESC)
       const byDay = new Map();
       for (const e of _xpEvents) {
         const d = nlDay(e.ts);
@@ -3985,26 +4062,15 @@
       output.innerHTML = [...byDay.entries()].map(([day, evs]) => {
         const rows = evs.map(e => {
           const flag = countryFlag(e.country);
-          const vidShort = (e.visitorId || '').slice(0, 8);
-          const detail = [
-            e.path && `<code style="background:var(--c-cream); padding:0 0.3em; border-radius:3px">${escapeHtmlAdmin(e.path)}</code>`,
-            e.productId && `🌸 <strong>${escapeHtmlAdmin(e.productId)}</strong>`,
-            e.kleur && `kleur ${escapeHtmlAdmin(e.kleur)}`,
-            e.device && `${escapeHtmlAdmin(e.device)}`,
-            e.ref && `via ${escapeHtmlAdmin(e.ref)}`,
-            e.postcode && `pc ${escapeHtmlAdmin(e.postcode)}`,
-          ].filter(Boolean).join(' · ');
-          return `<div style="display:flex; gap:0.5rem; padding:0.25rem 0.4rem; border-bottom:1px solid var(--c-cream-dark); font-size:0.85rem; align-items:center">
-            <span style="color:var(--c-muted); min-width:75px; font-variant-numeric:tabular-nums">${nlTime(e.ts)}</span>
-            <span title="${escapeHtmlAdmin(countryName(e.country))}">${flag}</span>
-            <span style="font-family:monospace; font-size:0.75rem; color:var(--c-muted); min-width:74px">${vidShort}</span>
-            <span>${_evIcon[e.type] || '•'} ${escapeHtmlAdmin(e.type)}</span>
-            ${detail ? `<span style="color:var(--c-muted)">— ${detail}</span>` : ''}
-          </div>`;
+          return `<li style="display:flex; gap:0.55rem; padding:0.3rem 0.7rem; border-bottom:1px solid var(--c-cream-dark); align-items:baseline">
+            <span style="color:var(--c-muted); min-width:50px; font-variant-numeric:tabular-nums; font-size:0.85rem">${nlTime(e.ts).slice(0,5)}</span>
+            <span style="font-size:1.1rem" title="${escapeHtmlAdmin(countryName(e.country))}">${flag}</span>
+            <span style="flex:1">${_evIcon[e.type] || '•'} ${prettyAction(e)}</span>
+          </li>`;
         }).join('');
-        return `<div style="background:white; border-radius:var(--r-sm); margin-bottom:0.5rem; box-shadow:var(--shadow-soft); overflow:hidden">
-          <div style="padding:0.4rem 0.7rem; background:var(--c-lavender); color:white; font-weight:700; font-size:0.88rem">📅 ${day} · ${evs.length} events</div>
-          ${rows}
+        return `<div style="background:white; border-radius:var(--r-md); margin-bottom:0.5rem; box-shadow:var(--shadow-soft); overflow:hidden">
+          <div style="padding:0.5rem 0.85rem; background:var(--c-lavender); color:white; font-weight:700; font-size:0.95rem">📅 ${day} · ${evs.length} ${evs.length === 1 ? 'actie' : 'acties'}</div>
+          <ul style="margin:0; padding:0; list-style:none">${rows}</ul>
         </div>`;
       }).join('');
     }
@@ -4022,18 +4088,23 @@
         const flag = countryFlag(cc === '??' ? null : cc);
         const naam = countryName(cc === '??' ? null : cc);
         const lastEvent = g.events[0];
-        return `<div style="background:white; border-radius:var(--r-sm); margin-bottom:0.4rem; padding:0.5rem 0.7rem; box-shadow:var(--shadow-soft); display:flex; gap:0.7rem; align-items:center; flex-wrap:wrap">
-          <span style="font-size:1.5rem">${flag}</span>
-          <div style="flex:1; min-width:140px">
-            <div style="font-weight:700">${escapeHtmlAdmin(naam)}</div>
-            <div style="font-size:0.78rem; color:var(--c-muted)">${g.visitors.size} bezoeker${g.visitors.size === 1 ? '' : 's'} · ${g.events.length} event${g.events.length === 1 ? '' : 's'} · laatst ${nlFull(lastEvent.ts)}</div>
+        return `<div style="background:white; border-radius:var(--r-md); margin-bottom:0.5rem; padding:0.65rem 0.85rem; box-shadow:var(--shadow-soft); display:flex; gap:0.7rem; align-items:center">
+          <span style="font-size:1.8rem; line-height:1">${flag}</span>
+          <div style="flex:1; min-width:0">
+            <div style="font-weight:700; font-size:1rem">${escapeHtmlAdmin(naam)}</div>
+            <div style="font-size:0.82rem; color:var(--c-muted)">
+              <strong>${g.visitors.size}</strong> ${g.visitors.size === 1 ? 'bezoeker' : 'bezoekers'} ·
+              <strong>${g.events.length}</strong> ${g.events.length === 1 ? 'actie' : 'acties'}<br>
+              laatst gezien ${nlFull(lastEvent.ts)}
+            </div>
           </div>
-          <button class="btn secondary" style="font-size:0.75rem; padding:0.2em 0.6em" onclick="document.getElementById('xp-country').value='${cc}';xpLoad()">🔍 Alleen ${cc}</button>
+          <button class="btn secondary" title="Alleen dit land tonen" style="font-size:1rem; padding:0.15em 0.5em; line-height:1" onclick="document.getElementById('xp-country').value='${cc}';xpLoad()">🔍</button>
         </div>`;
       }).join('');
     }
 
     function xpRenderTypes(output) {
+      const labels = { pageview:'Pagina-bezoek', product_view:'Item bekeken', cart_add:'In het mandje gelegd', cart_open:'Mandje geopend', whatsapp_click:'WhatsApp geklikt', review_submit:'Review geschreven', postcode_check:'Postcode-check' };
       const byType = new Map();
       for (const e of _xpEvents) {
         if (!byType.has(e.type)) byType.set(e.type, []);
@@ -4043,10 +4114,16 @@
       output.innerHTML = sorted.map(([type, evs]) => {
         const last5 = evs.slice(0, 5);
         const rest = evs.length - last5.length;
-        const examples = last5.map(e => `<li>${nlFull(e.ts)} · ${countryFlag(e.country)} ${e.path ? '<code>'+escapeHtmlAdmin(e.path)+'</code>' : ''} ${e.productId ? '· 🌸 '+escapeHtmlAdmin(e.productId) : ''}</li>`).join('');
-        return `<div style="background:white; border-radius:var(--r-sm); margin-bottom:0.5rem; padding:0.5rem 0.7rem; box-shadow:var(--shadow-soft)">
-          <div style="font-weight:700; margin-bottom:0.3rem">${_evIcon[type]||'•'} ${escapeHtmlAdmin(_evLabel[type] || type)} <span style="color:var(--c-muted); font-weight:500">(${evs.length})</span></div>
-          <ul style="margin:0.2rem 0 0 1.2rem; font-size:0.83rem; color:var(--c-muted)">${examples}${rest > 0 ? '<li><em>+ '+rest+' meer</em></li>' : ''}</ul>
+        const examples = last5.map(e =>
+          `<li style="padding:0.2rem 0; display:flex; gap:0.5rem; align-items:baseline; border-bottom:1px solid var(--c-cream-dark)">
+            <span style="color:var(--c-muted); min-width:80px; font-size:0.8rem">${nlFull(e.ts)}</span>
+            <span>${countryFlag(e.country)}</span>
+            <span style="flex:1; font-size:0.88rem">${prettyAction(e)}</span>
+          </li>`
+        ).join('');
+        return `<div style="background:white; border-radius:var(--r-md); margin-bottom:0.5rem; padding:0.65rem 0.85rem; box-shadow:var(--shadow-soft)">
+          <div style="font-weight:700; margin-bottom:0.3rem; font-size:1rem">${_evIcon[type]||'•'} ${escapeHtmlAdmin(labels[type] || type)} <span style="color:var(--c-muted); font-weight:500; font-size:0.85rem">— ${evs.length}×</span></div>
+          <ul style="margin:0.3rem 0 0 0; padding:0; list-style:none">${examples}${rest > 0 ? '<li style="padding:0.3rem 0; color:var(--c-muted); font-style:italic; font-size:0.85rem">+ '+rest+' meer</li>' : ''}</ul>
         </div>`;
       }).join('');
     }
