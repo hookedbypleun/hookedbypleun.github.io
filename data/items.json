@@ -177,7 +177,7 @@
       "id": "leuke-scrunchie-voor-in-je-haa",
       "naam": "Scrunchie grijs (11 cm)",
       "categorie": "scrunchies",
-      "prijs": 2.25,
+      "prijs": 2.5,
       "beschrijving": "Zachte scrunchie in grijs (11 cm) 🎀 Past lekker in je haar of om je pols — gewoon altijd handig.",
       "kleuren": [
         "grijs"
@@ -193,14 +193,12 @@
       "varianten": [
         {
           "kleur": "",
-          "voorraad": 1,
           "fotos": [
             "img/items/leuke-scrunchie-voor-in-je-haa-v2-1.jpg"
           ]
         },
         {
           "kleur": "grijs",
-          "voorraad": 1,
           "fotos": [
             "img/items/leuke-scrunchie-voor-in-je-haa-grijs-1.jpg"
           ]
