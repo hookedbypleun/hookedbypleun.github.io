@@ -174,38 +174,6 @@
       ]
     },
     {
-      "id": "dit-is-een-aarbei-octopus-sleu",
-      "naam": "Aardbei-octopus sleutelhanger",
-      "categorie": "sleutelhangers",
-      "prijs": 3.75,
-      "beschrijving": "Aardbei-octopus sleutelhanger in donkerroze 🍓 Superschattig aan je tas — kleine octopus-armpjes, helemaal handgemaakt ✨",
-      "kleuren": [
-        "donkerroze"
-      ],
-      "altText": "Handgehaakt: aardbei-octopus sleutelhanger",
-      "afmeting": "5cm hoog",
-      "status": "beschikbaar",
-      "voorraad": 1,
-      "nieuw": true,
-      "uitgelicht": true,
-      "datumToegevoegd": "2026-05-09",
-      "foto": "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg",
-      "varianten": [
-        {
-          "kleur": "",
-          "fotos": [
-            "img/items/dit-is-een-aarbei-octopus-sleu-v2-1.jpg"
-          ]
-        },
-        {
-          "kleur": "",
-          "fotos": [
-            "img/items/dit-is-een-aarbei-octopus-sleu-donkerroze-1.jpg"
-          ]
-        }
-      ]
-    },
-    {
       "id": "leuke-scrunchie-voor-in-je-haa",
       "naam": "Scrunchie grijs (11 cm)",
       "categorie": "scrunchies",
