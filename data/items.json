@@ -1749,6 +1749,31 @@
           ]
         }
       ]
+    },
+    {
+      "id": "hoedje",
+      "naam": "Roze hoedje",
+      "categorie": "mutsen",
+      "prijs": 15,
+      "beschrijving": "Super leuk roze hoedje! Past bij iedereen!🩷",
+      "afmeting": "22",
+      "kleuren": [
+        "Licht roze"
+      ],
+      "foto": "img/items/item-mp6oro5o.jpg",
+      "varianten": [
+        {
+          "kleur": "licht roze🩷",
+          "fotos": [
+            "img/items/item-mp6oro5o.jpg",
+            "img/items/item-mp6os6pv.jpg"
+          ]
+        }
+      ],
+      "status": "beschikbaar",
+      "datumToegevoegd": "2026-05-15",
+      "uitgelicht": true,
+      "nieuw": true
     }
   ]
 }
