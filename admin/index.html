@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>🔧 Admin · Hooked by Pleun</title>
   <link rel="icon" type="image/png" href="../img/branding/app-icon.png">
-  <link rel="stylesheet" href="../css/style.css?v=3.5.6">
+  <link rel="stylesheet" href="../css/style.css?v=3.5.7">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -632,6 +632,9 @@
             <p style="font-size:0.78rem; color:var(--c-muted); margin:0.2em 0 0.6em; text-align:center">Schakel hier tussen de website-tekst en de WhatsApp-post</p>
           </div>
 
+          <!-- AI-provider banner — toont welke AI gebruikt is (Gemini / OpenRouter / Cloudflare) -->
+          <div id="ai-provider-banner" style="display:none; margin:0.4em 0; padding:0.4em 0.8em; border-radius:var(--r-sm); font-size:0.82rem; text-align:center"></div>
+
           <div class="wiz-panels">
             <!-- Website panel -->
             <div class="wiz-panel" id="panel-website">
@@ -1244,8 +1247,8 @@
     .bulk-photo-controls input[type="range"] { width: 100%; }
   </style>
 
-  <script src="../js/config.js?v=3.5.6"></script>
-  <script src="../js/sw-register.js?v=3.5.6"></script>
+  <script src="../js/config.js?v=3.5.7"></script>
+  <script src="../js/sw-register.js?v=3.5.7"></script>
   <script>
     const STORAGE_KEY = 'pleun_admin_data_v1';
     let DATA = { categories: [], items: [] };
@@ -2345,6 +2348,23 @@
     function refreshPreviews() {
       document.getElementById('prev-website').innerHTML = renderWebsitePreview(wizState.output?.website);
       document.getElementById('prev-social').innerHTML = renderSocialPreview(wizState.output?.social);
+      // Provider-banner — toont welke AI de tekst gegenereerd heeft
+      const banner = document.getElementById('ai-provider-banner');
+      const meta = wizState.output?._meta;
+      if (banner && meta?.provider) {
+        const isGemini = meta.provider === 'gemini';
+        const isFree = /:free/.test(meta.provider);
+        const bg = isGemini ? 'var(--c-cream)' : (isFree ? '#FFF3D6' : '#FFE6E6');
+        const col = isGemini ? 'var(--c-muted)' : '#8B6E00';
+        banner.style.background = bg;
+        banner.style.color = col;
+        banner.style.display = 'block';
+        banner.innerHTML = isGemini
+          ? `✨ Gegenereerd door <strong>Gemini</strong> (Pleuns standaard-AI)`
+          : `🔄 Gemini was bezet — gegenereerd door <strong>${esc(meta.providerLabel || meta.provider)}</strong>`;
+      } else if (banner) {
+        banner.style.display = 'none';
+      }
     }
 
     // ============================================================
@@ -2451,7 +2471,11 @@
           throw new Error(errText);
         }
         const newOutput = await res.json();
+        // Strip provider-meta uit panel-output; bewaar op wizState-niveau voor banner
+        const newMeta = newOutput._meta;
+        delete newOutput._meta;
         wizState.output[type] = newOutput;
+        if (newMeta) wizState.output._meta = newMeta;
         wizState.approved[type] = false;  // herziene versie moet opnieuw approved worden
         cmtEl.value = '';
         refreshPreviews();
@@ -3126,7 +3150,11 @@
           body: JSON.stringify({ item, instructie: txt }),
         });
         if (!res.ok) throw new Error(await res.text());
-        const { item: updated, notitie } = await res.json();
+        const smartResp = await res.json();
+        const { item: updated, notitie, _meta: smartMeta } = smartResp;
+        if (smartMeta && smartMeta.provider && smartMeta.provider !== 'gemini') {
+          setStatus(`🔄 ${smartMeta.providerLabel || smartMeta.provider} gebruikt (Gemini bezet)`, 'var(--c-muted)');
+        }
 
         // Vervang lokaal
         const idx = DATA.items.findIndex(i => i.id === item.id);

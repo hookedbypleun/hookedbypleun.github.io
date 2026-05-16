@@ -4,9 +4,14 @@ compatibility_date = "2026-01-01"
 
 # Secrets worden NIET hier gezet — gebruik:
 #   wrangler secret put ADMIN_PASSWORD
-#   wrangler secret put CLAUDE_API_KEY
+#   wrangler secret put GEMINI_API_KEY      (primary AI)
+#   wrangler secret put OPENROUTER_API_KEY  (fallback AI bij Gemini-quota)
 #   wrangler secret put GITHUB_TOKEN
 # Of via dashboard: Workers & Pages → crochet-by-pleun → Settings → Variables
+
+# === Cloudflare Workers AI — laatste-redmiddel AI-fallback (gratis 10k neurons/dag) ===
+[ai]
+binding = "AI"
 
 # === Stats KV — visitor-dedup + dag-aggregates (sinds v3.2.0) ===
 [[kv_namespaces]]

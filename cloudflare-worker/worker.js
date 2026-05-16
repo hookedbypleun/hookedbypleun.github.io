@@ -854,28 +854,49 @@ const CATEGORIEEN = ['diertjes', 'scrunchies', 'blobs', 'sleutelhangers', 'mutse
 // ================================================================
 // Gemini call helper
 // ================================================================
-async function callGemini({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200 }) {
-  if (!env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY niet ingesteld in Worker secrets');
+// ============================================================
+// AI provider chain — Gemini → OpenRouter (gratis) → Cloudflare AI
+// ============================================================
+// Bij quota-exhausted of fail van provider N: door naar provider N+1.
+// Eerste die slaagt wint. Provider-naam wordt in response meegegeven.
+// ============================================================
+
+// Herken "quota/spending cap/rate limit" vs echte fout — eerste = fallback OK.
+function _isQuotaError(status, errText) {
+  if (status === 429) return true;
+  const t = String(errText || '').toLowerCase();
+  return /resource[_ ]exhausted|monthly spending cap|quota|rate[_ ]limit|capacity|overloaded/i.test(t);
+}
+
+function _parseAIJson(text, finishReason) {
+  if (!text) throw new Error('Lege AI response');
+  try { return JSON.parse(text); } catch {}
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) {
+    try { return JSON.parse(match[0]); } catch {}
+  }
+  const repaired = repairTruncatedJson(text);
+  if (repaired) {
+    try { return JSON.parse(repaired); } catch {}
+  }
+  if (finishReason === 'MAX_TOKENS' || finishReason === 'length') {
+    throw new Error('AI-response te lang afgekapt — probeer "kortere" tekst of vraag een nieuwe versie.');
+  }
+  throw new Error('AI gaf een onleesbaar antwoord. Probeer opnieuw.');
+}
+
+async function _callGemini({ prompt, photoBase64, mediaType, env, temperature, maxTokens }) {
+  if (!env.GEMINI_API_KEY) throw Object.assign(new Error('no_key'), { skipFallback: false });
 
   const parts = [{ text: prompt }];
   if (photoBase64) {
     const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, '');
-    parts.push({
-      inline_data: {
-        mime_type: mediaType || 'image/jpeg',
-        data: cleanBase64,
-      },
-    });
+    parts.push({ inline_data: { mime_type: mediaType || 'image/jpeg', data: cleanBase64 } });
   }
-
   const body = {
     contents: [{ role: 'user', parts }],
     systemInstruction: { parts: [{ text: PLEUN_VOICE }] },
-    generationConfig: {
-      temperature,
-      maxOutputTokens: maxTokens,
-      responseMimeType: 'application/json',
-    },
+    generationConfig: { temperature, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
   };
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`;
@@ -887,32 +908,151 @@ async function callGemini({ prompt, photoBase64, mediaType, env, temperature = 0
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Gemini API ${res.status}: ${errText}`);
+    const err = new Error(`Gemini API ${res.status}: ${errText.slice(0, 300)}`);
+    err.isQuota = _isQuotaError(res.status, errText);
+    throw err;
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  const finishReason = data.candidates?.[0]?.finishReason;
-  if (!text) throw new Error('Lege Gemini response: ' + JSON.stringify(data).slice(0, 300));
+  return _parseAIJson(
+    data.candidates?.[0]?.content?.parts?.[0]?.text,
+    data.candidates?.[0]?.finishReason
+  );
+}
 
-  try {
-    return JSON.parse(text);
-  } catch {
-    // Probeer 1: regex extract
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try { return JSON.parse(match[0]); } catch {}
-    }
-    // Probeer 2: response was afgekapt — repareer onafgemaakte JSON
-    const repaired = repairTruncatedJson(text);
-    if (repaired) {
-      try { return JSON.parse(repaired); } catch {}
-    }
-    if (finishReason === 'MAX_TOKENS') {
-      throw new Error('AI-response te lang afgekapt — probeer "kortere" tekst of vraag een nieuwe versie.');
-    }
-    throw new Error('AI gaf een onleesbaar antwoord. Probeer opnieuw.');
+async function _callOpenRouter({ prompt, photoBase64, mediaType, env, temperature, maxTokens, model }) {
+  if (!env.OPENROUTER_API_KEY) throw Object.assign(new Error('no_key'), { isQuota: false });
+
+  const userContent = [{ type: 'text', text: prompt }];
+  if (photoBase64) {
+    const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, '');
+    userContent.push({
+      type: 'image_url',
+      image_url: { url: `data:${mediaType || 'image/jpeg'};base64,${cleanBase64}` },
+    });
   }
+
+  const body = {
+    model,
+    messages: [
+      { role: 'system', content: PLEUN_VOICE },
+      { role: 'user', content: userContent },
+    ],
+    temperature,
+    max_tokens: maxTokens,
+    response_format: { type: 'json_object' },
+  };
+
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://hookedbypleun.github.io',
+      'X-Title': 'Hooked by Pleun',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    const err = new Error(`OpenRouter ${model} ${res.status}: ${errText.slice(0, 300)}`);
+    err.isQuota = _isQuotaError(res.status, errText);
+    throw err;
+  }
+
+  const data = await res.json();
+  return _parseAIJson(
+    data.choices?.[0]?.message?.content,
+    data.choices?.[0]?.finish_reason
+  );
+}
+
+async function _callCloudflareAI({ prompt, photoBase64, env, maxTokens }) {
+  if (!env.AI) throw Object.assign(new Error('no_ai_binding'), { isQuota: false });
+
+  // Llama-3.2-11b-vision-instruct via Workers AI
+  const messages = [
+    { role: 'system', content: PLEUN_VOICE + '\n\nBELANGRIJK: Antwoord ALTIJD met geldig JSON, niets anders. Geen uitleg, geen markdown, alleen het JSON object.' },
+    { role: 'user', content: prompt },
+  ];
+  const input = { messages, max_tokens: maxTokens };
+
+  if (photoBase64) {
+    // Workers AI wil image als Uint8Array bytes
+    const cleanBase64 = photoBase64.replace(/^data:image\/\w+;base64,/, '');
+    const bin = atob(cleanBase64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    input.image = [...bytes];
+  }
+
+  let response;
+  try {
+    response = await env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', input);
+  } catch (e) {
+    const err = new Error(`Cloudflare AI: ${e.message || e}`);
+    err.isQuota = _isQuotaError(0, e.message);
+    throw err;
+  }
+
+  const text = response?.response || response?.result?.response || '';
+  return _parseAIJson(text);
+}
+
+// Hoofdwrapper — probeert providers in volgorde, retourneert resultaat + provider-naam.
+async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200 }) {
+  const attempts = [];
+  const args = { prompt, photoBase64, mediaType, env, temperature, maxTokens };
+
+  // 1. Gemini direct
+  if (env.GEMINI_API_KEY) {
+    try {
+      const result = await _callGemini(args);
+      return { result, provider: 'gemini', providerLabel: '✨ Gemini', attempts };
+    } catch (e) {
+      attempts.push({ provider: 'gemini', error: e.message.slice(0, 120), isQuota: !!e.isQuota });
+      if (!e.isQuota && e.message !== 'no_key') throw e;  // echte fout (geen quota) → meteen falen
+    }
+  }
+
+  // 2-3. OpenRouter — eerst gratis Gemini, dan gratis Llama Vision, dan paid Gemini
+  if (env.OPENROUTER_API_KEY) {
+    const orModels = [
+      'google/gemini-2.0-flash-exp:free',
+      'meta-llama/llama-3.2-11b-vision-instruct:free',
+      'google/gemini-2.5-flash',  // betaald — gebruikt OpenRouter credits
+    ];
+    for (const model of orModels) {
+      try {
+        const result = await _callOpenRouter({ ...args, model });
+        return { result, provider: 'openrouter:' + model, providerLabel: '🔄 ' + model.replace(':free', ' (gratis)').replace('google/', '').replace('meta-llama/', ''), attempts };
+      } catch (e) {
+        attempts.push({ provider: 'openrouter:' + model, error: e.message.slice(0, 120), isQuota: !!e.isQuota });
+        if (!e.isQuota && e.message !== 'no_key') {
+          // niet-quota fout — probeer volgende model alsnog (een model kan apart kapot zijn)
+        }
+      }
+    }
+  }
+
+  // 4. Cloudflare Workers AI — laatste redmiddel, Llama 3.2 Vision
+  if (env.AI) {
+    try {
+      const result = await _callCloudflareAI({ prompt, photoBase64, env, maxTokens });
+      return { result, provider: 'cloudflare-llama-vision', providerLabel: '☁️ Cloudflare Llama Vision', attempts };
+    } catch (e) {
+      attempts.push({ provider: 'cloudflare', error: e.message.slice(0, 120), isQuota: !!e.isQuota });
+    }
+  }
+
+  throw new Error('Alle AI-providers zijn op. Details: ' + JSON.stringify(attempts).slice(0, 500));
+}
+
+// Backward-compat: oude callGemini-aanroepen blijven werken, maar met fallback.
+async function callGemini(opts) {
+  const { result } = await callAI(opts);
+  return result;
 }
 
 // Repareer JSON die midden in een string is afgekapt: sluit string, sluit braces.
@@ -996,7 +1136,8 @@ ${schemas.join(',\n  ')}
 }`;
 
   const maxTokens = (wantWebsite && wantSocial) ? 3000 : 1500;
-  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens });
+  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens });
+  return { ...result, _meta: { provider, providerLabel } };
 }
 
 // ================================================================
@@ -1041,7 +1182,8 @@ Geef ALLEEN dit JSON-object terug, niets anders:
 
 ${schemaText}`;
 
-  return await callGemini({ prompt, photoBase64, mediaType, env, maxTokens: 2000 });
+  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens: 2000 });
+  return { ...result, _meta: { provider, providerLabel } };
 }
 
 // ================================================================
@@ -1103,8 +1245,10 @@ Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
   "_notitie": "1 zin in NL: wat is er aangepast (of waarom niet)"
 }`;
 
-  const result = await callGemini({ prompt, env, maxTokens: 3000, temperature: 0.4 });
+  const { result, provider, providerLabel } = await callAI({ prompt, env, maxTokens: 3000, temperature: 0.4 });
   if (!result || typeof result !== 'object') throw new Error('AI gaf onleesbaar antwoord');
+  result._aiProvider = provider;
+  result._aiProviderLabel = providerLabel;
 
   // Verzamel alle foto-paden uit het resultaat
   const resultPaden = new Set();
@@ -1145,8 +1289,11 @@ Geef ALLEEN dit JSON-object terug, zonder commentaar of markdown:
   // Splits notitie eruit voor de UI
   const notitie = result._notitie || '';
   delete result._notitie;
+  // Strip provider-meta uit het item (mag niet in items.json terechtkomen)
+  delete result._aiProvider;
+  delete result._aiProviderLabel;
 
-  return { item: result, notitie };
+  return { item: result, notitie, _meta: { provider, providerLabel } };
 }
 
 // ================================================================
