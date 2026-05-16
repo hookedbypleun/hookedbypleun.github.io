@@ -1001,52 +1001,61 @@ async function _callCloudflareAI({ prompt, photoBase64, env, maxTokens }) {
 }
 
 // Hoofdwrapper — probeert providers in volgorde, retourneert resultaat + provider-naam.
-async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200 }) {
+// Optioneel: validate(result) → false betekent "response onvolledig, probeer volgende provider".
+async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200, validate }) {
   const attempts = [];
   const args = { prompt, photoBase64, mediaType, env, temperature, maxTokens };
 
-  // 1. Gemini direct
-  if (env.GEMINI_API_KEY) {
+  const tryProvider = async (name, label, fn) => {
     try {
-      const result = await _callGemini(args);
-      return { result, provider: 'gemini', providerLabel: '✨ Gemini', attempts };
-    } catch (e) {
-      attempts.push({ provider: 'gemini', error: e.message.slice(0, 120), isQuota: !!e.isQuota });
-      if (!e.isQuota && e.message !== 'no_key') throw e;  // echte fout (geen quota) → meteen falen
-    }
-  }
-
-  // 2-3. OpenRouter — eerst gratis Gemini, dan gratis Llama Vision, dan paid Gemini
-  if (env.OPENROUTER_API_KEY) {
-    const orModels = [
-      'google/gemini-2.0-flash-exp:free',
-      'meta-llama/llama-3.2-11b-vision-instruct:free',
-      'google/gemini-2.5-flash',  // betaald — gebruikt OpenRouter credits
-    ];
-    for (const model of orModels) {
-      try {
-        const result = await _callOpenRouter({ ...args, model });
-        return { result, provider: 'openrouter:' + model, providerLabel: '🔄 ' + model.replace(':free', ' (gratis)').replace('google/', '').replace('meta-llama/', ''), attempts };
-      } catch (e) {
-        attempts.push({ provider: 'openrouter:' + model, error: e.message.slice(0, 120), isQuota: !!e.isQuota });
-        if (!e.isQuota && e.message !== 'no_key') {
-          // niet-quota fout — probeer volgende model alsnog (een model kan apart kapot zijn)
+      const result = await fn();
+      if (validate) {
+        const ok = validate(result);
+        if (!ok) {
+          attempts.push({ provider: name, error: 'validation_failed (onvolledige response)', isQuota: true });
+          return null;
         }
       }
-    }
-  }
-
-  // 4. Cloudflare Workers AI — laatste redmiddel, Llama 3.2 Vision
-  if (env.AI) {
-    try {
-      const result = await _callCloudflareAI({ prompt, photoBase64, env, maxTokens });
-      return { result, provider: 'cloudflare-llama-vision', providerLabel: '☁️ Cloudflare Llama Vision', attempts };
+      return { result, provider: name, providerLabel: label, attempts };
     } catch (e) {
-      attempts.push({ provider: 'cloudflare', error: e.message.slice(0, 120), isQuota: !!e.isQuota });
+      attempts.push({ provider: name, error: e.message.slice(0, 120), isQuota: !!e.isQuota });
+      if (!e.isQuota && e.message !== 'no_key') {
+        // Echte fout (niet quota, niet no_key) — gooi terug zodat upstream weet wat aan de hand is
+        // BEHALVE: bij parsing-fail van AI ("onleesbaar antwoord", "afgekapt") — probeer volgende provider
+        if (!/onleesbaar|afgekapt|max_tokens|truncated|length/i.test(e.message)) {
+          throw e;
+        }
+      }
+      return null;
+    }
+  };
+
+  // 1. Gemini direct
+  if (env.GEMINI_API_KEY) {
+    const r = await tryProvider('gemini', '✨ Gemini', () => _callGemini(args));
+    if (r) return r;
+  }
+
+  // 2-4. OpenRouter — eerst gratis Gemini, dan gratis Llama Vision, dan betaald Gemini
+  if (env.OPENROUTER_API_KEY) {
+    const orModels = [
+      ['google/gemini-2.0-flash-exp:free',                  '🔄 Gemini 2.0 Flash (gratis)'],
+      ['meta-llama/llama-3.2-11b-vision-instruct:free',     '🔄 Llama 3.2 Vision (gratis)'],
+      ['google/gemini-2.5-flash',                           '🔄 Gemini 2.5 Flash (betaald)'],
+    ];
+    for (const [model, label] of orModels) {
+      const r = await tryProvider('openrouter:' + model, label, () => _callOpenRouter({ ...args, model }));
+      if (r) return r;
     }
   }
 
-  throw new Error('Alle AI-providers zijn op. Details: ' + JSON.stringify(attempts).slice(0, 500));
+  // 5. Cloudflare Workers AI — laatste redmiddel
+  if (env.AI) {
+    const r = await tryProvider('cloudflare-llama-vision', '☁️ Cloudflare Llama Vision', () => _callCloudflareAI({ prompt, photoBase64, env, maxTokens }));
+    if (r) return r;
+  }
+
+  throw new Error('Alle AI-providers zijn op of gaven onvolledige antwoorden. Details: ' + JSON.stringify(attempts).slice(0, 500));
 }
 
 // Backward-compat: oude callGemini-aanroepen blijven werken, maar met fallback.
@@ -1123,6 +1132,11 @@ async function generateWithGemini(input, env) {
       ? 'een tekst voor op de site (productbeschrijving)'
       : 'een post voor Pleuns WhatsApp-kanaal';
 
+  const verplichteKeys = [
+    wantWebsite ? '"website"' : null,
+    wantSocial ? '"social"' : null,
+  ].filter(Boolean).join(' en ');
+
   const prompt = `Bekijk de foto en schrijf in Pleuns stem ${taakDesc} voor dit nieuwe haakwerkje.
 
 Input van Pleun:
@@ -1130,13 +1144,32 @@ ${inputBlok}
 
 Beschikbare categorieën: ${CATEGORIEEN.join(', ')}.
 
-Geef ALLEEN een JSON-object terug met deze exacte structuur (geen andere tekst):
+BELANGRIJK: Het JSON-object MOET de volgende top-level sleutels bevatten: ${verplichteKeys}.
+Sla GEEN enkele sleutel over — Pleun heeft ze allebei nodig.
+
+Geef ALLEEN dit JSON-object terug (geen andere tekst, geen markdown, geen uitleg):
 {
 ${schemas.join(',\n  ')}
 }`;
 
-  const maxTokens = (wantWebsite && wantSocial) ? 3000 : 1500;
-  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens });
+  const maxTokens = (wantWebsite && wantSocial) ? 4500 : 1800;
+
+  // Validator: response moet alle gevraagde top-level keys bevatten met geldige inhoud.
+  // Als een fallback-provider er één overslaat → probeer volgende provider.
+  const validate = (r) => {
+    if (!r || typeof r !== 'object') return false;
+    if (wantWebsite) {
+      if (!r.website || typeof r.website !== 'object') return false;
+      if (!r.website.naam || !r.website.beschrijving) return false;
+    }
+    if (wantSocial) {
+      if (!r.social || typeof r.social !== 'object') return false;
+      if (!r.social.tekst) return false;
+    }
+    return true;
+  };
+
+  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens, validate });
   return { ...result, _meta: { provider, providerLabel } };
 }
 
@@ -1182,7 +1215,12 @@ Geef ALLEEN dit JSON-object terug, niets anders:
 
 ${schemaText}`;
 
-  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens: 2000 });
+  const validateRefine = (r) => {
+    if (!r || typeof r !== 'object') return false;
+    if (type === 'website') return !!(r.naam && r.beschrijving);
+    return !!r.tekst;
+  };
+  const { result, provider, providerLabel } = await callAI({ prompt, photoBase64, mediaType, env, maxTokens: 2500, validate: validateRefine });
   return { ...result, _meta: { provider, providerLabel } };
 }
 
