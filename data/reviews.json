@@ -35,6 +35,18 @@
       "status": "approved",
       "cadeau": false,
       "uitgelicht": true
+    },
+    {
+      "id": "5fd959a0-2ee3-4249-aed1-29022406d71c",
+      "productId": "",
+      "productNaam": "",
+      "naam": "Tante Ilse",
+      "tekst": "Wat je ook koopt, Pleun maakt er een leuk cadeautje van. Leuk om zelf te houden, maar ook leuk om te geven. De scunchies draag ik dagelijks. \nIk ga snel weer iets bestellen!",
+      "rating": 5,
+      "datum": "2026-05-16",
+      "status": "pending",
+      "cadeau": false,
+      "uitgelicht": false
     }
   ]
 }
