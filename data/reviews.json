@@ -46,7 +46,7 @@
       "datum": "2026-05-16",
       "status": "approved",
       "cadeau": false,
-      "uitgelicht": false
+      "uitgelicht": true
     }
   ]
 }
