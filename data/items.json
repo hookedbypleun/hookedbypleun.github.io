@@ -72,7 +72,6 @@
       "varianten": [
         {
           "kleur": "",
-          "voorraad": 1,
           "fotos": [
             "img/items/dit-is-de-summer-party-collect-v1-1.jpg",
             "img/items/dit-is-de-summer-party-collect-v2-1.jpg",
@@ -81,23 +80,23 @@
         },
         {
           "kleur": "peach",
-          "voorraad": 1,
           "fotos": [
-            "img/items/dit-is-de-summer-party-collect-peach-1.jpg"
+            "img/items/dit-is-de-summer-party-collect-peach-1.jpg",
+            "img/items/dit-is-de-summer-party-collect-mp8f2922.jpg"
           ]
         },
         {
           "kleur": "lichtblauw",
-          "voorraad": 1,
           "fotos": [
-            "img/items/dit-is-de-summer-party-collect-lichtblauw-1.jpg"
+            "img/items/dit-is-de-summer-party-collect-lichtblauw-1.jpg",
+            "img/items/dit-is-de-summer-party-collect-mp8f2d77.jpg"
           ]
         },
         {
           "kleur": "oranje",
-          "voorraad": 1,
           "fotos": [
-            "img/items/dit-is-de-summer-party-collect-oranje-1.jpg"
+            "img/items/dit-is-de-summer-party-collect-oranje-1.jpg",
+            "img/items/dit-is-de-summer-party-collect-mp8f2h0s.jpg"
           ]
         }
       ]
