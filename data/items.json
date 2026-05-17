@@ -1748,6 +1748,31 @@
           ]
         }
       ]
+    },
+    {
+      "id": "roze-hoedje",
+      "naam": "Licht roze hoedje🩷",
+      "categorie": "mutsen",
+      "prijs": 15,
+      "beschrijving": "Super leuk lichtroze hoedje! Past bij iedereen!",
+      "afmeting": "22",
+      "kleuren": [
+        "Lichtroze"
+      ],
+      "foto": "img/items/roze-hoedje-mp9rcfmf.jpg",
+      "varianten": [
+        {
+          "kleur": "lichtroze",
+          "fotos": [
+            "img/items/roze-hoedje-mp9rcfmf.jpg",
+            "img/items/roze-hoedje-mp9rcrx3.jpg"
+          ]
+        }
+      ],
+      "status": "beschikbaar",
+      "datumToegevoegd": "2026-05-17",
+      "uitgelicht": true,
+      "nieuw": true
     }
   ]
 }
