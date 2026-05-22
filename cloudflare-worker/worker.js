@@ -1002,6 +1002,11 @@ async function _callCloudflareAI({ prompt, photoBase64, env, maxTokens }) {
 
 // Hoofdwrapper — probeert providers in volgorde, retourneert resultaat + provider-naam.
 // Optioneel: validate(result) → false betekent "response onvolledig, probeer volgende provider".
+//
+// Fail-tolerant design: ELKE fout van een provider (404, 429, 500, network, parse,
+// validatie-mislukt) triggert fallback naar de volgende. Alleen "no_key"/"no_ai_binding"
+// betekent: provider niet geconfigureerd → stille skip zonder log-entry.
+// Pas als ALLE providers gefaald hebben, gooien we één samenvattende error.
 async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85, maxTokens = 1200, validate }) {
   const attempts = [];
   const args = { prompt, photoBase64, mediaType, env, temperature, maxTokens };
@@ -1012,36 +1017,37 @@ async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85,
       if (validate) {
         const ok = validate(result);
         if (!ok) {
-          attempts.push({ provider: name, error: 'validation_failed (onvolledige response)', isQuota: true });
+          attempts.push({ provider: name, error: 'response onvolledig' });
           return null;
         }
       }
       return { result, provider: name, providerLabel: label, attempts };
     } catch (e) {
-      attempts.push({ provider: name, error: e.message.slice(0, 120), isQuota: !!e.isQuota });
-      if (!e.isQuota && e.message !== 'no_key') {
-        // Echte fout (niet quota, niet no_key) — gooi terug zodat upstream weet wat aan de hand is
-        // BEHALVE: bij parsing-fail van AI ("onleesbaar antwoord", "afgekapt") — probeer volgende provider
-        if (!/onleesbaar|afgekapt|max_tokens|truncated|length/i.test(e.message)) {
-          throw e;
-        }
-      }
+      // No-key = provider niet geconfigureerd → stille skip, niet loggen
+      if (e && (e.message === 'no_key' || e.message === 'no_ai_binding')) return null;
+      // Alle overige errors (404, 429, 500, network, parse, etc.) → log en val door naar volgende
+      const msg = (e && e.message) ? e.message : String(e);
+      attempts.push({ provider: name, error: msg.slice(0, 160) });
       return null;
     }
   };
 
-  // 1. Gemini direct
+  // 1. Gemini direct (Pleuns gratis quota — primary)
   if (env.GEMINI_API_KEY) {
     const r = await tryProvider('gemini', '✨ Gemini', () => _callGemini(args));
     if (r) return r;
   }
 
-  // 2-4. OpenRouter — eerst gratis Gemini, dan gratis Llama Vision, dan betaald Gemini
+  // 2. OpenRouter — actuele modellen, prioriteit op vision-Gemini (zelfde kwaliteit als primary)
+  // Volgorde: 2 betaalde Gemini-varianten → gratis Llama Vision → goedkope GPT-4o-mini → Claude
   if (env.OPENROUTER_API_KEY) {
     const orModels = [
-      ['google/gemini-2.0-flash-exp:free',                  '🔄 Gemini 2.0 Flash (gratis)'],
-      ['meta-llama/llama-3.2-11b-vision-instruct:free',     '🔄 Llama 3.2 Vision (gratis)'],
-      ['google/gemini-2.5-flash',                           '🔄 Gemini 2.5 Flash (betaald)'],
+      ['google/gemini-2.5-flash',                           '✨ Gemini 2.5 Flash via OpenRouter'],
+      ['google/gemini-2.0-flash-001',                       '✨ Gemini 2.0 Flash via OpenRouter'],
+      ['google/gemini-flash-1.5',                           '✨ Gemini 1.5 Flash via OpenRouter'],
+      ['meta-llama/llama-3.2-11b-vision-instruct:free',     '🆓 Llama 3.2 Vision (gratis)'],
+      ['openai/gpt-4o-mini',                                '🟢 GPT-4o-mini via OpenRouter'],
+      ['anthropic/claude-3.5-sonnet',                       '🟠 Claude 3.5 Sonnet via OpenRouter'],
     ];
     for (const [model, label] of orModels) {
       const r = await tryProvider('openrouter:' + model, label, () => _callOpenRouter({ ...args, model }));
@@ -1049,13 +1055,15 @@ async function callAI({ prompt, photoBase64, mediaType, env, temperature = 0.85,
     }
   }
 
-  // 5. Cloudflare Workers AI — laatste redmiddel
+  // 3. Cloudflare Workers AI — laatste redmiddel (gratis 10k neurons/dag)
   if (env.AI) {
     const r = await tryProvider('cloudflare-llama-vision', '☁️ Cloudflare Llama Vision', () => _callCloudflareAI({ prompt, photoBase64, env, maxTokens }));
     if (r) return r;
   }
 
-  throw new Error('Alle AI-providers zijn op of gaven onvolledige antwoorden. Details: ' + JSON.stringify(attempts).slice(0, 500));
+  // Alle providers op — geef alle pogingen mee zodat admin precies kan zien wat er gebeurde
+  const summary = attempts.map(a => `${a.provider}: ${a.error}`).join(' | ');
+  throw new Error('Alle AI-backups gaven een fout. Probeer het later opnieuw of check je OpenRouter-balans. Details: ' + summary.slice(0, 600));
 }
 
 // Backward-compat: oude callGemini-aanroepen blijven werken, maar met fallback.
