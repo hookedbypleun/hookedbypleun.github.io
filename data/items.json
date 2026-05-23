@@ -1806,6 +1806,26 @@
       "datumToegevoegd": "2026-05-17",
       "uitgelicht": true,
       "nieuw": true
+    },
+    {
+      "id": "scrunchies-pastel-party-scrunchie",
+      "naam": "Pastel party scrunchie",
+      "categorie": "scrunchies",
+      "prijs": 5,
+      "beschrijving": "Ik heb 'm gehaakt met 2 soorten zacht garen door elkaar heen. Dat geeft ZO'N leuk effect! 💝 Hij is echt super leuk voor in je haar. ✨",
+      "kleuren": [
+        "geel",
+        "paars",
+        "roze"
+      ],
+      "altText": "Drie zachte scrunchies in pastelkleuren op een arm.",
+      "extraKaartje": "",
+      "afmeting": "12 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-23",
+      "foto": "img/items/scrunchies-pastel-party-scrunchie.jpg"
     }
   ]
 }
