@@ -1825,7 +1825,37 @@
       "voorraad": 1,
       "nieuw": true,
       "datumToegevoegd": "2026-05-23",
-      "foto": "img/items/scrunchies-pastel-party-scrunchie.jpg"
+      "foto": "img/items/scrunchies-pastel-party-scrunchie.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/scrunchies-pastel-party-scrunchie.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtroze met confetti",
+          "fotos": [
+            "img/items/scrunchies-pastel-party-scrunchie-mphzfuqs.jpg",
+            "img/items/scrunchies-pastel-party-scrunchie-mphzgfe6.jpg"
+          ]
+        },
+        {
+          "kleur": "lichtgeel met confetti",
+          "fotos": [
+            "img/items/scrunchies-pastel-party-scrunchie-mphzhbdw.jpg",
+            "img/items/scrunchies-pastel-party-scrunchie-mphzhhpi.jpg"
+          ]
+        },
+        {
+          "kleur": "lila met confetti",
+          "fotos": [
+            "img/items/scrunchies-pastel-party-scrunchie-mphzhz3j.jpg",
+            "img/items/scrunchies-pastel-party-scrunchie-mphzi6xp.jpg"
+          ]
+        }
+      ],
+      "uitgelicht": true
     }
   ]
 }
