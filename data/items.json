@@ -1875,6 +1875,24 @@
       "nieuw": true,
       "datumToegevoegd": "2026-05-27",
       "foto": "img/items/diertjes-grote-jellyfish.jpg"
+    },
+    {
+      "id": "tassen-pappoi-zakje",
+      "naam": "Pappoi Zakje",
+      "categorie": "tassen",
+      "prijs": 8,
+      "beschrijving": "Dit papoooi zakje is ZO zacht, echt om te knuffelen! Perfect voor kleine dingetjes of als cadeautje. Ik maakte 'm van chenille garen in een toffe kleur. ❤️",
+      "kleuren": [
+        "petrol",
+        "blauw"
+      ],
+      "altText": "Klein petrolkleurig gehaakt zakje van chenillegaren met trekkoordje dicht",
+      "extraKaartje": "Mijn katten vinden dit garen ook ZO lekker zacht!",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-29",
+      "foto": "img/items/tassen-pappoi-zakje.jpg"
     }
   ]
 }
