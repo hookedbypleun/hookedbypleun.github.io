@@ -1881,10 +1881,10 @@
             "img/items/diertjes-jellyfish.jpg",
             "img/items/diertjes-jellyfish-1.jpg",
             "img/items/diertjes-jellyfish-2.jpg"
-          ],
-          "voorraad": 1
+          ]
         }
-      ]
+      ],
+      "uitgelicht": true
     }
   ]
 }
