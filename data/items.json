@@ -1858,25 +1858,6 @@
       "uitgelicht": true
     },
     {
-      "id": "diertjes-grote-jellyfish",
-      "naam": "Grote Jellyfish",
-      "categorie": "diertjes",
-      "prijs": 20,
-      "beschrijving": "Wow! Deze jellyfish is heeeel groot! Met 8 tentakels, waarvan 3 kleintjes en 5 grote. 🐙",
-      "kleuren": [
-        "wit",
-        "paars"
-      ],
-      "altText": "Grote gehaakte jellyfish met wit en paars garen en grote zwarte ogen.",
-      "extraKaartje": "",
-      "afmeting": "35 cm hoog",
-      "status": "beschikbaar",
-      "voorraad": 1,
-      "nieuw": true,
-      "datumToegevoegd": "2026-05-27",
-      "foto": "img/items/diertjes-grote-jellyfish.jpg"
-    },
-    {
       "id": "diertjes-jellyfish",
       "naam": "Jellyfish",
       "categorie": "diertjes",
