@@ -1875,6 +1875,35 @@
       "nieuw": true,
       "datumToegevoegd": "2026-05-27",
       "foto": "img/items/diertjes-grote-jellyfish.jpg"
+    },
+    {
+      "id": "diertjes-jellyfish",
+      "naam": "Jellyfish",
+      "categorie": "diertjes",
+      "prijs": 20,
+      "beschrijving": "Deze vrolijke Jellyfish is zacht en heel groot! Hij is gemaakt met wit en paarse garen!💜🤍",
+      "kleuren": [
+        "wit met paars"
+      ],
+      "altText": "Gehaakte witte Jellyfish met paarse vlekjes, tegen groene achtergrond.",
+      "extraKaartje": "",
+      "afmeting": "35 cm hoog",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-05-30",
+      "foto": "img/items/diertjes-jellyfish.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/diertjes-jellyfish.jpg",
+            "img/items/diertjes-jellyfish-1.jpg",
+            "img/items/diertjes-jellyfish-2.jpg"
+          ],
+          "voorraad": 1
+        }
+      ]
     }
   ]
 }
