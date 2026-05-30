@@ -1,4 +1,4 @@
-// Hooked by Pleun — privacy-first event tracker (sinds v3.5.9)
+// Hooked by Pleun — privacy-first event tracker (sinds v3.6.0)
 // Stuurt anonieme events naar Worker /track. Geen cookies, geen IP-opslag,
 // geen UA-strings — alleen mobile/desktop classificatie.
 //

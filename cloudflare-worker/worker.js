@@ -502,6 +502,36 @@ export default {
         });
       }
 
+      // === /stats/popular GET — publieke top-N populairste items (uit D1 product_view) ===
+      // Wordt gebruikt door homepage om "populair" mix te bepalen. Anoniem, lichte rate-limit.
+      // Cache 5 min op de Worker-edge zodat de homepage snel laadt.
+      if (url.pathname === '/stats/popular' && request.method === 'GET') {
+        const popCors = { ...cors, 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=300' };
+        if (!checkRateLimit(clientIp, 'popular', 30, 60 * 1000)) {
+          return jsonResponse({ ok: false, error: 'rate_limit', popular: [] }, 429, popCors);
+        }
+        const days = Math.min(90, Math.max(1, parseInt(url.searchParams.get('days')) || 30));
+        const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get('limit')) || 10));
+        if (!env.DB) return jsonResponse({ popular: [], reason: 'no_d1' }, 200, popCors);
+        try {
+          const sinceDate = new Date(Date.now() - days * 86400 * 1000).toISOString().slice(0, 10);
+          const result = await env.DB.prepare(
+            `SELECT product_id, COUNT(*) AS views
+             FROM events
+             WHERE day >= ? AND type = 'product_view'
+               AND product_id IS NOT NULL AND product_id != ''
+               AND (is_bot = 0 OR is_bot IS NULL)
+             GROUP BY product_id
+             ORDER BY views DESC
+             LIMIT ?`
+          ).bind(sinceDate, limit).all();
+          const popular = (result.results || []).map(r => ({ productId: r.product_id, views: r.views }));
+          return jsonResponse({ popular, days, limit }, 200, popCors);
+        } catch (e) {
+          return jsonResponse({ popular: [], error: e.message?.slice(0, 100) || 'db_err' }, 200, popCors);
+        }
+      }
+
       // === /review POST — publieke review-inzending (GEEN auth, MET rate limit) ===
       if (url.pathname === '/review' && request.method === 'POST') {
         // Max 3 reviews per 10 minuten per IP — voorkomt spam

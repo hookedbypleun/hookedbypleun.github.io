@@ -98,7 +98,69 @@
       </a>`;
   }
 
-  // ===== Home =====
+  // ===== Home — slimme mix (uitgelicht + nieuwste + populair) =====
+  // Deterministische dagelijkse rotatie: elke dag andere selectie, binnen 1 dag consistent
+  // voor alle bezoekers. Geen verwarring bij delen van URL's.
+  function _dailySeed() {
+    const d = new Date();
+    return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+  }
+  function _seededRandom(seed) {
+    let s = seed >>> 0;
+    return () => {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Weighted shuffle: hogere weight = grotere kans bovenaan. Deterministisch via seed.
+  function _weightedShuffle(arr, weightFn, rng) {
+    return arr
+      .map(item => ({ item, key: -Math.log(rng() + 1e-12) / Math.max(0.0001, weightFn(item)) }))
+      .sort((a, b) => a.key - b.key)
+      .map(x => x.item);
+  }
+
+  // Selecteer `count` items voor de homepage hero met gewogen mix
+  function pickHomeHero(items, count, popularIds) {
+    const beschikbaar = items.filter(i =>
+      i.status !== 'uitverkocht' &&
+      i.status !== 'archief' &&
+      i.status !== 'binnenkort'
+    );
+    if (!beschikbaar.length) return [];
+
+    const now = Date.now();
+    const popularSet = new Set((popularIds || []).slice(0, 10));
+    const popularRank = new Map((popularIds || []).map((id, idx) => [id, idx]));
+
+    const weight = (item) => {
+      let w = 1;
+      // Pleun's bewuste keuze telt 3x
+      if (item.uitgelicht) w += 3;
+      // Items toegevoegd in laatste 7 dagen — verse content, sterk verhoogd
+      if (item.datumToegevoegd) {
+        const age = (now - new Date(item.datumToegevoegd).getTime()) / 86400000;
+        if (age < 7) w += 3;
+        else if (age < 21) w += 1.5;
+      }
+      // Populair (uit D1 product_view) — top-3 krijgen extra weging
+      if (popularSet.has(item.id)) {
+        const rank = popularRank.get(item.id);
+        w += rank < 3 ? 2 : 1;
+      }
+      // Showcase/op-maat items: lichte demping (geen impulsaankoop)
+      if (item.status === 'showcase' || item.opMaat) w *= 0.6;
+      return w;
+    };
+
+    const rng = _seededRandom(_dailySeed());
+    const shuffled = _weightedShuffle(beschikbaar, weight, rng);
+    return shuffled.slice(0, count);
+  }
+
   async function renderHome() {
     const grid = document.getElementById('home-uitgelicht');
     if (!grid) return;
@@ -110,15 +172,31 @@
         if (el && cfg && typeof cfg.volgers === 'number') el.textContent = cfg.volgers;
       })
       .catch(() => {});
+
     const data = await loadData();
-    const uitgelicht = data.items.filter(i => i.uitgelicht && i.status !== 'uitverkocht' && i.status !== 'archief').slice(0, 4);
-    grid.innerHTML = uitgelicht.map(kaartHTML).join('') ||
+
+    // Probeer populariteit op te halen (uit D1 product_view stats) — best-effort
+    let popularIds = [];
+    try {
+      const workerUrl = (window.CFG && window.CFG.workerUrl) || 'https://crochet-by-pleun.thegaveryahoo.workers.dev';
+      const popRes = await fetch(`${workerUrl}/stats/popular?days=30&limit=10`);
+      if (popRes.ok) {
+        const popData = await popRes.json();
+        popularIds = (popData.popular || []).map(p => p.productId).filter(Boolean);
+      }
+    } catch { /* geen populariteit beschikbaar — fallback op uitgelicht+nieuwste */ }
+
+    // Hero: slimme mix van 4 items (uitgelicht + nieuwste + populair, dagelijks geroteerd)
+    const heroItems = pickHomeHero(data.items, 4, popularIds);
+    grid.innerHTML = heroItems.map(kaartHTML).join('') ||
       '<p class="leeg">Nog geen items 🧶</p>';
 
+    // Nieuw-sectie: 6 ECHT nieuwste items, dedupliceerd van de hero
     const nieuwGrid = document.getElementById('home-nieuw');
     if (nieuwGrid) {
+      const heroIds = new Set(heroItems.map(i => i.id));
       const sorted = [...data.items]
-        .filter(i => i.status === 'beschikbaar')
+        .filter(i => i.status === 'beschikbaar' && !heroIds.has(i.id))
         .sort((a, b) => (b.datumToegevoegd || '').localeCompare(a.datumToegevoegd || ''))
         .slice(0, 6);
       nieuwGrid.innerHTML = sorted.map(kaartHTML).join('');
@@ -797,4 +875,4 @@ Lokaal afhalen of versturen?`;
   });
 })();
 
-// Nav-meer dropdown verwijderd in v3.5.9 — Eerder gemaakt is nu directe tab.
+// Nav-meer dropdown verwijderd in v3.6.0 — Eerder gemaakt is nu directe tab.
