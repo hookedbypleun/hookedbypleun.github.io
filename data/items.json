@@ -1909,10 +1909,10 @@
           "fotos": [
             "img/items/diertjes-konijntje.jpg",
             "img/items/diertjes-konijntje-1.jpg"
-          ],
-          "voorraad": 1
+          ]
         }
-      ]
+      ],
+      "uitgelicht": true
     }
   ]
 }
