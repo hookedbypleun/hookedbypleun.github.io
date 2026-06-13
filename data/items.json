@@ -1885,6 +1885,34 @@
         }
       ],
       "uitgelicht": true
+    },
+    {
+      "id": "diertjes-konijntje",
+      "naam": "Konijntje",
+      "categorie": "diertjes",
+      "prijs": 21,
+      "beschrijving": "Dit is een super schattig konijntje! Hij heeft een mutsje en een tuinpakje aan, zo schattig!",
+      "kleuren": [
+        "paars met wit"
+      ],
+      "altText": "Gehaakt konijntje met wit lijfje, paars mutsje en tuinpakje. Ziet er zacht uit.",
+      "extraKaartje": "",
+      "afmeting": "12 cm hoog, 6 cm breed",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-06-13",
+      "foto": "img/items/diertjes-konijntje.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/diertjes-konijntje.jpg",
+            "img/items/diertjes-konijntje-1.jpg"
+          ],
+          "voorraad": 1
+        }
+      ]
     }
   ]
 }
