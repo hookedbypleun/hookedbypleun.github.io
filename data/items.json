@@ -1913,6 +1913,34 @@
         }
       ],
       "uitgelicht": true
+    },
+    {
+      "id": "sleutelhangers-lief-kikker-sleutelhanger",
+      "naam": "Lief Kikker Sleutelhanger",
+      "categorie": "sleutelhangers",
+      "prijs": 5.5,
+      "beschrijving": "Dit is een super schattige kikkertjes sleutelhanger! Super leuk voor aan je tas!❤️",
+      "kleuren": [
+        "lichtgroen"
+      ],
+      "altText": "Hand houdt een lichtgroen gehaakt kikkertje vast met een blauwe lucht.",
+      "extraKaartje": "Elk kikkertje krijgt een handgeschreven labeltje mee! 💝",
+      "afmeting": "5,5 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-06-14",
+      "foto": "img/items/sleutelhangers-lief-kikker-sleutelhanger.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/sleutelhangers-lief-kikker-sleutelhanger.jpg",
+            "img/items/sleutelhangers-lief-kikker-sleutelhanger-1.jpg"
+          ],
+          "voorraad": 1
+        }
+      ]
     }
   ]
 }
