@@ -1916,7 +1916,7 @@
     },
     {
       "id": "sleutelhangers-lief-kikker-sleutelhanger",
-      "naam": "Lief Kikker Sleutelhanger",
+      "naam": "Kikker Sleutelhanger",
       "categorie": "sleutelhangers",
       "prijs": 5.5,
       "beschrijving": "Dit is een super schattige kikkertjes sleutelhanger! Super leuk voor aan je tas!❤️",
@@ -1937,10 +1937,10 @@
           "fotos": [
             "img/items/sleutelhangers-lief-kikker-sleutelhanger.jpg",
             "img/items/sleutelhangers-lief-kikker-sleutelhanger-1.jpg"
-          ],
-          "voorraad": 1
+          ]
         }
-      ]
+      ],
+      "uitgelicht": true
     }
   ]
 }
