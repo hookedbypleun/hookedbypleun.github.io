@@ -1575,56 +1575,6 @@
       ]
     },
     {
-      "id": "megablobs-in-3-verschillenden",
-      "naam": "Megablobs (3 kleurthema's)",
-      "categorie": "blobs",
-      "prijs": 5.25,
-      "beschrijving": "Megablobs in 3 kleurthema's 🧶 Superzacht en relaxing — lichtgroen-lichtblauw-wit, oranje-geel-donkergeel, of peach-roze-paars. Lekker om mee te zeulen.",
-      "kleuren": [
-        "lichtgroen, lichtblauw, wit",
-        "oranje, geel en donkergeel",
-        "peach, roze en paars"
-      ],
-      "altText": "Handgehaakt: megablobs (3 kleurthema's)",
-      "afmeting": "9cm",
-      "status": "beschikbaar",
-      "voorraad": 1,
-      "nieuw": true,
-      "uitgelicht": false,
-      "datumToegevoegd": "2026-05-09",
-      "foto": "img/items/megablobs-in-3-verschillenden-v1-1.jpg",
-      "varianten": [
-        {
-          "kleur": "",
-          "voorraad": 1,
-          "fotos": [
-            "img/items/megablobs-in-3-verschillenden-v1-1.jpg"
-          ]
-        },
-        {
-          "kleur": "lichtgroen, lichtblauw, wit",
-          "voorraad": 1,
-          "fotos": [
-            "img/items/megablobs-in-3-verschillenden-lichtgroen,-lichtblauw,-wit-1.jpg"
-          ]
-        },
-        {
-          "kleur": "oranje, geel en donkergeel",
-          "voorraad": 1,
-          "fotos": [
-            "img/items/megablobs-in-3-verschillenden-oranje,-geel-en-donkergeel-1.jpg"
-          ]
-        },
-        {
-          "kleur": "peach, roze en paars",
-          "voorraad": 1,
-          "fotos": [
-            "img/items/megablobs-in-3-verschillenden-peach,-roze-en-paars-1.jpg"
-          ]
-        }
-      ]
-    },
-    {
       "id": "mini-blob-sleutelhanger-in-3",
       "naam": "Mini blob sleutelhanger",
       "categorie": "sleutelhangers",
