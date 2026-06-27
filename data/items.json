@@ -1891,6 +1891,36 @@
         }
       ],
       "uitgelicht": true
+    },
+    {
+      "id": "blobs-lila-blobje",
+      "naam": "Lila blobje",
+      "categorie": "blobs",
+      "prijs": 4.25,
+      "beschrijving": "Dit is een super zachte, lila met witte blob squishy! ",
+      "kleuren": [
+        "wit",
+        "lila"
+      ],
+      "altText": "Klein gehaakt blobje in wit en lila met zwarte oogjes, vastgehouden in een hand.",
+      "extraKaartje": "",
+      "afmeting": "6 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-06-27",
+      "foto": "img/items/blobs-lila-blobje.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/blobs-lila-blobje.jpg",
+            "img/items/blobs-lila-blobje-1.jpg",
+            "img/items/blobs-lila-blobje-2.jpg"
+          ],
+          "voorraad": 1
+        }
+      ]
     }
   ]
 }
