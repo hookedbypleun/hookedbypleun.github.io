@@ -1897,7 +1897,7 @@
       "naam": "Lila blobje",
       "categorie": "blobs",
       "prijs": 4.25,
-      "beschrijving": "Dit is een super zachte, lila met witte blob squishy! ",
+      "beschrijving": "Dit is een super zachte, lila met witte blob squishy!",
       "kleuren": [
         "wit",
         "lila"
@@ -1917,10 +1917,10 @@
             "img/items/blobs-lila-blobje.jpg",
             "img/items/blobs-lila-blobje-1.jpg",
             "img/items/blobs-lila-blobje-2.jpg"
-          ],
-          "voorraad": 1
+          ]
         }
-      ]
+      ],
+      "uitgelicht": true
     }
   ]
 }
