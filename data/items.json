@@ -1921,6 +1921,34 @@
         }
       ],
       "uitgelicht": true
+    },
+    {
+      "id": "tassen-trektasje",
+      "naam": "Trektasje",
+      "categorie": "tassen",
+      "prijs": 18,
+      "beschrijving": "Dit leuke trektasje ik super leuk en schattig, je kunt aam de touwtjes trekken om heb dicht te maken en je kunt er een leuke grote strik van maken!🎀",
+      "kleuren": [
+        "beige"
+      ],
+      "altText": "Schattig gehaakt trektasje in beige",
+      "extraKaartje": "Handgemaakt met liefde en plezier! ❤️",
+      "afmeting": "20 - 16 cm",
+      "status": "beschikbaar",
+      "voorraad": 1,
+      "nieuw": true,
+      "datumToegevoegd": "2026-07-29",
+      "foto": "img/items/tassen-trektasje.jpg",
+      "varianten": [
+        {
+          "kleur": "",
+          "fotos": [
+            "img/items/tassen-trektasje.jpg",
+            "img/items/tassen-trektasje-1.jpg"
+          ],
+          "voorraad": 1
+        }
+      ]
     }
   ]
 }
