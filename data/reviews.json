@@ -47,6 +47,18 @@
       "status": "approved",
       "cadeau": false,
       "uitgelicht": true
+    },
+    {
+      "id": "2884ac82-e26b-4dec-9ce9-470779984373",
+      "productId": "",
+      "productNaam": "",
+      "naam": "Lauren",
+      "tekst": "Super leuke knuffels",
+      "rating": 5,
+      "datum": "2026-10-25",
+      "status": "pending",
+      "cadeau": false,
+      "uitgelicht": false
     }
   ]
 }
