@@ -4,6 +4,13 @@ Versies vanaf v3.0.22 (de bulk-import lancering). Elke versie = één deploy. We
 
 ---
 
+## v3.6.2 — 2026-11-24 — teksten en rust
+- "Nieuw 🌸" staat alleen nog de eerste 30 dagen na toevoegen op een item; homepage-kop heet nu "Laatst toegevoegd"
+- Privacytekst klopt weer: geen cookies, anonieme bezoekersstatistiek (footer, Over mij, README)
+- Leeftijd van Pleun weggehaald uit de teksten
+- Nieuwe bezoekers krijgen geen extra herlaadbeurt meer bij de allereerste installatie van de service worker
+- `SECURITY.md` neutraal gemaakt; werklijsten worden privé bijgehouden
+
 ## v3.6.1 — 2026-11-24 — onderhoud
 - Admin: reviewlijst toont naam, product en tekst altijd als platte tekst (+ test `tools/tests/admin-reviews.test.js`)
 - `tools/bump-version.js`: versie in één keer op alle plekken (`?v=`, footer, config.js, sw.js, version.json) + `--check`
@@ -64,10 +71,7 @@ Versies vanaf v3.0.22 (de bulk-import lancering). Elke versie = één deploy. We
 - 🎯 Features-row gecentreerd op desktop
 - 📄 CHANGELOG.md + grondige vault-export voor langetermijn-doc
 
-### Production-blockers (zie `SECURITY.md`)
-1. Rate-limit naar Cloudflare KV migreren (nu in-memory per isolate)
-2. Fine-grained GitHub PAT (nu volle "Contents: write")
-3. Reviews GDPR-toestemmingsflow (klantnamen in publieke repo)
+Openstaande verbeterpunten worden privé bijgehouden (zie `SECURITY.md`).
 
 ---
 
@@ -106,7 +110,7 @@ Versies vanaf v3.0.22 (de bulk-import lancering). Elke versie = één deploy. We
 ## v3.0.36 — 2026-05-09
 - Tweak-modal CSS-fix (display:flex overschreef hidden-attr)
 - Verhaal-foto onerror fallback op homepage
-- SECURITY.md met production-blockers
+- SECURITY.md toegevoegd
 
 ## v3.0.35 — 2026-05-09 — Worker security
 - Timing-safe password compare (`timingSafeEqual`)

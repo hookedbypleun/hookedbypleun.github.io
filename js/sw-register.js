@@ -91,7 +91,11 @@
 
   // Nieuwe controller = update al toegepast → auto-reload
   // Uitzondering: niet herladen als iemand midden in een checkout zit
+  // Eerste installatie (v3.6.2): had de pagina nog géén SW, dan komt ze al vers van
+  // het netwerk en is herladen zinloos — de eerste overname dus overslaan.
+  let hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) { hadController = true; return; }
     const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
     const inCheckout = document.getElementById('cart-overlay')?.classList.contains('open') && cartItems.length > 0;
     if (!inCheckout) window.location.reload();

@@ -19,6 +19,16 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // "Nieuw 🌸" alleen de eerste 30 dagen na toevoegen (v3.6.2) — daarna vanzelf weg,
+  // ook als het vinkje in de admin nog aan staat.
+  const NIEUW_DAGEN = 30;
+  function isNieuw(item) {
+    if (!item.nieuw || !item.datumToegevoegd) return false;
+    const t = new Date(item.datumToegevoegd).getTime();
+    if (isNaN(t)) return false;
+    return (Date.now() - t) / 86400000 < NIEUW_DAGEN;
+  }
+
   function tagHTML(item) {
     const tags = [];
     if (item.status === 'uitverkocht') tags.push('<span class="tag uitverkocht">Verkocht 💕</span>');
@@ -26,7 +36,7 @@
     else if (item.status === 'binnenkort') tags.push('<span class="tag binnenkort">Binnenkort ✨</span>');
     else if (item.status === 'showcase') tags.push('<span class="tag showcase">Op maat</span>');
     else if (item.afgeprijsd) tags.push('<span class="tag afgeprijsd">Sale!</span>');
-    else if (item.nieuw) tags.push('<span class="tag nieuw">Nieuw 🌸</span>');
+    else if (isNieuw(item)) tags.push('<span class="tag nieuw">Nieuw 🌸</span>');
     if (item.uitgelicht && item.status !== 'uitverkocht' && item.status !== 'archief') tags.push('<span class="tag uitgelicht">Favoriet</span>');
     if (item.eigenPatroon) tags.push('<span class="tag eigen">⭐ Eigen ontwerp</span>');
     return tags.join('');

@@ -2,7 +2,7 @@
 
 > *Made small. Made with love.*
 
-Handgehaakte items van Pleun (12) — webshop op GitHub Pages, gratis hosting, bestelling via WhatsApp.
+Handgehaakte items van Pleun — webshop op GitHub Pages, gratis hosting, bestelling via WhatsApp.
 
 ## 🚀 Snelstart (live krijgen)
 
@@ -88,7 +88,7 @@ Wijzig daar 1 regel → verandert overal op de site.
 
 - Pleun's nummer staat nu in `js/config.js`. Dit is publiek zichtbaar zodra de site live is — dat is per ontwerp (klanten moeten kunnen bestellen).
 - Bij groei: vervang door ouder-nummer of email-formulier (Web3Forms / Formspree).
-- Geen tracking, geen cookies, geen analytics.
+- Geen cookies, anonieme bezoekersstatistiek (zie `js/tracker.js`).
 
 ## 📦 Verzending
 
@@ -117,17 +117,7 @@ Wijzig daar 1 regel → verandert overal op de site.
 
 ## 📋 Roadmap
 
-- [x] Site-architectuur + designsysteem
-- [x] Items.json met echte catalogus uit Haak-shop kanaal
-- [x] WhatsApp bestel-flow (single + verzameldoos)
-- [x] Pleun Express postcode-check
-- [x] Admin paneel
-- [x] GitHub Pages auto-deploy workflow
-- [ ] **Eerste push naar GitHub** (jij doet dit eenmalig)
-- [ ] Vervang screenshot-foto's door schone productfoto's
-- [ ] Social handles reserveren `@crochetbypleun` op IG/TikTok/Pinterest
-- [ ] Pinterest Pin-templates per item
-- [ ] Email-formulier als 2e bestelkanaal
+Wordt privé bijgehouden. Wijzigingen per versie: zie `CHANGELOG.md`.
 
 ---
 
