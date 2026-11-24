@@ -3,8 +3,8 @@
 
 window.SHOP_CONFIG = {
   // === Versie ===
-  version: '3.6.0',
-  versionDate: '2026-05-09',
+  version: '3.6.1',
+  versionDate: '2026-11-24',
 
   // === Cloudflare Worker (admin AI-publicatie) ===
   // Vul deze in nadat je de Worker hebt gedeployed (zie cloudflare-worker/README.md).

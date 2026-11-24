@@ -178,7 +178,7 @@
     // Probeer populariteit op te halen (uit D1 product_view stats) — best-effort
     let popularIds = [];
     try {
-      const workerUrl = (window.CFG && window.CFG.workerUrl) || 'https://crochet-by-pleun.thegaveryahoo.workers.dev';
+      const workerUrl = (window.SHOP_CONFIG && window.SHOP_CONFIG.workerUrl) || 'https://crochet-by-pleun.thegaveryahoo.workers.dev';
       const popRes = await fetch(`${workerUrl}/stats/popular?days=30&limit=10`);
       if (popRes.ok) {
         const popData = await popRes.json();
@@ -279,6 +279,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        try { window.Track?.review?.(); } catch {}
         showStatus('Bedankt! Pleun keurt je review zo snel mogelijk goed 🎀');
         shopVerstuur.textContent = '✅ Verstuurd!';
         if (tekstEl) tekstEl.value = '';
@@ -794,6 +795,7 @@ Lokaal afhalen of versturen?`;
             body: JSON.stringify({ productId, productNaam, naam, tekst, rating: rvRating }),
           });
           if (!res.ok) throw new Error('Server error');
+          try { window.Track?.review?.(); } catch {}
           if (status) { status.textContent = '💝 Dankjewel! Pleun leest hem snel.'; status.style.display = ''; }
           verstuurBtn.textContent = '✅ Verstuurd!';
           document.getElementById('rv-tekst').value = '';

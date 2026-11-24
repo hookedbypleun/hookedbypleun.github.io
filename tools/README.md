@@ -81,3 +81,18 @@ python --version
 ```
 
 Geen Python? Installeer via Microsoft Store ("Python 3.12") of https://python.org/downloads/. Geen extra packages nodig — script gebruikt alleen standard library.
+
+## `bump-version.js` — versie overal tegelijk
+
+Nooit met de hand bumpen: `sw-register.js` vergelijkt `js/config.js` met `data/version.json`.
+
+```powershell
+node tools\bump-version.js --check   # alles gelijk? (exit 1 als niet)
+node tools\bump-version.js 3.6.2     # zet ?v=, footer, config.js, sw.js, version.json
+```
+
+## Tests
+
+```powershell
+node tools\tests\admin-reviews.test.js
+```

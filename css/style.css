@@ -512,7 +512,8 @@ section.section {
   box-shadow: var(--shadow-soft);
 }
 @media (min-width: 720px) {
-  .verhaal-blok { grid-template-columns: 1fr 1.2fr; align-items: center; }
+  /* 2 kolommen alleen als er een foto in het blok staat (v3.6.1) */
+  .verhaal-blok:has(.verhaal-foto) { grid-template-columns: 1fr 1.2fr; align-items: center; }
 }
 .verhaal-foto {
   position: relative;

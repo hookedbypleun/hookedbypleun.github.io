@@ -27,6 +27,18 @@
       const cartItems = JSON.parse(localStorage.getItem('pleun_cart_v2') || '[]');
       const inCheckout = document.getElementById('cart-overlay')?.classList.contains('open') && cartItems.length > 0;
       if (inCheckout) return;
+      // Reload-guard (v3.6.1): hooguit één hard reset per serverversie per 10 min.
+      // Als na de reload de versie nog steeds niet klopt (bv. vergeten config.js-bump
+      // of CDN nog niet ververst), dan NIET opnieuw herladen — anders reload-lus.
+      const GUARD_KEY = 'pleun_versie_reload';
+      try {
+        const last = JSON.parse(sessionStorage.getItem(GUARD_KEY) || 'null');
+        if (last && last.to === v.version && Date.now() - last.ts < 10 * 60 * 1000) {
+          console.warn('[versie] server ' + v.version + ' ≠ pagina ' + APP_VERSION + ' — al herladen, geen tweede reload');
+          return;
+        }
+        sessionStorage.setItem(GUARD_KEY, JSON.stringify({ to: v.version, ts: Date.now() }));
+      } catch { return; } // geen sessionStorage = geen guard mogelijk = niet herladen
       // Hard reset: wis caches + unregister SW + reload
       try {
         const names = await caches.keys();

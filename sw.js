@@ -1,7 +1,7 @@
 // Crochet by Pleun — Service Worker
 // Versie wordt automatisch bijgewerkt bij nieuwe deploy.
 
-const CACHE_VERSION = '3.6.0';
+const CACHE_VERSION = '3.6.1';
 const CACHE_NAME = `crochet-v${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -13,8 +13,6 @@ const PRECACHE = [
   '/over.html',
   '/bestellen.html',
   '/reviews.html',
-  '/admin/',
-  '/admin/index.html',
   '/css/style.css',
   '/js/config.js',
   '/js/app.js',

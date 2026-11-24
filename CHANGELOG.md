@@ -4,6 +4,47 @@ Versies vanaf v3.0.22 (de bulk-import lancering). Elke versie = één deploy. We
 
 ---
 
+## v3.6.1 — 2026-11-24 — onderhoud
+- Admin: reviewlijst toont naam, product en tekst altijd als platte tekst (+ test `tools/tests/admin-reviews.test.js`)
+- `tools/bump-version.js`: versie in één keer op alle plekken (`?v=`, footer, config.js, sw.js, version.json) + `--check`
+- Versiecheck (`sw-register.js`): hooguit één automatische herlaadbeurt per nieuwe versie — geen herlaad-lus meer als iets niet gelijk staat
+- Reviews tellen weer mee in de statistieken (`review_submit` werd nooit verstuurd)
+- Service worker laadt de admin niet meer vooraf voor elke bezoeker (scheelt ~245 KB); admin werkt gewoon, wordt gecachet bij bezoek
+- Homepage: dode foto in "Hoe het begon" weg; blok gebruikt nu de volle breedte op desktop
+- Kleine robuustheid: stats-explorer struikelt niet meer over een kapot product-adres; homepage gebruikt `SHOP_CONFIG` voor de worker-URL
+- `data/version.json` heeft weer een kloppende `updatedAt`
+
+## v3.6.0 — 2026-05-30
+- Homepage: slimme mix van uitgelicht + nieuwste + populair (populair uit D1 `product_view`)
+
+## v3.5.9 — 2026-05-22
+- AI-fallback fail-tolerant + actuele modellen
+
+## v3.5.7 – v3.5.8 — 2026-05-16
+- AI-fallback-keten Gemini → OpenRouter → Cloudflare AI; onvolledige antwoorden worden overgeslagen
+
+## v3.5.0 – v3.5.6 — 2026-05-11
+- Statistieken naar Cloudflare D1 + self-check cron
+- Bezoekers-explorer: NL-tijd, sessies, filteren, rustiger en menselijker (op Pleuns feedback), pagina-context op alle events
+- Server-side beacon (`/px.gif`) + bot-detectie
+- Eenmalige import van oude KV-stats naar D1
+
+## v3.4.0 – v3.4.8 — 2026-05-10/11
+- Admin-redesign: hero + tabs (Items, Reviews, Stats, Site)
+- Nieuwe pagina `reviews.html`; review-sortering + "Favoriet van Pleun"-badge
+- Navigatie en footer-links opgeschoond
+- Live feed + historie terug aan met KV-fallback
+
+## v3.3.0 – v3.3.1 — 2026-05-10
+- Homepage toont alleen uitgelichte reviews; admin UX quick-fixes
+
+## v3.2.0 – v3.2.9 — 2026-05-10
+- Privacy-first statistieken (`js/tracker.js`, KV), event-historie met filters + CSV-export
+- Duidelijke kleurkeuze-popup; lokale postcode = gratis Pleun Express (robuuste postcodedetectie)
+- Force-update via `data/version.json`
+
+---
+
 ## v3.1.0 — 2026-05-09 — **Launch-ready**
 
 🎉 Eerste publieke release. Alles wat in v3.0.x is opgebouwd is verzameld in één stabiele snapshot.
