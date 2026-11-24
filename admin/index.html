@@ -4360,14 +4360,15 @@
         }
         container.innerHTML = reviews.map(r => {
           const sterren = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+          const esc = escapeHtmlAdmin;
           return `
-          <div class="rv-admin-kaart ${r.status}" id="rv-${r.id}">
+          <div class="rv-admin-kaart ${esc(r.status)}" id="rv-${esc(r.id)}">
             <div class="rv-admin-meta">
-              <strong>${r.naam || 'Anoniem'}</strong> · ${sterren} · ${r.datum || ''}
-              · <a href="../product.html?id=${encodeURIComponent(r.productId)}" target="_blank">${r.productNaam || r.productId}</a>
-              · <em style="text-transform:uppercase;font-size:0.78rem">${r.status}</em>
+              <strong>${esc(r.naam || 'Anoniem')}</strong> · ${sterren} · ${esc(r.datum || '')}
+              · <a href="../product.html?id=${encodeURIComponent(r.productId)}" target="_blank">${esc(r.productNaam || r.productId)}</a>
+              · <em style="text-transform:uppercase;font-size:0.78rem">${esc(r.status)}</em>
             </div>
-            <p class="rv-admin-tekst">"${r.tekst}"</p>
+            <p class="rv-admin-tekst">"${esc(r.tekst)}"</p>
             <div class="rv-admin-actions">
               ${r.status !== 'approved' ? `<button class="btn-approve" onclick="modereerReview('${r.id}','approve')">✅ Goedkeuren</button>` : ''}
               ${r.status !== 'rejected' ? `<button class="btn-reject"  onclick="modereerReview('${r.id}','reject')">🗑 Afwijzen</button>` : ''}
@@ -4377,7 +4378,7 @@
           </div>`;
         }).join('');
       } catch (e) {
-        container.innerHTML = `<p style="color:var(--c-muted)">Reviews laden mislukt: ${e.message}</p>`;
+        container.innerHTML = `<p style="color:var(--c-muted)">Reviews laden mislukt: ${escapeHtmlAdmin(e.message)}</p>`;
       }
     }
 
